@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC4 - Gestão de Estoques</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-light">
+
+    <div class="mobile-header d-md-none">
+        <button class="btn-toggle" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <span class="ms-3 text-white fw-bold">MC4 STOCK</span>
+    </div>
+
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h4 class="fw-bold mb-0"><i class="fas fa-boxes-stacked"></i> MC4 STOCK</h4>
+        </div>
+
+        <div class="nav-sidebar">
+            <a href="index.html"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="consulta.html"><i class="fas fa-search"></i> Inventário</a>
+            <a href="movimentacoes.html"><i class="fas fa-exchange-alt"></i> Movimentar</a>
+            <a href="relatorios.html"><i class="fas fa-file-invoice"></i> Relatórios</a>
+            <hr class="mx-3 opacity-25">
+            <a href="itens.html"><i class="fas fa-microchip"></i> Itens</a>
+            <a href="estoques.html" class="active"><i class="fas fa-warehouse"></i> Estoques</a>
+            <a href="#" onclick="logout()" class="text-warning mt-5"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </nav>
+
+    <div id="content">
+        <div class="container-fluid">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Locais de Armazenamento</h2>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 text fw-bold text"><i class="fas fa-plus-location me-2"></i>Cadastrar Novo Local</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form id="form-estoque">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted uppercase">NOME DO LOCAL / VEÍCULO</label>
+                                <input type="text" id="estoque-nome" class="form-control" placeholder="Ex: Van Técnica 02 ou Regional SP" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted uppercase">TIPO DE ESTOQUE</label>
+                                <select id="estoque-tipo" class="form-select">
+                                    <option value="Regional">Regional (Fixo)</option>
+                                    <option value="Temporario">Temporário / Veículo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-bold text-muted uppercase">RESPONSÁVEL</label>
+                                <input type="text" id="estoque-responsavel" class="form-control" placeholder="Nome do encarregado" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-bold text-muted uppercase">WHATSAPP / CONTATO</label>
+                                <input type="text" id="estoque-contato" class="form-control" placeholder="(11) 99999-9999" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-bold text-muted uppercase">ENDEREÇO / PLACA</label>
+                                <input type="text" id="estoque-endereco" class="form-control" placeholder="Rua ou Placa do Veículo">
+                            </div>
+                        </div>
+                        <div class="text-end pt-2">
+                            <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                <i class="fas fa-save me-2"></i>Salvar Local
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-warehouse me-2"></i>Locais Ativos</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nome</th>
+                                <th>Tipo</th>
+                                <th>Responsável</th>
+                                <th>Contato</th>
+                                <th>Localização / Placa</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-estoques">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Menu Mobile
+        document.getElementById('mobileMenuBtn')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+    </script>
+
+    <script src="js/database.js"></script>
+    <script src="js/estoques.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

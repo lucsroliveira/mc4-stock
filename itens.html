@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC4 - Cadastro de Itens</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-light">
+
+    <div class="mobile-header d-md-none">
+        <button class="btn-toggle" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <span class="ms-3 text-white fw-bold">MC4 STOCK</span>
+    </div>
+
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h4 class="fw-bold mb-0"><i class="fas fa-boxes-stacked"></i> MC4 STOCK</h4>
+        </div>
+
+        <div class="nav-sidebar">
+            <a href="index.html"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="consulta.html"><i class="fas fa-search"></i> Inventário</a>
+            <a href="movimentacoes.html"><i class="fas fa-exchange-alt"></i> Movimentar</a>
+            <a href="relatorios.html"><i class="fas fa-file-invoice"></i> Relatórios</a>
+            <hr class="mx-3 opacity-25">
+            <a href="itens.html" class="active"><i class="fas fa-microchip"></i> Itens</a>
+            <a href="estoques.html"><i class="fas fa-warehouse"></i> Estoques</a>
+            <a href="#" onclick="logout()" class="text-warning mt-5"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </nav>
+
+    <div id="content">
+        <div class="container-fluid">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Gestão de Itens</h2>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 text fw-bold text"><i class="fas fa-plus-circle me-2"></i>Novo Item</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form id="form-item">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted uppercase">NOME DO ITEM</label>
+                                <input type="text" id="item-nome" class="form-control" placeholder="Ex: Camisa azul" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted uppercase">CATEGORIA</label>
+                                <select id="item-categoria" class="form-select">
+                                    <option value="Cenografia">Cenografia</option>
+                                    <option value="Vestuario">Vestuário</option>
+                                    <option value="Brindes">Brindes</option>
+                                    <option value="OOH">OOH</option>
+                                    <option value="Ativação">Ativação</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label small fw-bold text-muted uppercase">CLIENTE</label>
+                                <select id="item-cliente" class="form-select" required>
+                                    <option value="Interno / MC4">Interno / MC4</option>
+                                    <option value="EsportesdaSorte">Esportes da Sorte</option>
+                                    <option value="Boticario">Boticário</option>
+                                    <option value="Mood">MOOD</option>
+                                    <option value="CenouraEBronze">Cenoura e Bronze</option>
+                                </select>
+                            </div>
+                            <!-- <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-bold text-muted uppercase">ESTOQUE MÍNIMO</label>
+                                <input type="number" id="item-minimo" class="form-control" placeholder="0">
+                            </div> -->
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted uppercase">DESCRIÇÃO</label>
+                            <textarea id="item-descricao" class="form-control" rows="2" placeholder="Detalhes técnicos ou observações..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted uppercase">FOTO DO ITEM (OPCIONAL)</label>
+                            <input type="file" id="item-foto" class="form-control" accept="image/*" capture="environment">
+                            <div id="upload-status" class="small mt-1 d-none text-primary fw-bold">
+                                <i class="fas fa-spinner fa-spin me-1"></i>Subindo imagem...
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                <i class="fas fa-save me-2"></i>Salvar no Catálogo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-list me-2"></i>Itens no Catálogo</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nome / Descrição</th>
+                                <th>Categoria</th>
+                                <th>Cliente</th> 
+                                <th class="text-center">Mínimo</th> 
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-itens">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Menu Mobile
+        document.getElementById('mobileMenuBtn')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+    </script>
+
+    <script src="js/database.js"></script>
+    <script src="js/itens.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

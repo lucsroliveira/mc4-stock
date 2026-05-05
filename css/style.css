@@ -1,0 +1,231 @@
+/* --- VARIÁVEIS MC4 --- */
+:root {
+    --mc4-blue: #416ba9;
+    --mc4-cyan: #00A5B5;
+    --mc4-dark: #2c3e50;
+    --mc4-light: #f8f9fa;
+    --sidebar-width: 250px;
+}
+
+/* --- RESET E ESTRUTURA BASE --- */
+body {
+    background-color: #96f3fb3a;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+
+}
+
+#bg-color {
+    background: var(--mc4-blue);
+}
+
+/* --- SIDEBAR (BARRA LATERAL) --- */
+#sidebar {
+    min-width: var(--sidebar-width);
+    max-width: var(--sidebar-width);
+    background: linear-gradient(180deg, var(--mc4-cyan) 0%, var(--mc4-dark) 100%);
+    color: white;
+    transition: all 0.3s;
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.15);
+    text-align: center;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.nav-sidebar {
+    padding: 20px 0;
+    flex-grow: 1;
+}
+
+.nav-sidebar a {
+    padding: 12px 25px;
+    display: block;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.nav-sidebar a:hover, 
+.nav-sidebar a.active {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--mc4-cyan);
+}
+
+.nav-sidebar i {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+}
+
+/* --- CONTEÚDO PRINCIPAL --- */
+#content {
+    width: 100%;
+    padding: 30px;
+    margin-left: var(--sidebar-width);
+    transition: all 0.3s;
+}
+
+/* --- CARDS E ELEMENTOS UI --- */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.btn-primary {
+    background-color: var(--mc4-cyan) !important;
+    border: none !important;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    filter: brightness(90%);
+    transform: translateY(-1px);
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+/* --- GRÁFICOS --- */
+canvas {
+    max-height: 200px !important;
+    width: 100% !important;
+}
+
+/* --- HEADER MOBILE FIXO --- */
+.mobile-header {
+    display: none; /* Escondido no Desktop */
+    background: linear-gradient(135deg, var(--mc4-blue) 0%, var(--mc4-cyan) 100%);
+    padding: 10px 15px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    align-items: center;
+}
+
+.mobile-header .btn-toggle {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+}
+
+
+/* --- RESPONSIVIDADE (CELULAR) --- */
+@media (max-width: 768px) {
+    #sidebar {
+        margin-left: calc(-1 * var(--sidebar-width));
+    }
+    
+    #sidebar.active {
+        margin-left: 0;
+    }
+    
+    #content {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    h2, h4 {
+        font-size: 1.2rem;
+    }
+
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .table-responsive {
+        border-radius: 8px;
+        background: white;
+    }
+
+    .mobile-header {
+        display: flex; /* Aparece apenas no Mobile */
+    }
+
+    #content {
+        padding-top: 70px !important; /* Espaço para o conteúdo não ficar sob o header fixo */
+        margin-left: 0;
+    }
+
+    /* Garante que o botão de fechar dentro do content seja removido se você usar o do header */
+    #sidebarCollapse {
+        display: none !important; 
+    }
+}
+
+/* Títulos das páginas dentro do Content */
+#content h2, #content h4, #content h5 {
+    color: var(--mc4-dark);
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+/* Ajuste fino para o container no mobile */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 0;
+    }
+    
+    .card {
+        border-radius: 0; /* Cards ocupam largura total no mobile para economizar espaço */
+        margin-bottom: 15px;
+    }
+}
+
+/* --- ESTILO ESPECÍFICO PARA PÁGINA DE LOGIN --- */
+body.page-login {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100vh !important;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    margin: 0;
+}
+
+/* Remove a margem do conteúdo na tela de login já que não há sidebar */
+body.page-login #content {
+    margin-left: 0 !important;
+    padding: 0 !important;
+}
+
+/* Ajuste fino no input de login */
+.page-login .form-control {
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+}
+
+.page-login .form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 165, 181, 0.1);
+    border-color: var(--mc4-cyan);
+}

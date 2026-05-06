@@ -5,11 +5,14 @@
     --mc4-dark: #2c3e50;
     --mc4-light: #f8f9fa;
     --sidebar-width: 250px;
+    --mc4-yellow: #cedb05;
+    --mc4-purple: #863999;
+
 }
 
 /* --- RESET E ESTRUTURA BASE --- */
 body {
-    background-color: #96f3fb3a;
+    background: #f1f1f1;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     min-height: 100vh;
@@ -21,11 +24,20 @@ body {
     background: var(--mc4-blue);
 }
 
+
+/* Títulos das páginas dentro do Content */
+#content h2, #content h4, #content h5, #content h6 {
+    color: var(--mc4-cyan);
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+
 /* --- SIDEBAR (BARRA LATERAL) --- */
 #sidebar {
     min-width: var(--sidebar-width);
     max-width: var(--sidebar-width);
-    background: linear-gradient(180deg, var(--mc4-cyan) 0%, var(--mc4-dark) 100%);
+    background: linear-gradient(180deg, var(--mc4-cyan) 0%, var(--mc4-yellow) 100%);
     color: white;
     transition: all 0.3s;
     position: fixed;
@@ -63,7 +75,7 @@ body {
 .nav-sidebar a.active {
     color: white;
     background: rgba(255, 255, 255, 0.1);
-    border-left: 4px solid var(--mc4-cyan);
+    border-left: 4px solid var(--mc4-yellow);
 }
 
 .nav-sidebar i {
@@ -96,7 +108,7 @@ body {
     border: none !important;
     font-weight: 600;
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 10px;
     transition: 0.3s;
 }
 
@@ -120,7 +132,7 @@ canvas {
 /* --- HEADER MOBILE FIXO --- */
 .mobile-header {
     display: none; /* Escondido no Desktop */
-    background: linear-gradient(135deg, var(--mc4-blue) 0%, var(--mc4-cyan) 100%);
+    background: linear-gradient(135deg, var(--mc4-cyan) 0%, var(--mc4-yellow) 100%);
     padding: 10px 15px;
     position: fixed;
     top: 0;
@@ -143,6 +155,7 @@ canvas {
 @media (max-width: 768px) {
     #sidebar {
         margin-left: calc(-1 * var(--sidebar-width));
+        background: var(--mc4-cyan);
     }
     
     #sidebar.active {
@@ -183,12 +196,7 @@ canvas {
     }
 }
 
-/* Títulos das páginas dentro do Content */
-#content h2, #content h4, #content h5 {
-    color: var(--mc4-dark);
-    margin-bottom: 20px;
-    font-weight: 700;
-}
+
 
 /* Ajuste fino para o container no mobile */
 @media (max-width: 768px) {
@@ -200,6 +208,7 @@ canvas {
         border-radius: 0; /* Cards ocupam largura total no mobile para economizar espaço */
         margin-bottom: 15px;
     }
+
 }
 
 /* --- ESTILO ESPECÍFICO PARA PÁGINA DE LOGIN --- */
@@ -208,7 +217,7 @@ body.page-login {
     align-items: center !important;
     justify-content: center !important;
     height: 100vh !important;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, var(--mc4-cyan) 0%, var(--mc4-yellow) 100%);
     margin: 0;
 }
 
@@ -218,14 +227,46 @@ body.page-login #content {
     padding: 0 !important;
 }
 
-/* Ajuste fino no input de login */
+#container-login {
+    border-radius: 25px;
+}
+/* Login input adjustments */
 .page-login .form-control {
-    border-radius: 8px;
-    padding: 12px;
     border: 1px solid #dee2e6;
+    border-radius: 25px;
+    padding: 12px 15px;
+    transition: all 0.3s ease; 
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.075); 
 }
 
+
 .page-login .form-control:focus {
-    box-shadow: 0 0 0 0.25rem rgba(0, 165, 181, 0.1);
+    color: #212529;
+    background-color: #fff;
     border-color: var(--mc4-cyan);
+    outline: 0;
+    /* Sombras combinadas: um brilho interno e uma elevação externa */
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.075), 0 0 0 0.25rem rgba(0, 165, 181, 0.25);
+    
+}
+
+
+
+
+/* Esconde o container da logo no mobile sem quebrar o layout */
+@media (max-width: 768px) {
+    .sidebar-header {
+        display: none !important;
+    }
+
+    /* Adiciona um respiro no topo do menu para o Dashboard aparecer livre */
+    .nav-sidebar {
+        padding-top: 60px !important;
+    }
+    
+    /* Garante que o link ativo seja visível */
+    .nav-sidebar a {
+        border-radius: 0 25px 25px 0;
+        margin-right: 15px;
+    }
 }

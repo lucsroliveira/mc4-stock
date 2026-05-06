@@ -10,22 +10,24 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- HEADER MOBILE FIXO -->
-    <div class="mobile-header d-md-none">
+    <div class="mobile-header d-md-none d-flex align-items-center px-3">
         <button class="btn-toggle" id="mobileMenuBtn">
             <i class="fas fa-bars"></i>
         </button>
-        <span class="ms-3 text-white fw-bold">MC4 STOCK</span>
+        <img src="https://vkoeeykvdtaztqceftlf.supabase.co/storage/v1/object/public/fotos-itens/MC4%20STOCK_BRANCA_02.svg" 
+            alt="Logo MC4 Stock" 
+            class="ms-3" 
+            style="height: 20px; width: auto;">
     </div>
 
-    <!-- SIDEBAR -->
     <nav id="sidebar">
-        <div class="sidebar-header">
-            <h4 class="fw-bold mb-0"><i class="fas fa-boxes-stacked"></i> MC4 STOCK</h4>
+        <div class="sidebar-header text-center py-2 d-none d-md-block">
+             <img src="https://vkoeeykvdtaztqceftlf.supabase.co/storage/v1/object/public/fotos-itens/MC4%20STOCK_BRANCA_02.svg" 
+            alt="Logo MC4 Stock"
+            style="width: 80%; max-width: 90px; padding-top: 8px; padding-bottom: 8px;">
         </div>
 
         <div class="nav-sidebar">
-            <!-- DICA: Adicione a classe 'active' no link da página atual -->
             <a href="index.html"><i class="fas fa-chart-line"></i> Dashboard</a>
             <a href="consulta.html" class="active"><i class="fas fa-search"></i> Inventário</a>
             <a href="movimentacoes.html"><i class="fas fa-exchange-alt"></i> Movimentar</a>
@@ -33,7 +35,7 @@
             <hr class="mx-3 opacity-25">
             <a href="itens.html"><i class="fas fa-microchip"></i> Itens</a>
             <a href="estoques.html"><i class="fas fa-warehouse"></i> Estoques</a>
-            <a href="#" onclick="logout()" class="text-warning mt-5"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            <a href="#" onclick="logout()" class="text-white mt-5"><i class="fas fa-sign-out-alt"></i> Sair</a>
         </div>
     </nav>
 

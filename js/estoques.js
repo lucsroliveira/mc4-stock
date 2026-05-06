@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </td>
                 <td><i class="fas fa-user-tie me-2 text-muted"></i>${e.responsavel || '-'}</td>
                 <td>
-                    <a href="https://wa.me/${e.contato?.replace(/\D/g, '')}" target="_blank" class="text-decoration-none">
+                    <a href="https://wa.me/${e.contato?.replace(/\D/g, '')}" target="_blank" class="text-decoration-none text-muted">
                         <i class="fab fa-whatsapp text-success me-1"></i> ${e.contato || '-'}
                     </a>
                 </td>

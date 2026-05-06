@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </td>
                 <td><span class="badge bg-secondary">${item.categoria}</span></td>
-                <td><span class="text fw-medium text-primary">${item.cliente || 'Interno / MC4'}</span></td>
+                <td><span class="text fw-medium text">${item.cliente || 'Interno / MC4'}</span></td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-outline-danger" onclick="deletarItem('${item.id}', '${item.foto_url}')">
                         <i class="fas fa-trash"></i>

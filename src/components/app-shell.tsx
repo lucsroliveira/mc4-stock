@@ -4,20 +4,54 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { inventoryNavigation } from "@/lib/navigation";
 import { signOut } from "@/lib/supabase/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
 type AppShellProps = {
-  title: string;
-  subtitle: string;
   children: React.ReactNode;
   userLabel: string;
 };
 
-export function AppShell({ title, subtitle, children, userLabel }: AppShellProps) {
+// Mapeamento automático de título e subtítulo por rota
+const pageInfoMap: Record<string, { title: string; subtitle: string }> = {
+  "/": {
+    title: "Dashboard",
+    subtitle: "O painel consolida unidades em estoque, itens ativos e os principais locais com saldo.",
+  },
+  "/itens": {
+    title: "Cadastro de Itens",
+    subtitle: "Gerencie o catálogo de produtos, categorias, clientes e descrições do inventário.",
+  },
+  "/movimentacoes": {
+    title: "Movimentações de Estoque",
+    subtitle: "Registre entradas, saídas e transferências com atualização dinâmica de saldos.",
+  },
+  "/estoques": {
+    title: "Locais de Estoque",
+    subtitle: "Gerencie os estoques regionais, depósitos e veículos ativos na operação.",
+  },
+  "/consulta": {
+    title: "Inventário",
+    subtitle: "Verfique o que se encontra em cada estoque.",
+  },
+  "/dashboard": {
+    title: "Dashboard",
+    subtitle: "O painel consolida unidades em estoque, itens ativos e os principais locais com saldo.",
+  },
+};
+
+export function AppShell({ children, userLabel }: AppShellProps) {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const pathname = usePathname();
+
+  // Pega o título correspondente à rota atual (ou define um padrão se não encontrar)
+  const currentPage = pageInfoMap[pathname] || {
+    title: "Sistema de Estoque",
+    subtitle: "Controle operacional, saldo e auditoria para a operação MC4.",
+  };
 
   const navigationIcons: Record<string, ReactNode> = {
     dashboard: (
@@ -110,8 +144,8 @@ export function AppShell({ title, subtitle, children, userLabel }: AppShellProps
             <p className="text-xs uppercase tracking-[0.3em] text-[#00a5b5]">Sistema de estoque</p>
             <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">{title}</h2>
-                <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">{subtitle}</p>
+                <h2 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">{currentPage.title}</h2>
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">{currentPage.subtitle}</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <div className="rounded-full border border-[#00a5b5]/20 bg-[#00a5b5]/10 px-4 py-2 text-xs uppercase tracking-[0.25em] text-[#0a4d56]">

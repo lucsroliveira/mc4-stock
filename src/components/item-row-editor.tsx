@@ -29,13 +29,13 @@ export function ItemRowEditor({ item, updateAction, deleteAction }: ItemRowEdito
       {isEditing ? (
         <tr key={item.id}>
           <td colSpan={5} className="px-4 py-4">
-            <div className="rounded-[1.5rem] border border-cyan-400/20 bg-[rgba(7,17,31,0.82)] p-5 shadow-xl">
+            <div className="rounded-[1.5rem] border border-[var(--panel-border)] bg-[var(--panel)] p-5 shadow-xl">
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-[#00a5b5]">Editar item</p>
-                  <h4 className="mt-1 text-lg font-semibold text-white">{item.nome ?? "Item"}</h4>
+                  <p className="text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">Editar item</p>
+                  <h4 className="mt-1 text-lg font-semibold text-[var(--foreground)]">{item.nome ?? "Item"}</h4>
                 </div>
-                <button type="button" onClick={() => setIsEditing(false)} className="rounded-full border border-white/10 px-3 py-1 text-sm text-slate-300">
+                <button type="button" onClick={() => setIsEditing(false)} className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)]">
                   Fechar
                 </button>
               </div>
@@ -62,7 +62,7 @@ export function ItemRowEditor({ item, updateAction, deleteAction }: ItemRowEdito
                   <button type="submit" className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
                     Salvar alterações
                   </button>
-                  <button type="button" onClick={() => setIsEditing(false)} className="rounded-2xl border border-white/10 px-4 py-2 text-sm text-slate-300">
+                  <button type="button" onClick={() => setIsEditing(false)} className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)]">
                     Cancelar
                   </button>
                 </div>

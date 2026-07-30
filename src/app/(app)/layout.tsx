@@ -19,11 +19,7 @@ export default async function AppLayout({
   const userLabel = user.user_metadata?.full_name ?? user.email ?? "Usuário";
 
   return (
-    <AppShell
-      title="Dashboard"
-      subtitle="A base nova do sistema vai reunir inventário, movimentações, relatórios e cadastros em uma interface única."
-      userLabel={userLabel}
-    >
+   <AppShell userLabel={userLabel}>
       {children}
     </AppShell>
   );

@@ -21,10 +21,10 @@ export default async function LoginPage() {
               <img src="/MC4 STOCK_BRANCA_1.svg" alt="Logo MC4" className="h-38 w-38" />
             </div>
           </div>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[] sm:text-6xl">
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--foreground)] sm:text-6xl">
             Controle de estoque com visão de operação, saldo e auditoria.
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-8 text-slate-300 sm:text-lg">
+          <p className="mt-5 max-w-xl text-base leading-8 text-[var(--foreground)] sm:text-lg">
             Seja bem vindo ao sistema arretado desendo por Lucas Oliveira.
           </p>
         </section>

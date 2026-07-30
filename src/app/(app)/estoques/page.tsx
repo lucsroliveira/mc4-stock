@@ -24,8 +24,8 @@ export default async function EstoquesPage() {
 
   return (
     <div className="grid gap-6">
-      <section className="glass-panel rounded-3xl border border-white/10 p-6">
-        <h3 className="text-lg font-semibold text-white">Novo estoque</h3>
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+        <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo estoque</h3>
         <form action={createEstoque} className="mt-4 grid gap-4 md:grid-cols-2">
           <input name="nome" placeholder="Nome do local ou veículo" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
           <select name="tipo" defaultValue="Regional" className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
@@ -41,11 +41,11 @@ export default async function EstoquesPage() {
         </form>
       </section>
 
-      <section className="glass-panel rounded-3xl border border-white/10 p-6">
-        <h3 className="text-lg font-semibold text-white">Locais cadastrados</h3>
-        <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 table-surface">
-          <table className="min-w-full divide-y divide-white/10 text-sm">
-            <thead className="bg-white/5 text-slate-300">
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+        <h3 className="text-lg font-semibold text-[var(--foreground)]">Locais cadastrados</h3>
+        <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+          <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+            <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
               <tr>
                 <th className="px-4 py-3 text-left font-medium">Local</th>
                 <th className="px-4 py-3 text-left font-medium">Tipo</th>
@@ -55,18 +55,18 @@ export default async function EstoquesPage() {
                 <th className="px-4 py-3 text-right font-medium">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10 bg-slate-950/30">
+            <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
               {(estoques ?? []).length > 0 ? (
                 estoques?.map((estoque: { id: string; nome: string | null; tipo: string | null; responsavel: string | null; contato: string | null; endereco: string | null }) => {
                   const resumo = resumoPorEstoque.get(estoque.id) ?? { itens: 0, total: 0 };
 
                   return (
                     <tr key={estoque.id}>
-                      <td className="px-4 py-3 font-medium text-white">{estoque.nome}</td>
-                      <td className="px-4 py-3 text-slate-300">{estoque.tipo === "Temporario" ? "Temporário / Veículo" : "Regional"}</td>
-                      <td className="px-4 py-3 text-slate-300">{estoque.responsavel ?? "-"}</td>
-                      <td className="px-4 py-3 text-slate-300">{estoque.contato ?? "-"}</td>
-                      <td className="px-4 py-3 text-slate-300">
+                      <td className="px-4 py-3 font-medium text-[var(--foreground)]">{estoque.nome}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{estoque.tipo === "Temporario" ? "Temporário / Veículo" : "Regional"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{estoque.responsavel ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{estoque.contato ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">
                         {resumo.total} unidades em {resumo.itens} vínculos
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -77,7 +77,7 @@ export default async function EstoquesPage() {
                 })
               ) : (
                 <tr>
-                  <td className="px-4 py-5 text-center text-slate-400" colSpan={6}>
+                  <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={6}>
                     Nenhum estoque cadastrado.
                   </td>
                 </tr>

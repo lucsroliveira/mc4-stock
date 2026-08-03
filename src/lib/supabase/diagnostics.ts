@@ -52,7 +52,7 @@ export async function getSupabaseDiagnostics(): Promise<SupabaseDiagnostics> {
         ok: false,
         detail: "NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET não foi definido.",
       }
-    : await supabase.storage.from(bucket).list("", { limit: 1 }).then(({ error }) => ({
+    : await supabase.storage.from(bucket).list("", { limit: 1 }).then(({ error }: { error: { message: string } | null }) => ({
         target: `storage:${bucket}`,
         ok: !error,
         detail: error ? `Falha ao acessar o bucket ${bucket}: ${error.message}` : `Acesso ao bucket ${bucket} ok.`,

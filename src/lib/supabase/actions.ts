@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createFallbackSupabaseClient, hasSupabaseConfig } from "./fallback";
+import { uploadFileToSupabaseStorage } from "./storage";
 
 export type AuthState = {
   error?: string;
@@ -35,6 +36,17 @@ async function createActionClient() {
   );
 }
 
+async function resolveItemPhotoReference(formData: FormData, supabase: Awaited<ReturnType<typeof createActionClient>>) {
+  const manualReference = String(formData.get("foto_url") ?? "").trim();
+  const uploadedFile = formData.get("foto_file");
+
+  if (uploadedFile instanceof File && uploadedFile.size > 0) {
+    return uploadFileToSupabaseStorage(supabase, uploadedFile);
+  }
+
+  return manualReference || null;
+}
+
 export async function signIn(
   _previousState: AuthState,
   formData: FormData,
@@ -59,7 +71,7 @@ export async function signIn(
     });
 
     if (signUpError) {
-      return { error: signInError.message };
+      return { error: signUpError.message };
     }
 
     const { error: retryError } = await supabase.auth.signInWithPassword({
@@ -87,7 +99,7 @@ export async function createItem(formData: FormData) {
   const categoria = String(formData.get("categoria") ?? "").trim();
   const cliente = String(formData.get("cliente") ?? "").trim();
   const descricao = String(formData.get("descricao") ?? "").trim();
-  const fotoUrl = String(formData.get("foto_url") ?? "").trim();
+  const fotoUrl = await resolveItemPhotoReference(formData, supabase);
 
   if (!nome || !categoria || !cliente) {
     throw new Error("Preencha nome, categoria e cliente.");
@@ -116,7 +128,7 @@ export async function updateItem(formData: FormData) {
   const categoria = String(formData.get("categoria") ?? "").trim();
   const cliente = String(formData.get("cliente") ?? "").trim();
   const descricao = String(formData.get("descricao") ?? "").trim();
-  const fotoUrl = String(formData.get("foto_url") ?? "").trim();
+  const fotoUrl = await resolveItemPhotoReference(formData, supabase);
 
   if (!id || !nome || !categoria || !cliente) {
     throw new Error("Preencha id, nome, categoria e cliente.");

@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { createFallbackSupabaseClient, hasSupabaseConfig } from "./lib/supabase/fallback";
+import { createFallbackSupabaseClient, hasSupabaseConfig, shouldUseFallbackSupabase } from "./lib/supabase/fallback";
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -28,19 +28,25 @@ export async function proxy(request: NextRequest) {
           },
         },
       )
-    : createFallbackSupabaseClient({
-        get: (name) => {
-          const cookie = request.cookies.get(name);
-          return cookie ? { value: cookie.value } : undefined;
-        },
-        getAll: () => request.cookies.getAll(),
-        set: (name, value) => {
-          request.cookies.set(name, value);
-        },
-        delete: (name) => {
-          request.cookies.set(name, "");
-        },
-      }) as ReturnType<typeof createServerClient>;
+    : (() => {
+        if (!shouldUseFallbackSupabase()) {
+          throw new Error("NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY precisam estar configurados no ambiente de produção.");
+        }
+
+        return createFallbackSupabaseClient({
+          get: (name) => {
+            const cookie = request.cookies.get(name);
+            return cookie ? { value: cookie.value } : undefined;
+          },
+          getAll: () => request.cookies.getAll(),
+          set: (name, value) => {
+            request.cookies.set(name, value);
+          },
+          delete: (name) => {
+            request.cookies.set(name, "");
+          },
+        }) as ReturnType<typeof createServerClient>;
+      })();
 
   const {
     data: { user },

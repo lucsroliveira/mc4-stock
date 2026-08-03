@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import StockSearchList from "@/components/StockSearchList"; // Ajuste o caminho conforme onde criou o componente acima
+import StockSearchList from "@/components/StockSearchList";
+import { getSupabaseDiagnostics } from "@/lib/supabase/diagnostics";
 
 type RecentMovement = {
   data_movimentacao: string;
@@ -17,6 +18,7 @@ type StockRelation = {
 
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
+  const diagnostics = await getSupabaseDiagnostics();
 
   const [itensCount, estoquesCount, movimentacoesCount, recentMovementsResult, saldosResult] = await Promise.all([
     supabase.from("itens").select("id", { count: "exact", head: true }),
@@ -93,6 +95,22 @@ export default async function DashboardPage() {
 
   return (
     <div className="grid gap-6">
+      {(diagnostics.mode === "fallback" || diagnostics.hasFailures) && (
+        <section className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6 text-sm text-[var(--foreground)]">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-300">Diagnóstico Supabase</p>
+          <p className="mt-3 text-[var(--text-muted)]">
+            O app detectou configuração ausente ou bloqueio de acesso. Enquanto isso, parte da interface pode operar em fallback ou sem carregar arquivos do Storage.
+          </p>
+          <ul className="mt-4 space-y-2 text-[var(--text-muted)]">
+            {diagnostics.checks.map((check) => (
+              <li key={check.target}>
+                {check.ok ? "OK" : "Falha"} - {check.target}: {check.detail}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="grid gap-4 lg:grid-cols-3">
         {kpis.map((item) => (
           <article key={item.label} className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 shadow-[0_16px_40px_rgba(65,107,169,0.12)]">

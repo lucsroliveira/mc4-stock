@@ -242,6 +242,10 @@ export function hasSupabaseConfig() {
   return !url.includes("your-project") && !key.includes("your-anon-key");
 }
 
+export function shouldUseFallbackSupabase() {
+  return process.env.NODE_ENV !== "production" && !hasSupabaseConfig();
+}
+
 export function createFallbackSupabaseClient(cookieStore?: CookieStore) {
   return {
     auth: {

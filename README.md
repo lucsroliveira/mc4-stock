@@ -1,5 +1,23 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Supabase setup
+
+Fill the environment variables in [.env.local](.env.local) before expecting real data or files from Supabase:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET=your-public-bucket
+```
+
+What each variable does:
+
+- `NEXT_PUBLIC_SUPABASE_URL`: your Supabase project URL.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: the public anonymous key used by the app.
+- `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET`: the Storage bucket name used for item images.
+
+If the URL or anon key is missing, the app enters demo fallback mode. If the bucket is missing or the Storage policies block reads/uploads, item images will not load.
+
 ## Getting Started
 
 First, run the development server:

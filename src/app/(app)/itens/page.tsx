@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createItem, deleteItem, updateItem } from "@/lib/supabase/actions";
-import ItemsSearchTable from "@/components/ItemsSearchTable"; // Ajuste o caminho se necessário
+import ItemsSearchTable from "@/components/ItemsSearchTable";
+import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
 
 export default async function ItensPage() {
   const supabase = await createSupabaseServerClient();
@@ -11,6 +12,7 @@ export default async function ItensPage() {
     cliente: string | null;
     descricao: string | null;
     foto_url: string | null;
+    foto_preview_url: string | null;
     created_at: string | null;
   };
 
@@ -19,7 +21,12 @@ export default async function ItensPage() {
     .select("id, nome, categoria, cliente, descricao, foto_url, created_at")
     .order("created_at", { ascending: false });
 
-  const itemRows = (itens ?? []) as ItemRow[];
+  const itemRows = await Promise.all(
+    ((itens ?? []) as Omit<ItemRow, "foto_preview_url">[]).map(async (item) => ({
+      ...item,
+      foto_preview_url: await resolveSupabaseAssetUrl(supabase, item.foto_url),
+    })),
+  );
 
   return (
     <div className="grid gap-6">
@@ -41,7 +48,8 @@ export default async function ItensPage() {
             <option value="MOOD">MOOD</option>
             <option value="Cenoura e Bronze">Cenoura e Bronze</option>
           </select>
-          <input name="foto_url" placeholder="URL da foto (opcional)" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
+          <input name="foto_url" placeholder="URL da foto ou path salvo no bucket (opcional)" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
+          <input type="file" name="foto_file" accept="image/*" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
           <textarea name="descricao" placeholder="Descrição do item" rows={3} className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm md:col-span-2" />
           <div className="md:col-span-2">
             <button type="submit" className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition">Salvar item</button>

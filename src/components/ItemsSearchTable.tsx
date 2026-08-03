@@ -10,13 +10,14 @@ type ItemRow = {
   cliente: string | null;
   descricao: string | null;
   foto_url: string | null;
+  foto_preview_url: string | null;
   created_at: string | null;
 };
 
 type ItemsSearchTableProps = {
   initialItems: ItemRow[];
-  updateAction: (formData: FormData) => Promise<any>;
-  deleteAction: (formData: FormData) => Promise<any>;
+  updateAction: (formData: FormData) => Promise<void>;
+  deleteAction: (formData: FormData) => Promise<void>;
 };
 
 const ITEMS_PER_PAGE = 10;

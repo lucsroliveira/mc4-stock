@@ -11,6 +11,7 @@ type ItemRow = {
   cliente: string | null;
   descricao: string | null;
   foto_url: string | null;
+  foto_preview_url?: string | null;
 };
 
 type ItemRowEditorProps = {
@@ -56,7 +57,8 @@ export function ItemRowEditor({ item, updateAction, deleteAction }: ItemRowEdito
                   <option value="MOOD">MOOD</option>
                   <option value="Cenoura e Bronze">Cenoura e Bronze</option>
                 </select>
-                <input name="foto_url" defaultValue={item.foto_url ?? ""} placeholder="URL da foto" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
+                <input name="foto_url" defaultValue={item.foto_url ?? ""} placeholder="URL da foto ou path do Storage" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
+                <input type="file" name="foto_file" accept="image/*" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
                 <textarea name="descricao" defaultValue={item.descricao ?? ""} rows={3} placeholder="Descrição completa" className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm md:col-span-2" />
                 <div className="flex gap-2 md:col-span-2">
                   <button type="submit" className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
@@ -75,7 +77,7 @@ export function ItemRowEditor({ item, updateAction, deleteAction }: ItemRowEdito
           <td className="px-4 py-3 font-medium text-white">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 overflow-hidden rounded-xl border border-[#416ba9]/10 bg-[#f4f7f9]">
-                {item.foto_url ? <img src={item.foto_url} alt={item.nome ?? "Item"} className="h-full w-full object-cover" /> : null}
+                {item.foto_preview_url ? <img src={item.foto_preview_url} alt={item.nome ?? "Item"} className="h-full w-full object-cover" /> : null}
               </div>
               <span>{item.nome}</span>
             </div>
@@ -92,13 +94,12 @@ export function ItemRowEditor({ item, updateAction, deleteAction }: ItemRowEdito
                 Excluir
               </button>
             </div>
+            <form ref={deleteFormRef} action={deleteAction} className="hidden">
+              <input type="hidden" name="id" value={item.id} />
+            </form>
           </td>
         </tr>
       )}
-
-      <form ref={deleteFormRef} action={deleteAction} className="hidden">
-        <input type="hidden" name="id" value={item.id} />
-      </form>
 
       <ConfirmDialog
         open={showDeleteConfirm}

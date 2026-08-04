@@ -1,3 +1,4 @@
+// Data Fetching com o Supabase puxando 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import StockSearchList from "@/components/StockSearchList";
 import { getSupabaseDiagnostics } from "@/lib/supabase/diagnostics";
@@ -95,11 +96,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="grid gap-6">
-      {(diagnostics.mode === "fallback" || diagnostics.hasFailures) && (
+      {diagnostics.hasFailures && (
         <section className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6 text-sm text-[var(--foreground)]">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-300">Diagnóstico Supabase</p>
           <p className="mt-3 text-[var(--text-muted)]">
-            O app detectou configuração ausente ou bloqueio de acesso. Enquanto isso, parte da interface pode operar em fallback ou sem carregar arquivos do Storage.
+            O app detectou configuração ausente ou bloqueio de acesso ao Supabase. Os dados exibidos dependem exclusivamente do banco e do Storage reais.
           </p>
           <ul className="mt-4 space-y-2 text-[var(--text-muted)]">
             {diagnostics.checks.map((check) => (

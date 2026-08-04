@@ -1,46 +1,33 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { createFallbackSupabaseClient, hasSupabaseConfig } from "./lib/supabase/fallback";
+import { getSupabaseConfig } from "./lib/supabase/config";
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
+  const { url, anonKey } = getSupabaseConfig();
 
-  const supabase = hasSupabaseConfig()
-    ? createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
-        {
-          cookies: {
-            getAll() {
-              return request.cookies.getAll();
-            },
-            setAll(cookiesToSet) {
-              cookiesToSet.forEach(({ name, value }) => {
-                request.cookies.set(name, value);
-              });
+  const supabase = createServerClient(
+    url,
+    anonKey,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value);
+          });
 
-              response = NextResponse.next({ request });
+          response = NextResponse.next({ request });
 
-              cookiesToSet.forEach(({ name, value, options }) => {
-                response.cookies.set(name, value, options);
-              });
-            },
-          },
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
         },
-      )
-    : createFallbackSupabaseClient({
-        get: (name) => {
-          const cookie = request.cookies.get(name);
-          return cookie ? { value: cookie.value } : undefined;
-        },
-        getAll: () => request.cookies.getAll(),
-        set: (name, value) => {
-          request.cookies.set(name, value);
-        },
-        delete: (name) => {
-          request.cookies.set(name, "");
-        },
-      }) as ReturnType<typeof createServerClient>;
+      },
+    },
+  );
 
   const {
     data: { user },

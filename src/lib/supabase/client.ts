@@ -1,13 +1,8 @@
 import { createBrowserClient } from "@supabase/ssr";
-import { createFallbackSupabaseClient, hasSupabaseConfig } from "./fallback";
+import { getSupabaseConfig } from "./config";
 
 export function createSupabaseBrowserClient() {
-  if (!hasSupabaseConfig()) {
-    return createFallbackSupabaseClient() as ReturnType<typeof createBrowserClient>;
-  }
+  const { url, anonKey } = getSupabaseConfig();
 
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
-  );
+  return createBrowserClient(url, anonKey);
 }

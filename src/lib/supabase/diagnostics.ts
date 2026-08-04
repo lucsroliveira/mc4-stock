@@ -1,5 +1,5 @@
 import { createSupabaseServerClient } from "./server";
-import { hasSupabaseConfig } from "./fallback";
+import { hasSupabaseConfig } from "./config";
 import { getSupabaseStorageBucket } from "./storage";
 
 type DiagnosticCheck = {
@@ -9,7 +9,7 @@ type DiagnosticCheck = {
 };
 
 export type SupabaseDiagnostics = {
-  mode: "fallback" | "supabase";
+  mode: "misconfigured" | "supabase";
   checks: DiagnosticCheck[];
   hasFailures: boolean;
 };
@@ -20,12 +20,12 @@ export async function getSupabaseDiagnostics(): Promise<SupabaseDiagnostics> {
       {
         target: "configuração",
         ok: false,
-        detail: "NEXT_PUBLIC_SUPABASE_URL ou NEXT_PUBLIC_SUPABASE_ANON_KEY não foram definidos. O app está em modo demonstração.",
+        detail: "NEXT_PUBLIC_SUPABASE_URL ou NEXT_PUBLIC_SUPABASE_ANON_KEY não foram definidos com valores reais.",
       },
     ];
 
     return {
-      mode: "fallback",
+      mode: "misconfigured",
       checks,
       hasFailures: true,
     };

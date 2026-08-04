@@ -4,7 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createFallbackSupabaseClient, hasSupabaseConfig } from "./fallback";
+import { getSupabaseConfig } from "./config";
 import { uploadFileToSupabaseStorage } from "./storage";
 
 export type AuthState = {
@@ -13,14 +13,11 @@ export type AuthState = {
 
 async function createActionClient() {
   const cookieStore = await cookies();
-
-  if (!hasSupabaseConfig()) {
-    return createFallbackSupabaseClient(cookieStore) as ReturnType<typeof createServerClient>;
-  }
+  const { url, anonKey } = getSupabaseConfig();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
+    url,
+    anonKey,
     {
       cookies: {
         getAll() {

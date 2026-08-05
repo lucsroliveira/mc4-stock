@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentUserRole } from "@/lib/supabase/auth-guard";
 
 type SearchParams = {
   inicio?: string | null;
@@ -43,6 +44,11 @@ function buildDateRangeParams(searchParams: URLSearchParams) {
 }
 
 export async function GET(request: Request) {
+  const userRole = await getCurrentUserRole();
+  if (userRole === "cliente") {
+    return NextResponse.json({ error: "Acesso negado para exportação." }, { status: 403 });
+  }
+
   const url = new URL(request.url);
   const { inicio, fim, tipo, q } = buildDateRangeParams(url.searchParams);
   const supabase = await createSupabaseServerClient();

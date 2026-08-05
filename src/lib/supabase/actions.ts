@@ -371,3 +371,26 @@ export async function createMovimentacao(formData: FormData) {
   revalidatePath("/movimentacoes");
   revalidatePath("/consulta");
 }
+
+export async function deleteMovimentacao(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores podem deletar movimentações
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    throw new Error("ID da movimentação ausente.");
+  }
+
+  const { error } = await supabase.from("movimentacoes").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/movimentacoes");
+  revalidatePath("/consulta");
+  revalidatePath("/relatorios");
+}

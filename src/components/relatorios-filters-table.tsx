@@ -19,6 +19,7 @@ type RelatoriosFiltersTableProps = {
   initialFim: string;
   initialTipo: string;
   initialPesquisa: string;
+  canExport: boolean;
 };
 
 function normalizeText(value: string | null | undefined) {
@@ -51,6 +52,7 @@ export function RelatoriosFiltersTable({
   initialFim,
   initialTipo,
   initialPesquisa,
+  canExport,
 }: RelatoriosFiltersTableProps) {
   const [inicio, setInicio] = useState(formatDateInput(initialInicio));
   const [fim, setFim] = useState(formatDateInput(initialFim));
@@ -162,9 +164,11 @@ export function RelatoriosFiltersTable({
             >
               Limpar
             </button>
-            <a href={exportHref} className="rounded-2xl border border-[var(--panel-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10">
-              Exportar CSV
-            </a>
+            {canExport ? (
+              <a href={exportHref} className="rounded-2xl border border-[var(--panel-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10">
+                Exportar CSV
+              </a>
+            ) : null}
           </div>
         </div>
 

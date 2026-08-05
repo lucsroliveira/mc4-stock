@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentUserRole } from "@/lib/supabase/auth-guard";
 
 function normalizeText(value: string | null | undefined) {
   return (value ?? "")
@@ -73,6 +74,11 @@ function buildPdf(lines: string[]) {
 }
 
 export async function GET(request: Request) {
+  const userRole = await getCurrentUserRole();
+  if (userRole === "cliente") {
+    return NextResponse.json({ error: "Acesso negado para exportação." }, { status: 403 });
+  }
+
   const url = new URL(request.url);
   const requestedEstoqueId = url.searchParams.get("estoqueId") ?? "";
   const searchTerm = normalizeText(url.searchParams.get("q"));

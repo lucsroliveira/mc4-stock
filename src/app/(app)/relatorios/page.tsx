@@ -40,6 +40,17 @@ type RelatoriosPageProps = {
 export default async function RelatoriosPage({ searchParams }: RelatoriosPageProps) {
   const supabase = await createSupabaseServerClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id)
+    .single();
+  const userRole = profile?.role ?? "cliente";
+  const canExport = userRole === "operador" || userRole === "admin";
+
   // BLOCO: TRATAMENTO DE PARÂMETROS DINÂMICOS
   // Extrai filtros de data (início/fim), tipo de movimentação e termo de pesquisa da URL.
   const params = (await searchParams) ?? {};
@@ -75,5 +86,14 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
 
   // BLOCO: RENDERIZAÇÃO COM COMPONENTE DE FILTRO (CLIENT-SIDE)
   // Envia os dados iniciais para o RelatoriosFiltersTable, que gerencia a filtragem interativa no lado do cliente.
-  return <RelatoriosFiltersTable initialRows={movementRows} initialInicio={inicio} initialFim={fim} initialTipo={tipo} initialPesquisa={pesquisa} />;
+  return (
+    <RelatoriosFiltersTable
+      initialRows={movementRows}
+      initialInicio={inicio}
+      initialFim={fim}
+      initialTipo={tipo}
+      initialPesquisa={pesquisa}
+      canExport={canExport}
+    />
+  );
 }

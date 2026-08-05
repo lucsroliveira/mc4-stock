@@ -1,8 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { getSupabaseConfig } from "./lib/supabase/config";
+import { getSupabaseConfig, hasSupabaseConfig } from "./lib/supabase/config";
 
 export async function proxy(request: NextRequest) {
+  // Evita erro 500 no edge runtime quando as variáveis do Supabase ainda não foram configuradas no Vercel.
+  if (!hasSupabaseConfig()) {
+    return NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
   const { url, anonKey } = getSupabaseConfig();
 

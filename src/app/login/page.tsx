@@ -1,8 +1,23 @@
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/login-form";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
 
 export default async function LoginPage() {
+  if (!hasSupabaseConfig()) {
+    return (
+      <main className="min-h-screen soft-grid px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
+        <section className="mx-auto w-full max-w-3xl rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6">
+          <h1 className="text-xl font-semibold text-[var(--foreground)]">Supabase não configurado no ambiente</h1>
+          <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
+            No Vercel, configure as variáveis NEXT_PUBLIC_SUPABASE_URL (ou SUPABASE_URL) e
+            NEXT_PUBLIC_SUPABASE_ANON_KEY/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY para liberar o login.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },

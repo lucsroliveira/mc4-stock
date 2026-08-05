@@ -200,6 +200,50 @@ export async function deleteItem(formData: FormData) {
     throw new Error("ID do item ausente.");
   }
 
+  const { count: movementCount, error: movementCountError } = await supabase
+    .from("movimentacoes")
+    .select("id", { count: "exact", head: true })
+    .eq("item_id", id);
+
+  if (movementCountError) {
+    throw new Error(movementCountError.message);
+  }
+
+  // Se houver histórico de movimentação, preservamos auditoria e marcamos o item como inativo.
+  if ((movementCount ?? 0) > 0) {
+    const { error: inactivateError } = await supabase
+      .from("itens")
+      .update({ ativo: false })
+      .eq("id", id);
+
+    if (inactivateError) {
+      if (inactivateError.message.toLowerCase().includes("column") && inactivateError.message.toLowerCase().includes("ativo")) {
+        throw new Error(
+          "Não foi possível inativar o item porque a coluna 'ativo' não existe na tabela 'itens'. Crie essa coluna no Supabase para usar exclusão lógica.",
+        );
+      }
+
+      throw new Error(inactivateError.message);
+    }
+
+    revalidatePath("/itens");
+    revalidatePath(`/itens/${id}`);
+    revalidatePath("/dashboard");
+    revalidatePath("/movimentacoes");
+    revalidatePath("/consulta");
+    revalidatePath("/relatorios");
+    return;
+  }
+
+  const { error: stockLinksError } = await supabase
+    .from("estoque_itens")
+    .delete()
+    .eq("item_id", id);
+
+  if (stockLinksError) {
+    throw new Error(stockLinksError.message);
+  }
+
   const { error } = await supabase.from("itens").delete().eq("id", id);
 
   if (error) {
@@ -207,7 +251,39 @@ export async function deleteItem(formData: FormData) {
   }
 
   revalidatePath("/itens");
+  revalidatePath(`/itens/${id}`);
   revalidatePath("/dashboard");
+  revalidatePath("/movimentacoes");
+  revalidatePath("/consulta");
+  revalidatePath("/relatorios");
+}
+
+export async function reactivateItem(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores podem reativar itens inativos
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    throw new Error("ID do item ausente.");
+  }
+
+  const { error } = await supabase
+    .from("itens")
+    .update({ ativo: true })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/itens");
+  revalidatePath(`/itens/${id}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/movimentacoes");
+  revalidatePath("/consulta");
+  revalidatePath("/relatorios");
 }
 
 export async function createEstoque(formData: FormData) {

@@ -22,6 +22,7 @@ type StockRelation = {
   id?: string | null;
   nome: string | null;
   cliente?: string | null;
+  ativo?: boolean | null;
 };
 
 type StockSummaryRow = {
@@ -47,7 +48,7 @@ export default async function DashboardPage() {
   // Buscamos dados mestre (itens, estoques) e dados transacionais (movimentações).
   const [itensCount, estoquesCount, movimentacoesCount, recentMovementsResult, saldosResult] = await Promise.all([
     // Contagem exata para KPIs sem trazer o corpo dos dados usando (head: true) (otimização de tráfego)
-    supabase.from("itens").select("id", { count: "exact", head: true }),
+    supabase.from("itens").select("id", { count: "exact", head: true }).eq("ativo", true),
     supabase.from("estoques").select("id", { count: "exact", head: true }),
     supabase.from("movimentacoes").select("id", { count: "exact", head: true }),
 
@@ -61,7 +62,7 @@ export default async function DashboardPage() {
       .limit(6),
 
     // Recupera o saldo atual por item/estoque incluindo dados do cliente
-    supabase.from("estoque_itens").select("quantidade, estoque_id, item_id, estoques ( nome ), itens ( id, nome, cliente )"),
+    supabase.from("estoque_itens").select("quantidade, estoque_id, item_id, estoques ( nome ), itens ( id, nome, cliente, ativo )"),
   ]);
 
   // Formata os indicadores (KPIs) garantindo que nunca exibam 'undefined'
@@ -86,10 +87,11 @@ export default async function DashboardPage() {
     // Garante a captura do nome e cliente mesmo se o join retornar um array
     const itemName = Array.isArray(item) ? item[0]?.nome : item?.nome;
     const itemClient = Array.isArray(item) ? item[0]?.cliente : item?.cliente;
+    const itemActive = Array.isArray(item) ? item[0]?.ativo : item?.ativo;
     const estoque = row.estoques as StockRelation | StockRelation[] | null;
     const estoqueName = Array.isArray(estoque) ? estoque[0]?.nome : estoque?.nome;
 
-    if (!itemName || !row.item_id) return;
+    if (!itemName || !row.item_id || itemActive === false) return;
 
     // Utilizamos um Map para consolidar saldos de diferentes locais de forma eficiente
     const current = stockSummary.get(row.item_id) ?? { 

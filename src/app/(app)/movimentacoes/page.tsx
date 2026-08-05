@@ -25,7 +25,7 @@ export default async function MovimentacoesPage() {
   // BLOCO: DATA FETCHING PARALELO
   // Busca itens e estoques para preencher o formulário, além do histórico recente para auditoria.
   const [{ data: itens }, { data: estoques }, { data: recentes }, { data: balances }] = await Promise.all([
-    supabase.from("itens").select("id, nome").order("nome", { ascending: true }),
+    supabase.from("itens").select("id, nome").eq("ativo", true).order("nome", { ascending: true }),
     supabase.from("estoques").select("id, nome").order("nome", { ascending: true }),
     supabase
       .from("movimentacoes")

@@ -80,11 +80,13 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
       categoria: string | null;
       cliente: string | null;
       foto_url: string | null;
+      ativo: boolean | null;
     } | {
       nome: string | null;
       categoria: string | null;
       cliente: string | null;
       foto_url: string | null;
+      ativo: boolean | null;
     }[] | null;
   };
 
@@ -94,11 +96,14 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
   const { data: inventarioData } = selectedEstoqueId
     ? await supabase
         .from("estoque_itens")
-        .select("quantidade, itens ( nome, categoria, cliente, foto_url )")
+        .select("quantidade, itens ( nome, categoria, cliente, foto_url, ativo )")
         .eq("estoque_id", selectedEstoqueId)
     : { data: [] as never[] };
 
-  const inventoryRows = (inventarioData ?? []) as InventoryRow[];
+  const inventoryRows = ((inventarioData ?? []) as InventoryRow[]).filter((row) => {
+    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
+    return item?.ativo !== false;
+  });
 
   // BLOCO: FILTRAGEM MULTICAMPO
   // Filtra os resultados localmente com base no termo 'q', buscando no Nome, Cliente ou Categoria simultaneamente.

@@ -10,9 +10,12 @@ import { signOut } from "@/lib/supabase/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
+export type UserRole = "cliente" | "operador" | "admin";
+
 type AppShellProps = {
   children: React.ReactNode;
   userLabel: string;
+  userRole: UserRole;
 };
 
 // Mapeamento automático de título e subtítulo por rota
@@ -35,15 +38,19 @@ const pageInfoMap: Record<string, { title: string; subtitle: string }> = {
   },
   "/consulta": {
     title: "Inventário",
-    subtitle: "Verfique o que se encontra em cada estoque.",
+    subtitle: "Verifique o que se encontra em cada estoque.",
   },
   "/dashboard": {
     title: "Dashboard",
     subtitle: "O painel consolida unidades em estoque, itens ativos e os principais locais com saldo.",
   },
+  "/relatorios": {
+    title: "Relatórios de Movimentação",
+    subtitle: "Auditoria temporal de entradas, saídas e transferências operacionais.",
+  },
 };
 
-export function AppShell({ children, userLabel }: AppShellProps) {
+export function AppShell({ children, userLabel, userRole }: AppShellProps) {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const pathname = usePathname();
 
@@ -90,6 +97,22 @@ export function AppShell({ children, userLabel }: AppShellProps) {
     ),
   };
 
+  // Regras de visibilidade de menus por perfil (RBAC)
+  const filteredNavigation = inventoryNavigation.filter((item) => {
+    // Se o usuário for cliente, ele NÃO deve ver Cadastros (itens, estoques) nem Movimentações operacionais
+    if (userRole === "cliente") {
+      return ["dashboard", "consulta", "relatorios"].includes(item.icon);
+    }
+    // Operadores e Admins veem tudo
+    return true;
+  });
+
+  const roleBadgeLabels: Record<UserRole, string> = {
+    cliente: "Cliente",
+    operador: "Operador",
+    admin: "Administrador",
+  };
+
   return (
     <div className="min-h-screen soft-grid text-slate-100">
       <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col lg:flex-row">
@@ -108,24 +131,36 @@ export function AppShell({ children, userLabel }: AppShellProps) {
           </div>
 
           <div className="mb-6 rounded-3xl border border-white/15 bg-white/10 p-4 text-sm text-slate-100">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#cedb05]">Sessão</p>
-            <p className="mt-2 font-medium text-white">{userLabel}</p>
-            <p className="mt-2 text-xs text-[var(--sidebar-muted)]">Conectado ao Supabase</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs uppercase tracking-[0.3em] text-[#cedb05]">Sessão</p>
+              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+                {roleBadgeLabels[userRole]}
+              </span>
+            </div>
+            <p className="mt-2 font-medium text-white truncate" title={userLabel}>{userLabel}</p>
+            <p className="mt-1 text-xs text-[var(--sidebar-muted)]">Conectado ao Supabase</p>
           </div>
 
           <nav className="flex flex-1 flex-col gap-2">
-            {inventoryNavigation.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-sm text-[var(--sidebar-text)] transition hover:border-white/15 hover:bg-[var(--sidebar-link-hover)]"
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
-                  {navigationIcons[item.icon]}
-                </span>
-                {item.label}
-              </Link>
-            ))}
+            {filteredNavigation.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition ${
+                    isActive
+                      ? "border-white/30 bg-white/15 font-medium text-white"
+                      : "border-transparent text-[var(--sidebar-text)] hover:border-white/15 hover:bg-[var(--sidebar-link-hover)]"
+                  }`}
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                    {navigationIcons[item.icon]}
+                  </span>
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="mt-8">
@@ -141,7 +176,12 @@ export function AppShell({ children, userLabel }: AppShellProps) {
 
         <main className="flex min-h-screen flex-1 flex-col overflow-y-auto px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
           <header className="glass-panel mb-6 rounded-3xl border border-white/10 px-5 py-4">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#00a5b5]">Sistema de estoque</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs uppercase tracking-[0.3em] text-[#00a5b5]">Sistema de estoque</p>
+              <span className="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-800/40 text-slate-300 border border-white/10 lg:hidden">
+                Perfil: {roleBadgeLabels[userRole]}
+              </span>
+            </div>
             <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <h2 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">{currentPage.title}</h2>

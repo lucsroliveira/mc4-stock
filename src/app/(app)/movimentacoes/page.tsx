@@ -1,9 +1,17 @@
+/**
+ * GESTÃO DE MOVIMENTAÇÕES (ENTRADAS, SAÍDAS E TRANSFERÊNCIAS)
+ * Objetivo: Registrar o histórico de fluxo e acionar a atualização de saldos.
+ */
+
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { MovimentacaoForm } from "@/components/movimentacao-form";
 import DataTableSearch from "@/components/DataTableSearch";
 
 export default async function MovimentacoesPage() {
   const supabase = await createSupabaseServerClient();
+
+  // BLOCO: DATA FETCHING PARALELO
+  // Busca itens e estoques para preencher o formulário, além do histórico recente para auditoria.
   const [{ data: itens }, { data: estoques }, { data: recentes }, { data: balances }] = await Promise.all([
     supabase.from("itens").select("id, nome").order("nome", { ascending: true }),
     supabase.from("estoques").select("id, nome").order("nome", { ascending: true }),
@@ -43,7 +51,9 @@ export default async function MovimentacoesPage() {
     quantidade: row.quantidade ?? 0,
     estoque_nome: Array.isArray(row.estoques) ? row.estoques[0]?.nome : row.estoques?.nome,
   }));
-
+  
+  // BLOCO: MAPEAMENTO DE RESULTADOS (NORMALIZAÇÃO)
+  // Converte os retornos complexos do Supabase (objetos/arrays) em estruturas planas para facilitar a renderização na tabela.
   const movementRows = (recentes ?? []).map((row: MovementRow) => {
     const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
     const origem = Array.isArray(row.origem) ? row.origem[0] : row.origem;
@@ -59,6 +69,8 @@ export default async function MovimentacoesPage() {
     };
   });
 
+  // BLOCO: INTERFACE DE REGISTRO
+  // O componente MovimentacaoForm gerencia o envio para o banco e a lógica de validação de saldo antes de salvar.
   return (
     <div className="grid gap-6">
       <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">

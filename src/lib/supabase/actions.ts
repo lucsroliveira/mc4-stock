@@ -11,6 +11,8 @@ export type AuthState = {
   error?: string;
 };
 
+export type UserRole = "cliente" | "operador" | "admin";
+
 async function createActionClient() {
   const cookieStore = await cookies();
   const { url, anonKey } = getSupabaseConfig();
@@ -31,6 +33,36 @@ async function createActionClient() {
       },
     },
   );
+}
+
+/**
+ * Helper de segurança RBAC: Obtém a role do usuário logado e valida se está permitida.
+ */
+async function assertUserRole(
+  supabase: Awaited<ReturnType<typeof createActionClient>>,
+  allowedRoles: UserRole[],
+): Promise<UserRole> {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Usuário não autenticado.");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const currentRole = (profile?.role ?? "cliente") as UserRole;
+
+  if (!allowedRoles.includes(currentRole)) {
+    throw new Error(
+      `Acesso negado: o seu perfil (${currentRole}) não tem permissão para esta operação.`,
+    );
+  }
+
+  return currentRole;
 }
 
 async function resolveItemPhotoReference(formData: FormData, supabase: Awaited<ReturnType<typeof createActionClient>>) {
@@ -92,6 +124,9 @@ export async function signOut() {
 
 export async function createItem(formData: FormData) {
   const supabase = await createActionClient();
+  // Apenas Operadores e Admins podem criar itens
+  await assertUserRole(supabase, ["operador", "admin"]);
+
   const nome = String(formData.get("nome") ?? "").trim();
   const categoria = String(formData.get("categoria") ?? "").trim();
   const cliente = String(formData.get("cliente") ?? "").trim();
@@ -120,6 +155,9 @@ export async function createItem(formData: FormData) {
 
 export async function updateItem(formData: FormData) {
   const supabase = await createActionClient();
+  // Apenas Operadores e Admins podem atualizar itens
+  await assertUserRole(supabase, ["operador", "admin"]);
+
   const id = String(formData.get("id") ?? "").trim();
   const nome = String(formData.get("nome") ?? "").trim();
   const categoria = String(formData.get("categoria") ?? "").trim();
@@ -147,11 +185,15 @@ export async function updateItem(formData: FormData) {
   }
 
   revalidatePath("/itens");
+  revalidatePath(`/itens/${id}`);
   revalidatePath("/dashboard");
 }
 
 export async function deleteItem(formData: FormData) {
   const supabase = await createActionClient();
+  // Apenas Administradores podem deletar itens
+  await assertUserRole(supabase, ["admin"]);
+
   const id = String(formData.get("id") ?? "").trim();
 
   if (!id) {
@@ -170,6 +212,9 @@ export async function deleteItem(formData: FormData) {
 
 export async function createEstoque(formData: FormData) {
   const supabase = await createActionClient();
+  // Apenas Operadores e Admins podem criar locais de estoque
+  await assertUserRole(supabase, ["operador", "admin"]);
+
   const nome = String(formData.get("nome") ?? "").trim();
   const tipo = String(formData.get("tipo") ?? "").trim();
   const responsavel = String(formData.get("responsavel") ?? "").trim();
@@ -198,6 +243,9 @@ export async function createEstoque(formData: FormData) {
 
 export async function updateEstoque(formData: FormData) {
   const supabase = await createActionClient();
+  // Apenas Operadores e Admins podem atualizar estoques
+  await assertUserRole(supabase, ["operador", "admin"]);
+
   const id = String(formData.get("id") ?? "").trim();
   const nome = String(formData.get("nome") ?? "").trim();
   const tipo = String(formData.get("tipo") ?? "").trim();
@@ -230,6 +278,9 @@ export async function updateEstoque(formData: FormData) {
 
 export async function deleteEstoque(formData: FormData) {
   const supabase = await createActionClient();
+  // Apenas Administradores podem deletar estoques
+  await assertUserRole(supabase, ["admin"]);
+
   const id = String(formData.get("id") ?? "").trim();
 
   if (!id) {
@@ -248,6 +299,9 @@ export async function deleteEstoque(formData: FormData) {
 
 export async function createMovimentacao(formData: FormData) {
   const supabase = await createActionClient();
+  // Apenas Operadores e Admins podem registrar movimentações operacionais
+  await assertUserRole(supabase, ["operador", "admin"]);
+
   const {
     data: { user },
   } = await supabase.auth.getUser();

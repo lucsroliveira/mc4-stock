@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
 import type { deleteItem, updateItem } from "@/lib/supabase/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -75,12 +76,12 @@ export function ItemRowEditor({ item, updateAction, deleteAction }: ItemRowEdito
       ) : (
         <tr key={item.id}>
           <td className="px-4 py-3 font-medium text-white">
-            <div className="flex items-center gap-3">
+            <Link href={`/itens/${item.id}`} className="group flex items-center gap-3 rounded-xl transition-colors hover:bg-[var(--panel-border)]/15 p-1 -m-1">
               <div className="h-10 w-10 overflow-hidden rounded-xl border border-[#416ba9]/10 bg-[#f4f7f9]">
                 {item.foto_preview_url ? <img src={item.foto_preview_url} alt={item.nome ?? "Item"} className="h-full w-full object-cover" /> : null}
               </div>
-              <span>{item.nome}</span>
-            </div>
+              <span className="group-hover:text-[#00a5b5]">{item.nome}</span>
+            </Link>
           </td>
           <td className="px-4 py-3 text-slate-300">{item.categoria}</td>
           <td className="px-4 py-3 text-slate-300">{item.cliente}</td>

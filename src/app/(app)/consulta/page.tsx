@@ -1,3 +1,8 @@
+/**
+ * CONSULTA DE INVENTÁRIO POR LOCAL
+ * Objetivo: Fornecer um espelho do inventário real filtrado por estoque físico ou veículo.
+ */
+
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type ConsultaPageProps = {
@@ -6,6 +11,10 @@ type ConsultaPageProps = {
     q?: string;
   }>;
 };
+
+// BLOCO: UTILITÁRIOS DE NORMALIZAÇÃO E URL
+// normalizeText: Remove acentos e padroniza o texto para buscas seguras no frontend.
+// buildQueryString: Sincroniza os filtros de pesquisa com a URL, permitindo compartilhar links de consultas específicas.
 
 function normalizeText(value: string | null | undefined) {
   return (value ?? "")
@@ -30,15 +39,32 @@ function buildQueryString(estoqueId: string, q: string) {
 }
 
 export default async function ConsultaPage({ searchParams }: ConsultaPageProps) {
+  // BLOCO: RECUPERAÇÃO DE PARÂMETROS E CONEXÃO
+  // Captura os termos de busca e o ID do estoque selecionado diretamente da URL (Server-side).
   const params = (await searchParams) ?? {};
   const searchTerm = (params.q ?? "").trim();
 
   const supabase = await createSupabaseServerClient();
+
+  // RECUPERAÇÃO DO PERFIL (RBAC): Descobre se o usuário logado é cliente, operador ou admin
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id)
+    .single();
+
+  const userRole = profile?.role ?? "cliente";
+  // Apenas operadores e administradores possuem permissão para exportar relatórios/inventários
+  const canExport = userRole === "operador" || userRole === "admin";
+
   type EstoqueOption = {
     id: string;
     nome: string | null;
   };
 
+  // BLOCO: BUSCA DE ESTOQUES E DEFINIÇÃO DE PADRÃO
+  // Busca a lista de locais e tenta definir "Recife" como padrão através da normalização.
   const [{ data: estoques }] = await Promise.all([
     supabase.from("estoques").select("id, nome").order("nome", { ascending: true }),
   ]);
@@ -62,6 +88,9 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
     }[] | null;
   };
 
+
+  // BLOCO: CONSULTA DE SALDO COM JOIN
+  // Realiza o join com a tabela 'itens' para trazer metadados (categoria, cliente, foto) junto ao saldo.
   const { data: inventarioData } = selectedEstoqueId
     ? await supabase
         .from("estoque_itens")
@@ -70,6 +99,9 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
     : { data: [] as never[] };
 
   const inventoryRows = (inventarioData ?? []) as InventoryRow[];
+
+  // BLOCO: FILTRAGEM MULTICAMPO
+  // Filtra os resultados localmente com base no termo 'q', buscando no Nome, Cliente ou Categoria simultaneamente.
   const filteredRows = inventoryRows.filter((row) => {
     if (!searchTerm) return true;
     const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
@@ -94,20 +126,23 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <a
-              href={`/consulta/export/csv${exportQuery ? `?${exportQuery}` : ""}`}
-              className="rounded-2xl border border-[var(--panel-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10"
-            >
-              EXPORT CSV
-            </a>
-            <a
-              href={`/consulta/export/pdf${exportQuery ? `?${exportQuery}` : ""}`}
-              className="rounded-2xl border border-[var(--panel-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10"
-            >
-              Baixar PDF
-            </a>
-          </div>
+          {/* Oculta os botões de exportação caso o usuário logado seja Cliente */}
+          {canExport && (
+            <div className="flex flex-wrap gap-2">
+              <a
+                href={`/consulta/export/csv${exportQuery ? `?${exportQuery}` : ""}`}
+                className="rounded-2xl border border-[var(--panel-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10"
+              >
+                EXPORT CSV
+              </a>
+              <a
+                href={`/consulta/export/pdf${exportQuery ? `?${exportQuery}` : ""}`}
+                className="rounded-2xl border border-[var(--panel-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10"
+              >
+                Baixar PDF
+              </a>
+            </div>
+          )}
         </div>
 
         <form method="get" className="mt-6 grid gap-4 md:grid-cols-[1.2fr_1fr_auto]">

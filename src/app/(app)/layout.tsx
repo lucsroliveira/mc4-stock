@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+export type UserRole = "cliente" | "operador" | "admin";
+
 export default async function AppLayout({
   children,
 }: Readonly<{
@@ -16,10 +18,18 @@ export default async function AppLayout({
     redirect("/login");
   }
 
-  const userLabel = user.user_metadata?.full_name ?? user.email ?? "Usuário";
+  // Busca o perfil e a role correspondente ao usuário logado na tabela profiles
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, full_name, email")
+    .eq("id", user.id)
+    .single();
+
+  const userLabel = profile?.full_name ?? user.user_metadata?.full_name ?? profile?.email ?? user.email ?? "Usuário";
+  const userRole = (profile?.role ?? "cliente") as UserRole;
 
   return (
-   <AppShell userLabel={userLabel}>
+    <AppShell userLabel={userLabel} userRole={userRole}>
       {children}
     </AppShell>
   );

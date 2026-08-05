@@ -1,4 +1,10 @@
-// Data Fetching com o Supabase puxando 
+/**
+ * IMPORTAÇÕES E TIPAGEM
+ * 1. createSupabaseServerClient: Inicializa a conexão segura no lado do servidor.
+ * 2. getSupabaseDiagnostics: Função utilitária para checar a saúde da conexão e do bucket.
+ * 3. RecentMovement/StockRelation: Tipos que lidam com a flexibilidade do Supabase,
+ * já que relacionamentos (joins) podem retornar objetos únicos ou arrays.
+ */
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import StockSearchList from "@/components/StockSearchList";
 import { getSupabaseDiagnostics } from "@/lib/supabase/diagnostics";
@@ -13,18 +19,39 @@ type RecentMovement = {
 };
 
 type StockRelation = {
+  id?: string | null;
   nome: string | null;
   cliente?: string | null;
 };
 
+type StockSummaryRow = {
+  quantidade: number;
+  estoque_id: string;
+  item_id: string;
+  estoques: StockRelation | StockRelation[] | null;
+  itens: StockRelation | StockRelation[] | null;
+};
+
+/**
+ * Dashboard Central de Estoque
+ * * Responsável por orquestrar a visualização de KPIs, histórico de movimentações
+ * e saldo consolidado. Utiliza Server Components para buscar dados em paralelo
+ * do Supabase, garantindo performance e SEO.
+ */
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
+  // Verifica se as variáveis de ambiente (.env.local) e políticas RLS estão OK
   const diagnostics = await getSupabaseDiagnostics();
 
+  // Disparamos as consultas em paralelo para reduzir o tempo de carregamento da página.
+  // Buscamos dados mestre (itens, estoques) e dados transacionais (movimentações).
   const [itensCount, estoquesCount, movimentacoesCount, recentMovementsResult, saldosResult] = await Promise.all([
+    // Contagem exata para KPIs sem trazer o corpo dos dados usando (head: true) (otimização de tráfego)
     supabase.from("itens").select("id", { count: "exact", head: true }),
     supabase.from("estoques").select("id", { count: "exact", head: true }),
     supabase.from("movimentacoes").select("id", { count: "exact", head: true }),
+
+    // Busca as últimas 6 movimentações com joins para nomes de itens e locais
     supabase
       .from("movimentacoes")
       .select(
@@ -32,9 +59,12 @@ export default async function DashboardPage() {
       )
       .order("data_movimentacao", { ascending: false })
       .limit(6),
-    supabase.from("estoque_itens").select("quantidade, estoque_id, estoques ( nome ), itens ( nome, cliente )"),
+
+    // Recupera o saldo atual por item/estoque incluindo dados do cliente
+    supabase.from("estoque_itens").select("quantidade, estoque_id, item_id, estoques ( nome ), itens ( id, nome, cliente )"),
   ]);
 
+  // Formata os indicadores (KPIs) garantindo que nunca exibam 'undefined'
   const kpis = [
     { label: "Itens no catálogo", value: String(itensCount.count ?? 0), note: "Itens cadastrados no Supabase" },
     { label: "Locais ativos", value: String(estoquesCount.count ?? 0), note: "Estoques regionais e veículos" },
@@ -43,30 +73,34 @@ export default async function DashboardPage() {
 
   const recentMovements = (recentMovementsResult.data ?? []) as RecentMovement[];
 
-  type StockSummaryRow = {
-    quantidade: number;
-    estoque_id: string;
-    estoques: StockRelation | StockRelation[] | null;
-    itens: StockRelation | StockRelation[] | null;
-  };
-
-  const stockSummary = new Map<string, { total: number; cliente: string }>();
+  // Estruturas de Map para agrupar saldos por ID do Item e Nome do Local
+  const stockSummary = new Map<string, { id: string; nome: string; total: number; cliente: string }>();
   const locationSummary = new Map<string, number>();
   let totalUnits = 0;
   let activeItems = 0;
 
+  // Itera sobre os resultados do Supabase para normalizar os nomes vindos dos joins
   (saldosResult.data ?? []).forEach((row: StockSummaryRow) => {
     const item = row.itens as StockRelation | StockRelation[] | null;
+
+    // Garante a captura do nome e cliente mesmo se o join retornar um array
     const itemName = Array.isArray(item) ? item[0]?.nome : item?.nome;
     const itemClient = Array.isArray(item) ? item[0]?.cliente : item?.cliente;
     const estoque = row.estoques as StockRelation | StockRelation[] | null;
     const estoqueName = Array.isArray(estoque) ? estoque[0]?.nome : estoque?.nome;
 
-    if (!itemName) return;
+    if (!itemName || !row.item_id) return;
 
-    const current = stockSummary.get(itemName) ?? { total: 0, cliente: itemClient ?? "Geral" };
+    // Utilizamos um Map para consolidar saldos de diferentes locais de forma eficiente
+    const current = stockSummary.get(row.item_id) ?? { 
+      id: row.item_id, 
+      nome: itemName, 
+      total: 0, 
+      cliente: itemClient ?? "Geral" 
+    };
+    
     current.total += row.quantidade ?? 0;
-    stockSummary.set(itemName, current);
+    stockSummary.set(row.item_id, current);
 
     totalUnits += row.quantidade ?? 0;
     if ((row.quantidade ?? 0) > 0) {
@@ -79,12 +113,11 @@ export default async function DashboardPage() {
     }
   });
 
-  // Mantemos a listagem completa ordenada por maior saldo para a busca
-  const stockRows = Array.from(stockSummary.entries())
-    .sort((left, right) => right[1].total - left[1].total)
-    .map(([nome, summary]) => ({ nome, ...summary }));
+  // Converte o Map em Array e ordena do maior estoque para o menor
+  const stockRows = Array.from(stockSummary.values())
+    .sort((left, right) => right.total - left.total);
 
-  // Apenas para o destaque dos KPIs (pegamos o primeiro elemento do array ordenado)
+  // Define os top 6 itens para os cartões de destaque e os top 3 locais
   const topStockRowsForHighlight = stockRows.slice(0, 6);
 
   const topLocations = Array.from(locationSummary.entries())
@@ -96,6 +129,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="grid gap-6">
+      {/* BANNER DE DIAGNÓSTICO: Exibido apenas se o .env.local estiver incompleto ou houver erro de RLS */}
       {diagnostics.hasFailures && (
         <section className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6 text-sm text-[var(--foreground)]">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-300">Diagnóstico Supabase</p>
@@ -171,7 +205,7 @@ export default async function DashboardPage() {
           </div>
         </article>
 
-        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
           <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Saldo geral por item</h3>
           {/* Renderiza o componente interativo de busca passando todos os itens calculados */}
           <StockSearchList initialRows={stockRows} />
@@ -199,7 +233,6 @@ export default async function DashboardPage() {
                     const originName = Array.isArray(movement.origem) ? movement.origem[0]?.nome : movement.origem?.nome;
                     const destinationName = Array.isArray(movement.destino) ? movement.destino[0]?.nome : movement.destino?.nome;
                     
-                    // Badges com cores adaptadas para manter bom contraste em qualquer tema
                     const badgeClass =
                       movement.tipo === "entrada"
                         ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-200"

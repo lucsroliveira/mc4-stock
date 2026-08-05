@@ -1,9 +1,19 @@
+/**
+ * GESTÃO DE ESTOQUES - CAMADA DE IMPORTAÇÃO
+ * 1. createSupabaseServerClient: Gerencia a sessão do lado do servidor.
+ * 2. create/delete/updateEstoque: Server Actions que encapsulam a lógica de 
+ *    persistência no Supabase, garantindo revalidação automática da página. [1]
+ * 3. EstoqueRowEditor: Componente cliente para edição em linha (inline editing).
+ */
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createEstoque, deleteEstoque, updateEstoque } from "@/lib/supabase/actions";
 import { EstoqueRowEditor } from "@/components/estoque-row-editor";
 
 export default async function EstoquesPage() {
   const supabase = await createSupabaseServerClient();
+
+  // OTIMIZAÇÃO: Busca em paralelo a definição dos estoques e a tabela de junção de saldos.
+  // Isso permite calcular quantos itens existem em cada local sem múltiplas idas ao banco.
   const [{ data: estoques }, { data: saldos }] = await Promise.all([
     supabase.from("estoques").select("id, nome, tipo, responsavel, contato, endereco").order("nome", { ascending: true }),
     supabase.from("estoque_itens").select("estoque_id, quantidade"),
@@ -14,6 +24,9 @@ export default async function EstoquesPage() {
     quantidade: number;
   };
 
+
+  // LÓGICA DE NEGÓCIO: Agrega o saldo bruto por ID de estoque utilizando um Map.
+  // Resolve o problema de transformar linhas individuais de itens em um resumo por local.
   const resumoPorEstoque = new Map<string, { itens: number; total: number }>();
   (saldos ?? []).forEach((row: EstoqueSaldoRow) => {
     const current = resumoPorEstoque.get(row.estoque_id) ?? { itens: 0, total: 0 };
@@ -26,12 +39,19 @@ export default async function EstoquesPage() {
     <div className="grid gap-6">
       <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
         <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo estoque</h3>
+
+        {/* INTEGRAÇÃO: O formulário utiliza Server Actions (createEstoque).
+            Os nomes dos inputs (name="nome", etc) devem corresponder exatamente 
+            às colunas da tabela 'estoques' no Supabase. */}
+
         <form action={createEstoque} className="mt-4 grid gap-4 md:grid-cols-2">
           <input name="nome" placeholder="Nome do local ou veículo" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
           <select name="tipo" defaultValue="Regional" className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
             <option value="Regional">Regional (Fixo)</option>
             <option value="Temporario">Temporário / Veículo</option>
           </select>
+          
+          {/* Campos de responsabilidade e contato para rastreabilidade operacional */}
           <input name="responsavel" placeholder="Responsável" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
           <input name="contato" placeholder="WhatsApp / contato" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
           <input name="endereco" placeholder="Endereço / placa" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />

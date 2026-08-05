@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 type StockRow = {
+  id: string;
   nome: string;
   total: number;
   cliente: string;
@@ -45,8 +47,9 @@ export default function StockSearchList({ initialRows }: { initialRows: StockRow
       >
         {filteredRows.length > 0 ? (
           filteredRows.map((item) => (
-            <div
-              key={item.nome}
+            <Link
+              key={item.id}
+              href={`/itens/${item.id}`}
               className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 transition-colors hover:border-[#00a5b5]/50"
             >
               <div>
@@ -54,7 +57,7 @@ export default function StockSearchList({ initialRows }: { initialRows: StockRow
                 <p className="text-xs text-[var(--text-muted)]">{item.cliente}</p>
               </div>
               <span className="mc4-badge mc4-badge-lime">{item.total}</span>
-            </div>
+            </Link>
           ))
         ) : (
           <p className="text-sm text-slate-400 text-center py-4">Nenhum item encontrado.</p>

@@ -1,6 +1,13 @@
+/**
+ * RELATÓRIOS DE MOVIMENTAÇÃO
+ * Objetivo: Auditoria completa do histórico de estoque com exportação e filtros temporais.
+ */
+
+
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { RelatoriosFiltersTable } from "@/components/relatorios-filters-table";
 
+// Configura a página para ser sempre dinâmica, garantindo dados atualizados em cada acesso.
 export const dynamic = "force-dynamic";
 
 type SearchParams = {
@@ -32,12 +39,18 @@ type RelatoriosPageProps = {
 
 export default async function RelatoriosPage({ searchParams }: RelatoriosPageProps) {
   const supabase = await createSupabaseServerClient();
+
+  // BLOCO: TRATAMENTO DE PARÂMETROS DINÂMICOS
+  // Extrai filtros de data (início/fim), tipo de movimentação e termo de pesquisa da URL.
   const params = (await searchParams) ?? {};
   const inicio = getParamValue(params.inicio);
   const fim = getParamValue(params.fim);
   const tipo = getParamValue(params.tipo);
   const pesquisa = getParamValue(params.q);
 
+
+  // BLOCO: CONSULTA HISTÓRICA
+  // Busca todos os registros de movimentação com joins para identificar itens, origens e destinos pelo nome.
   const { data: movimentos } = await supabase
     .from("movimentacoes")
     .select("id, data_movimentacao, tipo, quantidade, observacao, criado_por, itens ( nome ), origem:estoques!origem_id ( nome ), destino:estoques!destino_id ( nome )")
@@ -60,5 +73,7 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
     };
   });
 
+  // BLOCO: RENDERIZAÇÃO COM COMPONENTE DE FILTRO (CLIENT-SIDE)
+  // Envia os dados iniciais para o RelatoriosFiltersTable, que gerencia a filtragem interativa no lado do cliente.
   return <RelatoriosFiltersTable initialRows={movementRows} initialInicio={inicio} initialFim={fim} initialTipo={tipo} initialPesquisa={pesquisa} />;
 }

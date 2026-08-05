@@ -49,7 +49,7 @@ export default async function MovimentacoesPage() {
     item_id: row.item_id,
     estoque_id: row.estoque_id,
     quantidade: row.quantidade ?? 0,
-    estoque_nome: Array.isArray(row.estoques) ? row.estoques[0]?.nome : row.estoques?.nome,
+    estoque_nome: (Array.isArray(row.estoques) ? row.estoques[0]?.nome : row.estoques?.nome) ?? null,
   }));
   
   // BLOCO: MAPEAMENTO DE RESULTADOS (NORMALIZAÇÃO)

@@ -10,6 +10,21 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET=your-public-bucket
 ```
 
+In Vercel, you can use either the same `NEXT_PUBLIC_*` names above or these aliases:
+
+```bash
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
+SUPABASE_STORAGE_BUCKET=your-public-bucket
+```
+
+The app reads the first available value in this order:
+
+- URL: `NEXT_PUBLIC_SUPABASE_URL` -> `SUPABASE_URL`
+- Key: `NEXT_PUBLIC_SUPABASE_ANON_KEY` -> `SUPABASE_ANON_KEY` -> `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` -> `SUPABASE_PUBLISHABLE_KEY`
+- Bucket: `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET` -> `SUPABASE_STORAGE_BUCKET`
+
 What each variable does:
 
 - `NEXT_PUBLIC_SUPABASE_URL`: your Supabase project URL.

@@ -1,6 +1,30 @@
+function getFirstDefinedEnv(names: string[]) {
+  for (const name of names) {
+    const value = process.env[name]?.trim();
+    if (value) {
+      return value;
+    }
+  }
+
+  return "";
+}
+
+function getSupabaseUrlFromEnv() {
+  return getFirstDefinedEnv(["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_URL"]);
+}
+
+function getSupabasePublicKeyFromEnv() {
+  return getFirstDefinedEnv([
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_ANON_KEY",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "SUPABASE_PUBLISHABLE_KEY",
+  ]);
+}
+
 export function hasSupabaseConfig() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const url = getSupabaseUrlFromEnv();
+  const key = getSupabasePublicKeyFromEnv();
 
   if (!url || !key) {
     return false;
@@ -10,12 +34,12 @@ export function hasSupabaseConfig() {
 }
 
 export function getSupabaseConfig() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const url = getSupabaseUrlFromEnv();
+  const anonKey = getSupabasePublicKeyFromEnv();
 
   if (!hasSupabaseConfig() || !url || !anonKey) {
     throw new Error(
-      "Supabase não configurado. Defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY com valores reais.",
+      "Supabase não configurado. Defina NEXT_PUBLIC_SUPABASE_URL (ou SUPABASE_URL) e NEXT_PUBLIC_SUPABASE_ANON_KEY/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY com valores reais.",
     );
   }
 

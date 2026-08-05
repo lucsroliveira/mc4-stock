@@ -26,7 +26,7 @@ function sanitizeFileName(fileName: string) {
 }
 
 export function getSupabaseStorageBucket() {
-  const bucket = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET?.trim();
+  const bucket = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET?.trim() || process.env.SUPABASE_STORAGE_BUCKET?.trim();
 
   if (!bucket || bucket.includes("your-") || bucket.includes("example")) {
     return null;

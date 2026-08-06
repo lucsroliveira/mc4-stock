@@ -77,6 +77,7 @@ export default async function ItensPage() {
             <option value="Brindes">Brindes</option>
             <option value="OOH">OOH</option>
             <option value="Ativação">Ativação</option>
+            <option value="Outros">Outros</option>
           </select>
 
           {/* Seleção de cliente proprietário do item */}

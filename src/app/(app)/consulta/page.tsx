@@ -201,7 +201,7 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
                         <td className="px-4 py-3 font-medium text-[var(--foreground)]">{item?.nome ?? "Item excluído"}</td>
                         <td className="px-4 py-3 text-[var(--text-muted)]">{item?.cliente ?? "-"}</td>
                         <td className="px-4 py-3 text-[var(--text-muted)]">{item?.categoria ?? "-"}</td>
-                        <td className="px-4 py-3 text-center font-semibold text-[var(--foreground)]">{row.quantidade}</td>
+                        <td className="px-4 py-3 text-center font-semibold text-[var(--foreground)]">{(row.quantidade ?? 0).toLocaleString('pt-BR')}</td>
                         <td className="px-4 py-3 text-right">
                           <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${statusClass}`}>
                             {row.quantidade > 0 ? "Em estoque" : "Zerado"}

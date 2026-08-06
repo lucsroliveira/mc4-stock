@@ -56,7 +56,7 @@ export default function StockSearchList({ initialRows }: { initialRows: StockRow
                 <p className="font-medium text-[var(--foreground)]">{item.nome}</p>
                 <p className="text-xs text-[var(--text-muted)]">{item.cliente}</p>
               </div>
-              <span className="mc4-badge mc4-badge-lime">{item.total}</span>
+              <span className="mc4-badge mc4-badge-lime">{(item.total ?? 0).toLocaleString('pt-BR')}</span>
             </Link>
           ))
         ) : (

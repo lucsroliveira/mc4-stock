@@ -67,9 +67,22 @@ export default async function DashboardPage() {
 
   // Formata os indicadores (KPIs) garantindo que nunca exibam 'undefined'
   const kpis = [
-    { label: "Itens no catálogo", value: String(itensCount.count ?? 0), note: "Itens cadastrados no Supabase" },
-    { label: "Locais ativos", value: String(estoquesCount.count ?? 0), note: "Estoques regionais e veículos" },
-    { label: "Movimentações registradas", value: String(movimentacoesCount.count ?? 0), note: "Histórico auditável da operação" },
+    { 
+      label: "Itens no catálogo", 
+      // O método toLocaleString('pt-BR') adiciona o ponto automaticamente em números acima de 999
+      value: (itensCount.count ?? 0).toLocaleString('pt-BR'), 
+      note: "Itens cadastrados no Supabase" 
+    },
+    { 
+      label: "Locais ativos", 
+      value: (estoquesCount.count ?? 0).toLocaleString('pt-BR'), 
+      note: "Estoques regionais e veículos" 
+    },
+    { 
+      label: "Movimentações registradas", 
+      value: (movimentacoesCount.count ?? 0).toLocaleString('pt-BR'), 
+      note: "Histórico auditável da operação" 
+    },
   ];
 
   const recentMovements = (recentMovementsResult.data ?? []) as RecentMovement[];
@@ -79,6 +92,10 @@ export default async function DashboardPage() {
   const locationSummary = new Map<string, number>();
   let totalUnits = 0;
   let activeItems = 0;
+
+  // Cria constantes formatadas para a interface:
+  const formattedTotalUnits = totalUnits.toLocaleString('pt-BR');
+  const formattedActiveItems = activeItems.toLocaleString('pt-BR');
 
   // Itera sobre os resultados do Supabase para normalizar os nomes vindos dos joins
   (saldosResult.data ?? []).forEach((row: StockSummaryRow) => {
@@ -129,6 +146,8 @@ export default async function DashboardPage() {
   const highlightItem = topStockRowsForHighlight[0]?.nome ?? "Nenhum saldo";
   const highlightUnits = topStockRowsForHighlight[0]?.total ?? 0;
 
+  
+
   return (
     <div className="grid gap-6">
       {/* BANNER DE DIAGNÓSTICO: Exibido apenas se o .env.local estiver incompleto ou houver erro de RLS */}
@@ -170,15 +189,15 @@ export default async function DashboardPage() {
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] px-4 py-3 text-sm">
               <p className="text-[var(--text-muted)]">Unidades</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{totalUnits}</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{totalUnits.toLocaleString('pt-BR')}</p>
             </div>
             <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] px-4 py-3 text-sm">
               <p className="text-[var(--text-muted)]">Itens ativos</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{activeItems}</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{activeItems.toLocaleString('pt-BR')}</p>
             </div>
             <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(235,87,39,0.08)] px-4 py-3 text-sm">
               <p className="text-[var(--text-muted)]">Maior saldo</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{highlightItem}</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{highlightItem} ({highlightUnits.toLocaleString('pt-BR')} un.)</p>
             </div>
           </div>
         </div>

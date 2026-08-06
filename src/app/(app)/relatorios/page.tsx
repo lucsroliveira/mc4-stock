@@ -79,7 +79,7 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
       itemNome: item?.nome ?? "Item excluído",
       origemNome: origem?.nome ?? "Externo",
       destinoNome: destino?.nome ?? "Baixa",
-      quantidade: row.quantidade,
+      quantidade: (row.quantidade ?? 0).toLocaleString('pt-BR'),
       observacao: row.observacao ?? "-",
     };
   });

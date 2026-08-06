@@ -113,15 +113,15 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
       <section className="grid gap-4 md:grid-cols-3">
         <article className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] px-4 py-4 text-sm">
           <p className="text-[var(--text-muted)]">Saldo total</p>
-          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{totalUnidades}</p>
+          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{totalUnidades.toLocaleString("pt-BR")}</p>
         </article>
         <article className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] px-4 py-4 text-sm">
           <p className="text-[var(--text-muted)]">Locais com saldo</p>
-          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{locaisAtivos}</p>
+          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{locaisAtivos.toLocaleString("pt-BR")}</p>
         </article>
         <article className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(235,87,39,0.08)] px-4 py-4 text-sm">
           <p className="text-[var(--text-muted)]">Movimentações</p>
-          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{movementHistory.length}</p>
+          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{movementHistory.length.toLocaleString("pt-BR")}</p>
         </article>
       </section>
 
@@ -145,7 +145,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
                       <p className="font-medium text-[var(--foreground)]">{estoque?.nome ?? "Local não identificado"}</p>
                       <p className="text-xs text-[var(--text-muted)]">{estoque?.tipo ?? "Estoque"}</p>
                     </div>
-                    <span className="mc4-badge mc4-badge-lime">{row.quantidade ?? 0}</span>
+                    <span className="mc4-badge mc4-badge-lime">{(row.quantidade ?? 0).toLocaleString("pt-BR")}</span>
                   </div>
                 );
               })
@@ -160,15 +160,15 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-[var(--panel-border)] bg-emerald-500/10 px-4 py-3 text-sm">
               <p className="text-[var(--text-muted)]">Entradas</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{movementStats.entradas}</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{movementStats.entradas.toLocaleString("pt-BR")}</p>
             </div>
             <div className="rounded-2xl border border-[var(--panel-border)] bg-rose-500/10 px-4 py-3 text-sm">
               <p className="text-[var(--text-muted)]">Saídas</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{movementStats.saidas}</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{movementStats.saidas.toLocaleString("pt-BR")}</p>
             </div>
             <div className="rounded-2xl border border-[var(--panel-border)] bg-cyan-500/10 px-4 py-3 text-sm">
               <p className="text-[var(--text-muted)]">Transferências</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{movementStats.transferencias}</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{movementStats.transferencias.toLocaleString("pt-BR")}</p>
             </div>
           </div>
 
@@ -193,7 +193,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
                         <td className="px-4 py-3 text-[var(--text-muted)]">{new Date(movement.data_movimentacao).toLocaleString("pt-BR")}</td>
                         <td className="px-4 py-3 text-[var(--foreground)]">{movement.tipo}</td>
                         <td className="px-4 py-3 text-[var(--text-muted)]">{origem?.nome ?? "Externo"} → {destino?.nome ?? "Baixa"}</td>
-                        <td className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">{movement.quantidade}</td>
+                        <td className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">{(movement.quantidade ?? 0).toLocaleString("pt-BR")}</td>
                       </tr>
                     );
                   })
@@ -225,6 +225,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             <option value="Brindes">Brindes</option>
             <option value="OOH">OOH</option>
             <option value="Ativação">Ativação</option>
+            <option value="Outros">Outros</option>
           </select>
           <select name="cliente" defaultValue={item.cliente ?? "Interno / MC4"} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
             <option value="Interno / MC4">Interno / MC4</option>

@@ -79,7 +79,7 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
       itemNome: item?.nome ?? "Item excluído",
       origemNome: origem?.nome ?? "Externo",
       destinoNome: destino?.nome ?? "Baixa",
-      quantidade: (row.quantidade ?? 0).toLocaleString('pt-BR'),
+      quantidade: row.quantidade,
       observacao: row.observacao ?? "-",
     };
   });
@@ -89,7 +89,7 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
   return (
     <RelatoriosFiltersTable
       initialRows={movementRows}
-      initialInicio={inicio}
+      initialInicio={inicio}  
       initialFim={fim}
       initialTipo={tipo}
       initialPesquisa={pesquisa}

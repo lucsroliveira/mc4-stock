@@ -233,7 +233,7 @@ export function RelatoriosFiltersTable({
                       </td>
                       <td className="px-4 py-3 text-[var(--text-muted)]">{movement.origemNome}</td>
                       <td className="px-4 py-3 text-[var(--text-muted)]">{movement.destinoNome}</td>
-                      <td className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">{movement.quantidade}</td>
+                      <td className="px-4 py-3 text-right font-semibold text-[var(--foreground)]"> {(movement.quantidade ?? 0).toLocaleString('pt-BR')}</td>
                     </tr>
                   );
                 })

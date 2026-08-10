@@ -44,32 +44,31 @@ export default async function DashboardPage() {
   // Verifica se as variáveis de ambiente (.env.local) e políticas RLS estão OK
   const diagnostics = await getSupabaseDiagnostics();
 
+  // Define a data de 30 dias atrás para os gráficos
+  const trintaDiasAtras = new Date();
+  trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+
   // Disparamos as consultas em paralelo para reduzir o tempo de carregamento da página.
-  // Buscamos dados mestre (itens, estoques) e dados transacionais (movimentações).
-  const [itensCount, estoquesCount, movimentacoesCount, recentMovementsResult, saldosResult] = await Promise.all([
-    // Contagem exata para KPIs sem trazer o corpo dos dados usando (head: true) (otimização de tráfego)
+  const [itensCount, estoquesCount, movimentacoesCount, recentMovementsResult, saldosResult, historyResult] = await Promise.all([
     supabase.from("itens").select("id", { count: "exact", head: true }).eq("ativo", true),
     supabase.from("estoques").select("id", { count: "exact", head: true }),
     supabase.from("movimentacoes").select("id", { count: "exact", head: true }),
-
-    // Busca as últimas 6 movimentações com joins para nomes de itens e locais
     supabase
       .from("movimentacoes")
-      .select(
-        `data_movimentacao, tipo, quantidade, itens ( nome ), origem:estoques!origem_id ( nome ), destino:estoques!destino_id ( nome )`,
-      )
+      .select(`data_movimentacao, tipo, quantidade, itens ( nome ), origem:estoques!origem_id ( nome ), destino:estoques!destino_id ( nome )`)
       .order("data_movimentacao", { ascending: false })
       .limit(6),
-
-    // Recupera o saldo atual por item/estoque incluindo dados do cliente
     supabase.from("estoque_itens").select("quantidade, estoque_id, item_id, estoques ( nome ), itens ( id, nome, cliente, ativo )"),
+    supabase
+      .from("movimentacoes")
+      .select("data_movimentacao, tipo, quantidade")
+      .gte("data_movimentacao", trintaDiasAtras.toISOString())
+      .order("data_movimentacao", { ascending: true }),
   ]);
 
-  // Formata os indicadores (KPIs) garantindo que nunca exibam 'undefined'
   const kpis = [
     { 
       label: "Itens no catálogo", 
-      // O método toLocaleString('pt-BR') adiciona o ponto automaticamente em números acima de 999
       value: (itensCount.count ?? 0).toLocaleString('pt-BR'), 
       note: "Itens cadastrados no Supabase" 
     },
@@ -87,21 +86,13 @@ export default async function DashboardPage() {
 
   const recentMovements = (recentMovementsResult.data ?? []) as RecentMovement[];
 
-  // Estruturas de Map para agrupar saldos por ID do Item e Nome do Local
   const stockSummary = new Map<string, { id: string; nome: string; total: number; cliente: string }>();
   const locationSummary = new Map<string, number>();
   let totalUnits = 0;
   let activeItems = 0;
 
-  // Cria constantes formatadas para a interface:
-  const formattedTotalUnits = totalUnits.toLocaleString('pt-BR');
-  const formattedActiveItems = activeItems.toLocaleString('pt-BR');
-
-  // Itera sobre os resultados do Supabase para normalizar os nomes vindos dos joins
   (saldosResult.data ?? []).forEach((row: StockSummaryRow) => {
     const item = row.itens as StockRelation | StockRelation[] | null;
-
-    // Garante a captura do nome e cliente mesmo se o join retornar um array
     const itemName = Array.isArray(item) ? item[0]?.nome : item?.nome;
     const itemClient = Array.isArray(item) ? item[0]?.cliente : item?.cliente;
     const itemActive = Array.isArray(item) ? item[0]?.ativo : item?.ativo;
@@ -110,7 +101,6 @@ export default async function DashboardPage() {
 
     if (!itemName || !row.item_id || itemActive === false) return;
 
-    // Utilizamos um Map para consolidar saldos de diferentes locais de forma eficiente
     const current = stockSummary.get(row.item_id) ?? { 
       id: row.item_id, 
       nome: itemName, 
@@ -132,13 +122,13 @@ export default async function DashboardPage() {
     }
   });
 
-  // Converte o Map em Array e ordena do maior estoque para o menor
+  const formattedTotalUnits = totalUnits.toLocaleString('pt-BR');
+  const formattedActiveItems = activeItems.toLocaleString('pt-BR');
+
   const stockRows = Array.from(stockSummary.values())
     .sort((left, right) => right.total - left.total);
 
-  // Define os top 6 itens para os cartões de destaque e os top 3 locais
   const topStockRowsForHighlight = stockRows.slice(0, 6);
-
   const topLocations = Array.from(locationSummary.entries())
     .sort((left, right) => right[1] - left[1])
     .slice(0, 3);
@@ -146,11 +136,45 @@ export default async function DashboardPage() {
   const highlightItem = topStockRowsForHighlight[0]?.nome ?? "Nenhum saldo";
   const highlightUnits = topStockRowsForHighlight[0]?.total ?? 0;
 
-  
+  // Cria um mapa com os últimos 30 dias zerados
+  const chartDataMap = new Map();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const label = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    chartDataMap.set(label, { name: label, entrada: 0, saida: 0, transferencia: 0 });
+  }
+
+  // Preenche o mapa com os dados reais do banco
+  (historyResult.data ?? []).forEach((mov) => {
+    const label = new Date(mov.data_movimentacao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    if (chartDataMap.has(label)) {
+      const dayData = chartDataMap.get(label);
+      // @ts-ignore
+      if (dayData && mov.tipo in dayData) {
+        dayData[mov.tipo] += mov.quantidade;
+      }
+    }
+  });
+
+  const chartData = Array.from(chartDataMap.values()) as { name: string; entrada: number; saida: number; transferencia: number }[];
+
+  // Cálculo para normalização das linhas do SVG
+  const maxVal = Math.max(...chartData.map(d => Math.max(d.entrada, d.saida, d.transferencia)), 5);
+  const svgHeight = 180;
+  const svgWidth = 600;
+  const pointsStep = svgWidth / Math.max(chartData.length - 1, 1);
+
+  const getPointsString = (key: 'entrada' | 'saida' | 'transferencia') => {
+    return chartData.map((d, index) => {
+      const x = index * pointsStep;
+      const y = svgHeight - (d[key] / maxVal) * (svgHeight - 20) - 10;
+      return `${x},${y}`;
+    }).join(" ");
+  };
 
   return (
     <div className="grid gap-6">
-      {/* BANNER DE DIAGNÓSTICO: Exibido apenas se o .env.local estiver incompleto ou houver erro de RLS */}
       {diagnostics.hasFailures && (
         <section className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6 text-sm text-[var(--foreground)]">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-300">Diagnóstico Supabase</p>
@@ -189,11 +213,11 @@ export default async function DashboardPage() {
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] px-4 py-3 text-sm">
               <p className="text-[var(--text-muted)]">Unidades</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{totalUnits.toLocaleString('pt-BR')}</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{formattedTotalUnits}</p>
             </div>
             <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] px-4 py-3 text-sm">
               <p className="text-[var(--text-muted)]">Itens ativos</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{activeItems.toLocaleString('pt-BR')}</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{formattedActiveItems}</p>
             </div>
             <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(235,87,39,0.08)] px-4 py-3 text-sm">
               <p className="text-[var(--text-muted)]">Maior saldo</p>
@@ -205,22 +229,75 @@ export default async function DashboardPage() {
 
       <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <article className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">Resumo da operação</h3>
-          <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-            O dashboard agora mostra indicadores úteis para operação: volume total, itens com saldo e locais com maior concentração de estoque.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <h3 className="text-lg font-semibold text-[var(--foreground)]">Resumo da operação</h3>
+              <p className="mt-1 text-sm text-[var(--text-muted)]">Fluxo de movimentações dos últimos 30 dias</p>
+            </div>
+            {/* Legenda do Gráfico */}
+            <div className="flex items-center gap-4 text-xs font-medium">
+              <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[#00a5b5]"></span> Entradas</span>
+              <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[#eb5727]"></span> Saídas</span>
+              <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[#cedb05]"></span> Transf.</span>
+            </div>
+          </div>
+
+          {/* GRÁFICO DE LINHAS SVG NATIVO */}
+          <div className="mt-6 w-full overflow-x-auto">
+            <div className="h-[220px] w-full min-w-[500px] rounded-2xl border border-[var(--panel-border)] bg-[rgba(255,255,255,0.02)] p-4 flex flex-col justify-between">
+              <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="h-full w-full overflow-visible">
+                {/* Linhas de grade horizontais de referência */}
+                <line x1="0" y1="20" x2={svgWidth} y2="20" stroke="currentColor" strokeOpacity="0.06" />
+                <line x1="0" y1={svgHeight / 2} x2={svgWidth} y2={svgHeight / 2} stroke="currentColor" strokeOpacity="0.06" />
+                <line x1="0" y1={svgHeight - 10} x2={svgWidth} y2={svgHeight - 10} stroke="currentColor" strokeOpacity="0.06" />
+
+                {/* Linha de Entrada (#00a5b5) */}
+                <polyline
+                  fill="none"
+                  stroke="#00a5b5"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  points={getPointsString('entrada')}
+                />
+                {/* Linha de Saída (#eb5727) */}
+                <polyline
+                  fill="none"
+                  stroke="#eb5727"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  points={getPointsString('saida')}
+                />
+                {/* Linha de Transferência (#cedb05) */}
+                <polyline
+                  fill="none"
+                  stroke="#cedb05"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  points={getPointsString('transferencia')}
+                />
+              </svg>
+              <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-2 pt-2 border-t border-[var(--panel-border)]/40">
+                <span>{chartData[0]?.name ?? "Início"}</span>
+                <span>{chartData[Math.floor(chartData.length / 2)]?.name ?? ""}</span>
+                <span>{chartData[chartData.length - 1]?.name ?? "Hoje"}</span>
+              </div>
+            </div>
+          </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] p-4">
               <p className="font-medium text-[#00a5b5]">Saldo destacado</p>
               <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-                {highlightItem} concentra {highlightUnits} unidade(s) no inventário consolidado.
+                {highlightItem} concentra {highlightUnits.toLocaleString('pt-BR')} unidade(s) no inventário consolidado.
               </p>
             </div>
             <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] p-4">
               <p className="font-medium text-[#cedb05]">Locais prioritários</p>
               <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-                {topLocations.length > 0 ? topLocations.map(([nome, total]) => `${nome} (${total})`).join(" • ") : "Nenhum local com saldo registrado ainda."}
+                {topLocations.length > 0 ? topLocations.map(([nome, total]) => `${nome} (${total.toLocaleString('pt-BR')})`).join(" • ") : "Nenhum local com saldo registrado ainda."}
               </p>
             </div>
           </div>
@@ -228,7 +305,6 @@ export default async function DashboardPage() {
 
         <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
           <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Saldo geral por item</h3>
-          {/* Renderiza o componente interativo de busca passando todos os itens calculados */}
           <StockSearchList initialRows={stockRows} />
         </aside>
       </section>
@@ -290,12 +366,9 @@ export default async function DashboardPage() {
         </article>
 
         <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">Próximos passos</h3>
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Área reservada</h3>
           <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--text-muted)]">
-            <li>• Criar páginas de cadastro com formulário real</li>
-            <li>• Conectar movimentações ao estoque de forma dinâmica</li>
-            <li>• Expandir os cadastros e relatórios com regras de negócio</li>
-            <li>• Adicionar filtros e exportação de relatórios</li>
+            <p>Criar um histórico de comentários para controlar alterações e observações sobre os itens em estoque. Essa área ainda vai se desnvolvida hehehe.</p>
           </ul>
         </aside>
       </section>

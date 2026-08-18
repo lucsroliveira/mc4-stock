@@ -73,7 +73,7 @@ export default async function MovimentacoesPage() {
 
     return {
       id: row.id,
-      data: new Date(row.data_movimentacao).toLocaleString("pt-BR"),
+      data: new Date(row.data_movimentacao).toLocaleDateString("pt-BR"),
       itemNome: item?.nome ?? "Item excluído",
       tipo: row.tipo,
       origemDestino: `${origem?.nome ?? "Externo"} → ${destino?.nome ?? "Baixa"}`,

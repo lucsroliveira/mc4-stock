@@ -40,6 +40,7 @@ type RelatoriosPageProps = {
 export default async function RelatoriosPage({ searchParams }: RelatoriosPageProps) {
   const supabase = await createSupabaseServerClient();
 
+  // BLOCO: SEGURANÇA E PERFIS (RBAC)
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -67,6 +68,8 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
     .select("id, data_movimentacao, tipo, quantidade, observacao, criado_por, itens ( nome ), origem:estoques!origem_id ( nome ), destino:estoques!destino_id ( nome )")
     .order("data_movimentacao", { ascending: false });
 
+
+  // BLOCO: MAPEAMENTO PARA COMPONENTE CLIENT-SIDE
   const movementRows = (movimentos ?? []).map((row: MovementRow) => {
     const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
     const origem = Array.isArray(row.origem) ? row.origem[0] : row.origem;
@@ -81,6 +84,7 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
       destinoNome: destino?.nome ?? "Baixa",
       quantidade: row.quantidade,
       observacao: row.observacao ?? "-",
+      usuarioResponsavel: row.criado_por ?? "Não identificado",
     };
   });
 

@@ -40,7 +40,7 @@ export default async function LoginPage() {
             Controle de estoque com visão de operação, saldo e auditoria.
           </h1>
           <p className="mt-5 max-w-xl text-base leading-8 text-[var(--foreground)] sm:text-lg">
-            Seja bem vindo ao sistema arretado desendo por Lucas Oliveira.
+            Seja bem vindo ao sistema arretado desenvolvido por Lucas Oliveira.
           </p>
         </section>
 

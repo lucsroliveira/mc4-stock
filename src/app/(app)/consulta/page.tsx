@@ -1,232 +1,213 @@
 /**
- * CONSULTA DE INVENTÁRIO POR LOCAL
- * Objetivo: Fornecer um espelho do inventário real filtrado por estoque físico ou veículo.
+ * CONSULTA DE INVENTÁRIO MULTI-LOCAL E MULTI-CLIENTE (MC4)
+ * Objetivo: Rastreabilidade total de itens ativos por local e proprietário.
  */
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
 type ConsultaPageProps = {
   searchParams?: Promise<{
     estoqueId?: string;
     q?: string;
+    cliente?: string;
+    page?: string;
   }>;
 };
 
-// BLOCO: UTILITÁRIOS DE NORMALIZAÇÃO E URL
-// normalizeText: Remove acentos e padroniza o texto para buscas seguras no frontend.
-// buildQueryString: Sincroniza os filtros de pesquisa com a URL, permitindo compartilhar links de consultas específicas.
+const ITEMS_PER_PAGE = 10;
 
-function normalizeText(value: string | null | undefined) {
-  return (value ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toLowerCase();
-}
-
-function buildQueryString(estoqueId: string, q: string) {
-  const params = new URLSearchParams();
-
-  if (estoqueId) {
-    params.set("estoqueId", estoqueId);
+// Utilitário para gerenciar a seleção múltipla de IDs na URL
+function toggleIdInList(currentIds: string[], id: string) {
+  const ids = new Set(currentIds);
+  if (ids.has(id)) {
+    ids.delete(id);
+  } else {
+    ids.add(id);
   }
-
-  if (q) {
-    params.set("q", q);
-  }
-
-  return params.toString();
+  return Array.from(ids).join(",");
 }
 
 export default async function ConsultaPage({ searchParams }: ConsultaPageProps) {
-  // BLOCO: RECUPERAÇÃO DE PARÂMETROS E CONEXÃO
-  // Captura os termos de busca e o ID do estoque selecionado diretamente da URL (Server-side).
   const params = (await searchParams) ?? {};
   const searchTerm = (params.q ?? "").trim();
-
+  const selectedCliente = params.cliente ?? "";
+  const currentPage = Number(params.page ?? 1);
   const supabase = await createSupabaseServerClient();
 
-  // RECUPERAÇÃO DO PERFIL (RBAC): Descobre se o usuário logado é cliente, operador ou admin
+  // 1. RECUPERAÇÃO DE DADOS MESTRE (PERFIL, ESTOQUES E CLIENTES)
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user?.id)
-    .single();
-
-  const userRole = profile?.role ?? "cliente";
-  // Apenas operadores e administradores possuem permissão para exportar relatórios/inventários
-  const canExport = userRole === "operador" || userRole === "admin";
-
-  type EstoqueOption = {
-    id: string;
-    nome: string | null;
-  };
-
-  // BLOCO: BUSCA DE ESTOQUES E DEFINIÇÃO DE PADRÃO
-  // Busca a lista de locais e tenta definir "Recife" como padrão através da normalização.
-  const [{ data: estoques }] = await Promise.all([
+  const [
+    { data: profile },
+    { data: estoques },
+    { data: itensParaFiltro }
+  ] = await Promise.all([
+    supabase.from("profiles").select("role").eq("id", user?.id).single(),
     supabase.from("estoques").select("id, nome").order("nome", { ascending: true }),
+    supabase.from("itens").select("cliente").eq("ativo", true).order("cliente", { ascending: true })
   ]);
 
-  const estoqueOptions = (estoques ?? []) as EstoqueOption[];
-  const recifeEstoque = estoqueOptions.find((estoque) => normalizeText(estoque.nome) === "recife");
-  const selectedEstoqueId = params.estoqueId ?? recifeEstoque?.id ?? estoqueOptions[0]?.id ?? "";
+  const userRole = profile?.role ?? "cliente";
+  const canExport = userRole === "operador" || userRole === "admin";
+  const estoqueOptions = estoques ?? [];
+  
+  // Gera lista única de clientes para o dropdown a partir de itens ativos
+  const clienteOptions = Array.from(new Set((itensParaFiltro ?? []).map(i => i.cliente).filter(Boolean)));
+  const selectedEstoqueIds = params.estoqueId ? params.estoqueId.split(",").filter(id => id !== "") : [];
 
-  type InventoryRow = {
-    quantidade: number;
-    itens: {
-      nome: string | null;
-      categoria: string | null;
-      cliente: string | null;
-      foto_url: string | null;
-      ativo: boolean | null;
-    } | {
-      nome: string | null;
-      categoria: string | null;
-      cliente: string | null;
-      foto_url: string | null;
-      ativo: boolean | null;
-    }[] | null;
-  };
+  // 2. CONSULTA DE SALDO COM FILTROS E SEGURANÇA (!inner)
+  // O uso de !inner garante que se o item foi excluído ou está inativo, ele não retorna na query [3].
+  let query = supabase
+    .from("estoque_itens")
+    .select(`
+      quantidade, 
+      estoques ( nome ), 
+      itens!inner ( nome, categoria, cliente, ativo )
+    `)
+    .eq("itens.ativo", true); // Filtro rigoroso para itens ativos
 
+  if (selectedEstoqueIds.length > 0) {
+    query = query.in("estoque_id", selectedEstoqueIds);
+  }
 
-  // BLOCO: CONSULTA DE SALDO COM JOIN
-  // Realiza o join com a tabela 'itens' para trazer metadados (categoria, cliente, foto) junto ao saldo.
-  const { data: inventarioData } = selectedEstoqueId
-    ? await supabase
-        .from("estoque_itens")
-        .select("quantidade, itens ( nome, categoria, cliente, foto_url, ativo )")
-        .eq("estoque_id", selectedEstoqueId)
-    : { data: [] as never[] };
+  if (selectedCliente) {
+    query = query.eq("itens.cliente", selectedCliente);
+  }
 
-  const inventoryRows = ((inventarioData ?? []) as InventoryRow[]).filter((row) => {
-    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
-    return item?.ativo !== false;
+  const { data: inventarioData } = await query;
+
+  // 3. NORMALIZAÇÃO E FILTRAGEM POR TEXTO
+  const allRows = (inventarioData ?? []).map((row: any) => {
+    const item = Array.isArray(row.itens) ? row.itens : row.itens;
+    const estoque = Array.isArray(row.estoques) ? row.estoques : row.estoques;
+    
+    return {
+      quantidade: row.quantidade,
+      itemNome: item?.nome ?? "Item Indisponível",
+      categoria: item?.categoria,
+      cliente: item?.cliente,
+      estoqueNome: estoque?.nome ?? "Geral"
+    };
   });
 
-  // BLOCO: FILTRAGEM MULTICAMPO
-  // Filtra os resultados localmente com base no termo 'q', buscando no Nome, Cliente ou Categoria simultaneamente.
-  const filteredRows = inventoryRows.filter((row) => {
+  const filteredRows = allRows.filter((row) => {
     if (!searchTerm) return true;
-    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
-    const haystack = `${item?.nome ?? ""} ${item?.cliente ?? ""} ${item?.categoria ?? ""}`.toLowerCase();
+    const haystack = `${row.itemNome} ${row.cliente} ${row.categoria}`.toLowerCase();
     return haystack.includes(searchTerm.toLowerCase());
   });
 
-  const exportQuery = buildQueryString(selectedEstoqueId, searchTerm);
-  const selectedEstoqueNome = estoqueOptions.find((estoque) => estoque.id === selectedEstoqueId)?.nome ?? recifeEstoque?.nome ?? "Inventário";
+  // 4. LÓGICA DE PAGINAÇÃO
+  const totalItems = filteredRows.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedRows = filteredRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <div className="grid gap-6">
+      {/* SEÇÃO DE FILTROS: TEXTO, CLIENTE E BUDGET (MULTI-SELEÇÃO) */}
       <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-[var(--foreground)]">Consulta por local</h3>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-              Selecione um estoque e filtre por item ou cliente. Esta tela já consulta o Supabase e será o espelho do inventário real.
-            </p>
-            <p className="mt-2 text-sm font-medium text-[var(--text-muted)]">
-              Estoque padrão: <span className="text-[var(--foreground)]">{selectedEstoqueNome}</span>
+            <h3 className="text-lg font-semibold text-[var(--foreground)]">Consulta de Inventário</h3>
+            <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)] leading-6">
+              Selecione locais e clientes para filtrar o saldo.
             </p>
           </div>
 
-          {/* Oculta os botões de exportação caso o usuário logado seja Cliente */}
-          {canExport && (
-            <div className="flex flex-wrap gap-2">
-              <a
-                href={`/consulta/export/csv${exportQuery ? `?${exportQuery}` : ""}`}
-                className="rounded-2xl border border-[var(--panel-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10"
-              >
-                EXPORT CSV
-              </a>
-              <a
-                href={`/consulta/export/pdf${exportQuery ? `?${exportQuery}` : ""}`}
-                className="rounded-2xl border border-[var(--panel-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10"
-              >
-                Baixar PDF
-              </a>
-            </div>
+          <div className="flex flex-col gap-3 w-full max-w-xl">
+            {/* EXPORTAÇÃO CONDICIONAL (RBAC) */}
+            {canExport && (
+              <div className="flex gap-2 justify-end">
+                <Link 
+                  href={`/consulta/export/csv?estoqueId=${selectedEstoqueIds.join(",")}&cliente=${selectedCliente}&q=${searchTerm}`} 
+                  className="mc4-badge px-3 py-1.5 text-[10px] uppercase font-bold"
+                > Exportar CSV </Link>
+                <Link 
+                  href={`/consulta/export/pdf?estoqueId=${selectedEstoqueIds.join(",")}&cliente=${selectedCliente}&q=${searchTerm}`} 
+                  className="mc4-badge px-3 py-1.5 text-[10px] uppercase font-bold"
+                > Gerar PDF </Link>
+              </div>
+            )}
+
+            <form action="/consulta" method="GET" className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr_auto] gap-2">
+              <input type="hidden" name="estoqueId" value={selectedEstoqueIds.join(",")} />
+              
+              <select name="cliente" defaultValue={selectedCliente} className="mc4-form-select rounded-2xl px-3 py-2 text-sm">
+                <option value="">Todos os Clientes</option>
+                {clienteOptions.map((c) => (
+                  <option key={c} value={c!}>{c}</option>
+                ))}
+              </select>
+
+              <input
+                name="q"
+                defaultValue={searchTerm}
+                placeholder="Buscar produto..."
+                className="mc4-form-input flex-1 rounded-2xl px-4 py-2 text-sm"
+              />
+              <button type="submit" className="mc4-btn-primary px-6 rounded-2xl">Filtrar</button>
+            </form>
+          </div>
+        </div>
+
+        {/* CHIPS DE ESTOQUE (BUDGET STYLE) */}
+        <div className="mt-8 border-t border-[var(--panel-border)] pt-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-4">Filtrar por Locais</p>
+          <div className="flex flex-wrap gap-2">
+            {estoqueOptions.map((estoque) => {
+              const isSelected = selectedEstoqueIds.includes(estoque.id);
+              const newIds = toggleIdInList(selectedEstoqueIds, estoque.id);
+              const href = `/consulta?estoqueId=${newIds}&cliente=${selectedCliente}&q=${searchTerm}`;
+
+              return (
+                <Link key={estoque.id} href={href} className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${isSelected ? "border-[#00a5b5] bg-[#00a5b5]/10 text-[#00a5b5]" : "border-[var(--panel-border)] bg-[var(--panel)] text-[var(--text-muted)]"}`}>
+                  {estoque.nome}
+                  {isSelected && <span className="flex h-3 w-3 items-center justify-center rounded-full bg-[#00a5b5] text-white text-[8px]">✕</span>}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* RESULTADOS COM BADGE DE LOCALIZAÇÃO E FORMATAÇÃO BR */}
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+        <div className="grid gap-3">
+          {paginatedRows.length > 0 ? (
+            paginatedRows.map((row, idx) => (
+              <div key={idx} className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 hover:border-[#00a5b5]/30 transition-all">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-[var(--foreground)]">{row.itemNome}</p>
+                    <span className="rounded-full bg-[#00a5b5]/10 px-2 py-0.5 text-[10px] font-bold text-[#00a5b5] uppercase">
+                      {row.estoqueNome}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)]">{row.cliente} • {row.categoria}</p>
+                </div>
+                <div className="text-right">
+                  <span className="mc4-badge mc4-badge-lime text-sm font-bold">
+                    {row.quantidade.toLocaleString('pt-BR')}
+                  </span>
+                  <p className="text-[10px] uppercase text-[var(--text-muted)] mt-1">unidades</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="py-12 text-center text-sm italic text-[var(--text-muted)]">Nenhum item ativo encontrado para esta seleção.</p>
           )}
         </div>
 
-        <form method="get" className="mt-6 grid gap-4 md:grid-cols-[1.2fr_1fr_auto]">
-          <select name="estoqueId" defaultValue={selectedEstoqueId} className="mc4-form-select rounded-2xl px-4 py-3 text-sm" required>
-            <option value="" disabled>
-              Escolha um estoque
-            </option>
-            {estoqueOptions.map((estoque) => (
-              <option key={estoque.id} value={estoque.id} className="bg-[var(--panel)] text-[var(--foreground)]">
-                {estoque.nome}
-              </option>
-            ))}
-          </select>
-
-          <input name="q" defaultValue={searchTerm} placeholder="Filtrar por item ou cliente" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" />
-
-          <button type="submit" className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition">
-            Buscar
-          </button>
-        </form>
-      </section>
-
-      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">Inventário do local</h3>
-          <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs uppercase tracking-[0.25em] text-cyan-100">
-            {filteredRows.length} itens
-          </span>
-        </div>
-
-        <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)] table-surface">
-          <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
-            <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium">Item</th>
-                <th className="px-4 py-3 text-left font-medium">Cliente</th>
-                <th className="px-4 py-3 text-left font-medium">Categoria</th>
-                <th className="px-4 py-3 text-center font-medium">Quantidade</th>
-                <th className="px-4 py-3 text-right font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
-              {selectedEstoqueId ? (
-                filteredRows.length > 0 ? (
-                  filteredRows.map((row) => {
-                    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
-                    const statusClass = row.quantidade > 0 ? "bg-emerald-400/15 text-emerald-200" : "bg-rose-400/15 text-rose-200";
-
-                    return (
-                      <tr key={`${item?.nome ?? "item"}-${row.quantidade}`}>
-                        <td className="px-4 py-3 font-medium text-[var(--foreground)]">{item?.nome ?? "Item excluído"}</td>
-                        <td className="px-4 py-3 text-[var(--text-muted)]">{item?.cliente ?? "-"}</td>
-                        <td className="px-4 py-3 text-[var(--text-muted)]">{item?.categoria ?? "-"}</td>
-                        <td className="px-4 py-3 text-center font-semibold text-[var(--foreground)]">{(row.quantidade ?? 0).toLocaleString('pt-BR')}</td>
-                        <td className="px-4 py-3 text-right">
-                          <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${statusClass}`}>
-                            {row.quantidade > 0 ? "Em estoque" : "Zerado"}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={5}>
-                      Nenhum item encontrado para esse filtro.
-                    </td>
-                  </tr>
-                )
-              ) : (
-                <tr>
-                  <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={5}>
-                    Selecione um estoque acima para exibir o inventário.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {/* CONTROLES DE PAGINAÇÃO */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-between border-t border-[var(--panel-border)] pt-6">
+            <p className="text-xs text-[var(--text-muted)]">Página {currentPage} de {totalPages} ({totalItems.toLocaleString('pt-BR')} itens)</p>
+            <div className="flex gap-2">
+              <Link href={`/consulta?page=${currentPage - 1}&q=${searchTerm}&estoqueId=${selectedEstoqueIds.join(",")}&cliente=${selectedCliente}`} className={`mc4-badge px-4 py-2 ${currentPage === 1 ? "pointer-events-none opacity-30" : ""}`}>Anterior</Link>
+              <Link href={`/consulta?page=${currentPage + 1}&q=${searchTerm}&estoqueId=${selectedEstoqueIds.join(",")}&cliente=${selectedCliente}`} className={`mc4-badge px-4 py-2 ${currentPage === totalPages ? "pointer-events-none opacity-30" : ""}`}>Próximo</Link>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

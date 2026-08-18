@@ -1,133 +1,100 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getCurrentUserRole } from "@/lib/supabase/auth-guard";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import "jspdf-autotable";
 
-function normalizeText(value: string | null | undefined) {
-  return (value ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toLowerCase();
-}
-
-function escapePdfText(value: string) {
-  return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)").replace(/\r?\n/g, " ");
-}
-
-function truncateText(value: string, maxLength: number) {
-  return value.length <= maxLength ? value : `${value.slice(0, Math.max(0, maxLength - 1))}…`;
-}
-
-function buildPdf(lines: string[]) {
-  const pageWidth = 595;
-  const pageHeight = 842;
-  const margin = 40;
-  const fontSize = 10;
-  const lineHeight = 14;
-  const linesPerPage = 48;
-  const pages = Array.from({ length: Math.max(1, Math.ceil(lines.length / linesPerPage)) }, (_, index) =>
-    lines.slice(index * linesPerPage, (index + 1) * linesPerPage),
-  );
-
-  const objectCount = 3 + pages.length * 2;
-  const objects: string[] = new Array(objectCount + 1);
-  objects[1] = `<< /Type /Catalog /Pages 2 0 R >>`;
-  objects[2] = `<< /Type /Pages /Kids [${pages.map((_, index) => `${4 + index * 2} 0 R`).join(" ")}] /Count ${pages.length} >>`;
-  objects[3] = `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>`;
-
-  pages.forEach((pageLines, index) => {
-    const pageObjectId = 4 + index * 2;
-    const contentObjectId = 5 + index * 2;
-    const contentBody = pageLines
-      .map((line, lineIndex) => {
-        const text = escapePdfText(truncateText(line, 110));
-        if (lineIndex === 0) {
-          const y = pageHeight - margin - 20;
-          return `BT /F1 ${fontSize} Tf ${margin} ${y} Td (${text}) Tj`;
-        }
-        return `0 -${lineHeight} Td (${text}) Tj`;
-      })
-      .join("\n") + "\nET";
-
-    objects[pageObjectId] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contentObjectId} 0 R >>`;
-    objects[contentObjectId] = `<< /Length ${Buffer.byteLength(contentBody, "latin1")} >>\nstream\n${contentBody}\nendstream`;
-  });
-
-  let output = "%PDF-1.4\n%\xFF\xFF\xFF\xFF\n";
-  const offsets: number[] = new Array(objectCount + 1).fill(0);
-
-  for (let index = 1; index <= objectCount; index += 1) {
-    offsets[index] = Buffer.byteLength(output, "latin1");
-    output += `${index} 0 obj\n${objects[index]}\nendobj\n`;
-  }
-
-  const startXref = Buffer.byteLength(output, "latin1");
-  output += `xref\n0 ${objectCount + 1}\n`;
-  output += `0000000000 65535 f \n`;
-
-  for (let index = 1; index <= objectCount; index += 1) {
-    output += `${offsets[index].toString().padStart(10, "0")} 00000 n \n`;
-  }
-
-  output += `trailer\n<< /Size ${objectCount + 1} /Root 1 0 R >>\nstartxref\n${startXref}\n%%EOF`;
-  return Buffer.from(output, "latin1");
-}
-
-export async function GET(request: Request) {
-  const userRole = await getCurrentUserRole();
-  if (userRole === "cliente") {
-    return NextResponse.json({ error: "Acesso negado para exportação." }, { status: 403 });
-  }
-
-  const url = new URL(request.url);
-  const requestedEstoqueId = url.searchParams.get("estoqueId") ?? "";
-  const searchTerm = normalizeText(url.searchParams.get("q"));
+export async function GET(request: NextRequest) {
   const supabase = await createSupabaseServerClient();
+  const { searchParams } = new URL(request.url);
+  
+  const estoqueId = searchParams.get("estoqueId");
+  const searchTerm = searchParams.get("q")?.trim();
 
-  const { data: estoques } = await supabase.from("estoques").select("id, nome").order("nome", { ascending: true });
-  const estoqueRows = (estoques ?? []) as Array<{ id: string; nome: string | null }>;
-  const recifeEstoque = estoqueRows.find((estoque) => normalizeText(estoque.nome) === "recife");
-  const selectedEstoqueId = requestedEstoqueId || recifeEstoque?.id || estoqueRows[0]?.id || "";
-  const selectedEstoqueNome = estoqueRows.find((estoque) => estoque.id === selectedEstoqueId)?.nome ?? recifeEstoque?.nome ?? "Inventário";
+  // 1. VERIFICAÇÃO DE PERMISSÕES
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return new NextResponse("Não autorizado", { status: 401 });
 
-  const { data: inventario } = await supabase
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role === "cliente") {
+    return new NextResponse("Clientes não possuem permissão para exportar.", { status: 403 });
+  }
+
+  // 2. BUSCA DE DADOS (Correção: Adição de aspas no select)
+  let query = supabase
     .from("estoque_itens")
-    .select("quantidade, itens ( nome, categoria, cliente, foto_url )")
-    .eq("estoque_id", selectedEstoqueId);
+    .select("quantidade, itens!inner(nome, cliente, ativo), estoques(nome)")
+    .eq("itens.ativo", true);
 
-  const rows = (inventario ?? []) as Array<{
-    quantidade: number;
-    itens:
-      | { nome: string | null; categoria: string | null; cliente: string | null; foto_url: string | null }
-      | { nome: string | null; categoria: string | null; cliente: string | null; foto_url: string | null }[]
-      | null;
-  }>;
+  if (estoqueId) query = query.eq("estoque_id", estoqueId);
 
-  const filteredRows = rows.filter((row) => {
+  const { data: inventoryData } = await query;
+  const rows = inventoryData ?? [];
+
+  // Filtragem por termo de busca
+  const filteredRows = rows.filter((row: any) => {
     if (!searchTerm) return true;
-    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
-    const haystack = `${item?.nome ?? ""} ${item?.cliente ?? ""} ${item?.categoria ?? ""}`.toLowerCase();
-    return haystack.includes(searchTerm);
+    const item = row.itens;
+    const haystack = `${item?.nome ?? ""} ${item?.cliente ?? ""}`.toLowerCase();
+    return haystack.includes(searchTerm.toLowerCase());
   });
 
-  const lines = [
-    `Inventario - ${selectedEstoqueNome}`,
-    `Gerado em: ${new Date().toLocaleString("pt-BR")}`,
-    "",
-    "Item | Cliente | Categoria | Quantidade",
-    ...filteredRows.map((row) => {
-      const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
-      return `${item?.nome ?? "Item excluido"} | ${item?.cliente ?? "-"} | ${item?.categoria ?? "-"} | ${row.quantidade}`;
-    }),
-  ];
+  // 3. GERAÇÃO DO PDF
+  const doc = new jsPDF();
+  const dataEmissao = new Date().toLocaleString("pt-BR");
+  const estoqueNome = rows[0]?.estoques?.[0]?.nome ?? "Geral";
+  // Cabeçalho MC4
+  doc.setFillColor(0, 165, 181); 
+  doc.rect(0, 0, 210, 35, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(20);
+  doc.setFont("helvetica", "bold");
+  doc.text("MC4 - GESTÃO DE ESTOQUE", 15, 22);
 
-  const pdfBuffer = buildPdf(lines);
-  const fileName = `inventario${selectedEstoqueId ? `-${selectedEstoqueId}` : ""}.pdf`;
+  // Auditoria
+  doc.setTextColor(40, 40, 40);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Emitido por: ${profile?.full_name ?? user.email}`, 15, 45);
+  doc.text(`Data de Emissão: ${dataEmissao}`, 15, 50);
+  doc.text(`Local: ${estoqueNome}`, 15, 55);
 
+  const tableColumn = ["Nome do Item", "Cliente", "Quantidade"];
+  const tableRows = filteredRows.map((row: any) => [
+    row.itens?.nome ?? "Item Indisponível",
+    row.itens?.cliente ?? "Geral",
+    Number(row.quantidade ?? 0).toLocaleString("pt-BR")
+  ]);
+
+  autoTable(doc, {
+    startY: 65,
+    head: [tableColumn],
+    body: tableRows,
+    headStyles: { 
+      fillColor: [0, 165, 181],
+      textColor: [255, 255, 255],
+      fontSize: 10,
+      fontStyle: "bold"
+    },
+    styles: { fontSize: 9, cellPadding: 4 },
+    alternateRowStyles: { fillColor: [240, 248, 250] },
+    theme: "grid",
+  });
+
+  doc.setFontSize(8);
+  doc.setTextColor(150, 150, 150);
+  doc.text("Este documento é um espelho oficial do inventário MC4 Stock.", 105, 285, { align: "center" });
+
+  const pdfBuffer = doc.output("arraybuffer");
   return new NextResponse(pdfBuffer, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${fileName}"`,
+      "Content-Disposition": `attachment; filename="Inventario_${estoqueNome.replace(/\s+/g, "_")}.pdf"`,
     },
   });
 }

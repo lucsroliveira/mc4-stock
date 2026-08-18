@@ -11,6 +11,7 @@ type ReportMovementRow = {
   itemNome: string;
   origemNome: string;
   destinoNome: string;
+  usuarioResponsavel: string;
 };
 
 type RelatoriosFiltersTableProps = {
@@ -29,6 +30,8 @@ function normalizeText(value: string | null | undefined) {
     .trim()
     .toLowerCase();
 }
+
+const ITEMS_PER_PAGE = 10;
 
 function formatDateInput(value: string) {
   if (!value) return "";
@@ -58,43 +61,31 @@ export function RelatoriosFiltersTable({
   const [fim, setFim] = useState(formatDateInput(initialFim));
   const [tipo, setTipo] = useState(initialTipo || "todos");
   const [pesquisa, setPesquisa] = useState(initialPesquisa);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredRows = useMemo(() => {
     return initialRows.filter((row) => {
+      const search = pesquisa.toLowerCase();
+      const matchSearch =
+        row.itemNome.toLowerCase().includes(search) ||
+        row.usuarioResponsavel.toLowerCase().includes(search) ||
+        row.observacao.toLowerCase().includes(search);
+
+      const matchTipo = tipo === "todos" || row.tipo === tipo;
+
       const movementDate = new Date(row.dataMovimentacao).getTime();
+      const matchInicio = !inicio || movementDate >= new Date(inicio).getTime();
+      const matchFim = !fim || movementDate <= new Date(fim + "T23:59:59").getTime();
 
-      if (inicio) {
-        const startDate = new Date(`${inicio}T00:00:00.000Z`).getTime();
-        if (movementDate < startDate) return false;
-      }
-
-      if (fim) {
-        const endDate = new Date(`${fim}T23:59:59.999Z`).getTime();
-        if (movementDate > endDate) return false;
-      }
-
-      if (tipo && tipo !== "todos" && row.tipo !== tipo) {
-        return false;
-      }
-
-      if (!pesquisa.trim()) {
-        return true;
-      }
-
-      const search = normalizeText(pesquisa);
-      return [
-        new Date(row.dataMovimentacao).toLocaleString("pt-BR"),
-        row.itemNome,
-        row.tipo,
-        row.origemNome,
-        row.destinoNome,
-        row.observacao,
-        row.quantidade,
-      ]
-        .map((value) => normalizeText(String(value)))
-        .some((value) => value.includes(search));
+      return matchSearch && matchTipo && matchInicio && matchFim;
     });
   }, [initialRows, inicio, fim, tipo, pesquisa]);
+
+  // PAGINAÇÃO
+  const totalItems = filteredRows.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentItems = filteredRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const total = filteredRows.length;
   const entradas = filteredRows.filter((row) => row.tipo === "entrada").length;
@@ -148,7 +139,7 @@ export function RelatoriosFiltersTable({
             onChange={(event) => setPesquisa(event.target.value)}
             placeholder="Pesquisar item, origem, destino ou observação"
             className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
-            aria-label="Pesquisar relatórios"
+            aria-label="Pesquisar relatórios" 
           />
 
           <div className="flex gap-2 md:justify-end">
@@ -192,61 +183,61 @@ export function RelatoriosFiltersTable({
         </div>
       </section>
 
+
+      {/* LISTA DE MOVIMENTACOES */}
       <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
-        <h3 className="text-lg font-semibold text-[var(--foreground)]">Movimentações filtradas</h3>
+        <div className="space-y-3">
+          {currentItems.length > 0 ? (
+            currentItems.map((row) => (
+              <div 
+                key={row.id} 
+                className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 hover:border-[#00a5b5]/30 transition-all"
+              >
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-[var(--foreground)]">{row.itemNome}</p>
+                    {/* Badge do Responsável (Auditoria) */}
+                    <span className="rounded-full bg-[#cedb05]/10 px-2 py-0.5 text-[9px] font-bold text-[#cedb05] uppercase border border-[#cedb05]/20">
+                      OP: {row.usuarioResponsavel}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {row.origemNome} → {row.destinoNome} • {new Date(row.dataMovimentacao).toLocaleDateString('pt-BR')}
+                  </p>
+                </div>
 
-        <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
-          <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
-            <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium">Data</th>
-                <th className="px-4 py-3 text-left font-medium">Item</th>
-                <th className="px-4 py-3 text-left font-medium">Tipo</th>
-                <th className="px-4 py-3 text-left font-medium">Origem</th>
-                <th className="px-4 py-3 text-left font-medium">Destino</th>
-                <th className="px-4 py-3 text-right font-medium">Qtd</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
-              {filteredRows.length > 0 ? (
-                filteredRows.map((movement) => {
-                  const badgeClass =
-                    movement.tipo === "entrada"
-                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-200"
-                      : movement.tipo === "saida"
-                        ? "bg-rose-500/15 text-rose-600 dark:text-rose-200"
-                        : "bg-cyan-500/15 text-cyan-600 dark:text-cyan-200";
-
-                  return (
-                    <tr key={movement.id}>
-                      <td className="px-4 py-3 text-[var(--text-muted)]">{new Date(movement.dataMovimentacao).toLocaleString("pt-BR")}</td>
-                      <td className="px-4 py-3 font-medium text-[var(--foreground)]">
-                        <div>
-                          <div>{movement.itemNome}</div>
-                          {movement.observacao !== "-" ? <div className="mt-1 text-xs text-[var(--text-muted)]">{movement.observacao}</div> : null}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${badgeClass}`}>
-                          {movement.tipo}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-[var(--text-muted)]">{movement.origemNome}</td>
-                      <td className="px-4 py-3 text-[var(--text-muted)]">{movement.destinoNome}</td>
-                      <td className="px-4 py-3 text-right font-semibold text-[var(--foreground)]"> {(movement.quantidade ?? 0).toLocaleString('pt-BR')}</td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={6}>
-                    Nenhuma movimentação encontrada para os filtros selecionados.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                <div className="text-right">
+                  <span className={`mc4-badge font-bold ${row.tipo === 'saida' ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' : 'mc4-badge-lime'}`}>
+                    {row.tipo === 'saida' ? '-' : '+'}{row.quantidade.toLocaleString('pt-BR')}
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="py-8 text-center text-sm text-[var(--text-muted)] italic">Nenhum registro encontrado.</p>
+          )}
         </div>
+
+        {/* CONTROLES DE PAGINAÇÃO */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-between border-t border-[var(--panel-border)] pt-6">
+            <p className="text-xs text-[var(--text-muted)]">
+              Mostrando {currentItems.length} de {totalItems.toLocaleString('pt-BR')} movimentações
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setCurrentPage(prev => Math.max(prev - 1, 1)); window.scrollTo(0, 0); }}
+                disabled={currentPage === 1}
+                className="mc4-badge px-4 py-2 text-xs disabled:opacity-30 disabled:pointer-events-none"
+              > Anterior </button>
+              <button
+                onClick={() => { setCurrentPage(prev => Math.min(prev + 1, totalPages)); window.scrollTo(0, 0); }}
+                disabled={currentPage === totalPages}
+                className="mc4-badge px-4 py-2 text-xs disabled:opacity-30 disabled:pointer-events-none"
+              > Próximo </button>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

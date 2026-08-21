@@ -4,6 +4,8 @@
  */
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ImageLightbox } from "@/components/image-lightbox";
+import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
 import Link from "next/link";
 
 type ConsultaPageProps = {
@@ -62,7 +64,7 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
     .select(`
       quantidade, 
       estoques ( nome ), 
-      itens!inner ( nome, categoria, cliente, ativo )
+      itens!inner ( nome, categoria, cliente, foto_url, ativo )
     `)
     .eq("itens.ativo", true); // Filtro rigoroso para itens ativos
 
@@ -77,18 +79,19 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
   const { data: inventarioData } = await query;
 
   // 3. NORMALIZAÇÃO E FILTRAGEM POR TEXTO
-  const allRows = (inventarioData ?? []).map((row: any) => {
-    const item = Array.isArray(row.itens) ? row.itens : row.itens;
-    const estoque = Array.isArray(row.estoques) ? row.estoques : row.estoques;
-    
+  const allRows = await Promise.all((inventarioData ?? []).map(async (row) => {
+    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
+    const estoque = Array.isArray(row.estoques) ? row.estoques[0] : row.estoques;
+
     return {
       quantidade: row.quantidade,
       itemNome: item?.nome ?? "Item Indisponível",
       categoria: item?.categoria,
       cliente: item?.cliente,
-      estoqueNome: estoque?.nome ?? "Geral"
+      estoqueNome: estoque?.nome ?? "Geral",
+      fotoPreviewUrl: await resolveSupabaseAssetUrl(supabase, item?.foto_url),
     };
-  });
+  }));
 
   const filteredRows = allRows.filter((row) => {
     if (!searchTerm) return true;
@@ -176,14 +179,17 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
           {paginatedRows.length > 0 ? (
             paginatedRows.map((row, idx) => (
               <div key={idx} className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 hover:border-[#00a5b5]/30 transition-all">
-                <div className="flex flex-col gap-1">
+                <div className="flex min-w-0 items-center gap-3">
+                  <ImageLightbox src={row.fotoPreviewUrl} alt={row.itemNome} />
+                  <div className="flex min-w-0 flex-col gap-1">
                   <div className="flex items-center gap-2">
-                    <p className="font-medium text-[var(--foreground)]">{row.itemNome}</p>
+                    <p className="truncate font-medium text-[var(--foreground)]">{row.itemNome}</p>
                     <span className="rounded-full bg-[#00a5b5]/10 px-2 py-0.5 text-[10px] font-bold text-[#00a5b5] uppercase">
                       {row.estoqueNome}
                     </span>
                   </div>
                   <p className="text-xs text-[var(--text-muted)]">{row.cliente} • {row.categoria}</p>
+                  </div>
                 </div>
                 <div className="text-right">
                   <span className="mc4-badge mc4-badge-lime text-sm font-bold">

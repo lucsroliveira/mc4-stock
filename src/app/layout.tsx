@@ -4,6 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "MC4 Estoque",
   description: "Sistema de estoque da MC4 com inventário, movimentações e relatórios.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/mc4-512.png",
+    apple: "/mc4-192.png",
+  },
 };
 
 export default function RootLayout({

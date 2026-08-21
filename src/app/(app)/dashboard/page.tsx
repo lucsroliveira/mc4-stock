@@ -8,6 +8,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import StockSearchList from "@/components/StockSearchList";
 import { getSupabaseDiagnostics } from "@/lib/supabase/diagnostics";
+import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
 
 type RecentMovement = {
   data_movimentacao: string;
@@ -22,6 +23,7 @@ type StockRelation = {
   id?: string | null;
   nome: string | null;
   cliente?: string | null;
+  foto_url?: string | null;
   ativo?: boolean | null;
 };
 
@@ -58,7 +60,7 @@ export default async function DashboardPage() {
       .select(`data_movimentacao, tipo, quantidade, itens ( nome ), origem:estoques!origem_id ( nome ), destino:estoques!destino_id ( nome )`)
       .order("data_movimentacao", { ascending: false })
       .limit(6),
-    supabase.from("estoque_itens").select("quantidade, estoque_id, item_id, estoques ( nome ), itens ( id, nome, cliente, ativo )"),
+    supabase.from("estoque_itens").select("quantidade, estoque_id, item_id, estoques ( nome ), itens ( id, nome, cliente, foto_url, ativo )"),
     supabase
       .from("movimentacoes")
       .select("data_movimentacao, tipo, quantidade")
@@ -86,7 +88,7 @@ export default async function DashboardPage() {
 
   const recentMovements = (recentMovementsResult.data ?? []) as RecentMovement[];
 
-  const stockSummary = new Map<string, { id: string; nome: string; total: number; cliente: string }>();
+  const stockSummary = new Map<string, { id: string; nome: string; total: number; cliente: string; fotoUrl: string | null }>();
   const locationSummary = new Map<string, number>();
   let totalUnits = 0;
   let activeItems = 0;
@@ -95,6 +97,7 @@ export default async function DashboardPage() {
     const item = row.itens as StockRelation | StockRelation[] | null;
     const itemName = Array.isArray(item) ? item[0]?.nome : item?.nome;
     const itemClient = Array.isArray(item) ? item[0]?.cliente : item?.cliente;
+    const itemPhoto = Array.isArray(item) ? item[0]?.foto_url : item?.foto_url;
     const itemActive = Array.isArray(item) ? item[0]?.ativo : item?.ativo;
     const estoque = row.estoques as StockRelation | StockRelation[] | null;
     const estoqueName = Array.isArray(estoque) ? estoque[0]?.nome : estoque?.nome;
@@ -105,7 +108,8 @@ export default async function DashboardPage() {
       id: row.item_id, 
       nome: itemName, 
       total: 0, 
-      cliente: itemClient ?? "Geral" 
+      cliente: itemClient ?? "Geral",
+      fotoUrl: itemPhoto ?? null,
     };
     
     current.total += row.quantidade ?? 0;
@@ -125,8 +129,14 @@ export default async function DashboardPage() {
   const formattedTotalUnits = totalUnits.toLocaleString('pt-BR');
   const formattedActiveItems = activeItems.toLocaleString('pt-BR');
 
-  const stockRows = Array.from(stockSummary.values())
-    .sort((left, right) => right.total - left.total);
+  const stockRows = await Promise.all(
+    Array.from(stockSummary.values())
+      .sort((left, right) => right.total - left.total)
+      .map(async (row) => ({
+        ...row,
+        fotoPreviewUrl: await resolveSupabaseAssetUrl(supabase, row.fotoUrl),
+      })),
+  );
 
   const topStockRowsForHighlight = stockRows.slice(0, 6);
   const topLocations = Array.from(locationSummary.entries())

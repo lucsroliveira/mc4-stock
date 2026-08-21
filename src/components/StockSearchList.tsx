@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ImageLightbox } from "@/components/image-lightbox";
 
 type StockRow = {
   id: string;
   nome: string;
   total: number;
   cliente: string;
+  fotoPreviewUrl: string | null;
 };
 
 export default function StockSearchList({ initialRows }: { initialRows: StockRow[] }) {
@@ -47,17 +49,19 @@ export default function StockSearchList({ initialRows }: { initialRows: StockRow
       >
         {filteredRows.length > 0 ? (
           filteredRows.map((item) => (
-            <Link
+            <div
               key={item.id}
-              href={`/itens/${item.id}`}
               className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 transition-colors hover:border-[#00a5b5]/50"
             >
-              <div>
-                <p className="font-medium text-[var(--foreground)]">{item.nome}</p>
-                <p className="text-xs text-[var(--text-muted)]">{item.cliente}</p>
+              <div className="flex min-w-0 items-center gap-3">
+                <ImageLightbox src={item.fotoPreviewUrl} alt={item.nome} />
+                <Link href={`/itens/${item.id}`} className="min-w-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00a5b5]">
+                  <p className="truncate font-medium text-[var(--foreground)]">{item.nome}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{item.cliente}</p>
+                </Link>
               </div>
               <span className="mc4-badge mc4-badge-lime">{(item.total ?? 0).toLocaleString('pt-BR')}</span>
-            </Link>
+            </div>
           ))
         ) : (
           <p className="text-sm text-slate-400 text-center py-4">Nenhum item encontrado.</p>

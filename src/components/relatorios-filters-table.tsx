@@ -204,6 +204,9 @@ export function RelatoriosFiltersTable({
                   <p className="text-xs text-[var(--text-muted)]">
                     {row.origemNome} → {row.destinoNome} • {new Date(row.dataMovimentacao).toLocaleDateString('pt-BR')}
                   </p>
+                  <p className="max-w-3xl break-words text-xs text-[var(--text-muted)]">
+                    <span className="font-medium text-[var(--foreground)]">Observação:</span> {row.observacao || "-"}
+                  </p>
                 </div>
 
                 <div className="text-right">

@@ -15,10 +15,8 @@
       }
     </style>
     <linearGradient id="Gradiente_sem_nome_314" data-name="Gradiente sem nome 314" x1="289.13" y1="578.26" x2="289.13" y2="0" gradientUnits="userSpaceOnUse">
-      <stop offset=".03" stop-color="#49bed6"/>
-      <stop offset=".34" stop-color="#00a5b5"/>
-      <stop offset=".82" stop-color="#00919f"/>
-      <stop offset="1" stop-color="#018996"/>
+      <stop offset="0" stop-color="#EB5727"/>
+      <stop offset="1" stop-color="#F2C029"/>
     </linearGradient>
   </defs>
   <rect class="cls-1" width="578.26" height="578.26" rx="73.56" ry="73.56"/>

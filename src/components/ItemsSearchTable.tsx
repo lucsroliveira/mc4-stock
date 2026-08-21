@@ -56,7 +56,7 @@ export default function ItemsSearchTable({ initialItems, updateAction, deleteAct
           placeholder="Buscar por nome, categoria, cliente ou descrição..."
           value={searchTerm}
           onChange={handleSearchChange}
-          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#00a5b5] focus:outline-none"
+          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
         />
       </div>
 

@@ -35,7 +35,7 @@ export function ThemeToggle() {
       </span>
       <span className="relative flex h-6 w-11 items-center rounded-full bg-[#416ba9]/15 p-1">
         <span
-          className={`flex h-4 w-4 items-center justify-center rounded-full bg-[#00a5b5] text-[10px] transition-transform ${theme === "light" ? "translate-x-0" : "translate-x-5"}`}
+          className={`flex h-4 w-4 items-center justify-center rounded-full bg-[#EB5727] text-[10px] transition-transform ${theme === "light" ? "translate-x-0" : "translate-x-5"}`}
         >
           {theme === "light" ? "☀️" : "🌙"}
         </span>

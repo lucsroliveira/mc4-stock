@@ -84,7 +84,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
               {itemPhotoPreviewUrl ? <img src={itemPhotoPreviewUrl} alt={item.nome ?? "Item"} className="h-full w-full object-cover" /> : null}
             </div>
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00a5b5]">Detalhe do item</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#EB5727]">Detalhe do item</p>
               <h1 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{item.nome ?? "Item sem nome"}</h1>
               <p className="mt-2 text-sm text-[var(--text-muted)]">
                 Cliente: <span className="text-[var(--foreground)]">{item.cliente ?? "-"}</span> | Categoria:{" "}
@@ -166,7 +166,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
               <p className="text-[var(--text-muted)]">Saídas</p>
               <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{movementStats.saidas.toLocaleString("pt-BR")}</p>
             </div>
-            <div className="rounded-2xl border border-[var(--panel-border)] bg-cyan-500/10 px-4 py-3 text-sm">
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-orange-500/10 px-4 py-3 text-sm">
               <p className="text-[var(--text-muted)]">Transferências</p>
               <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{movementStats.transferencias.toLocaleString("pt-BR")}</p>
             </div>

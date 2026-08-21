@@ -80,7 +80,7 @@ export function ItemRowEditor({ item, updateAction, deleteAction }: ItemRowEdito
               <div className="h-10 w-10 overflow-hidden rounded-xl border border-[#416ba9]/10 bg-[#f4f7f9]">
                 {item.foto_preview_url ? <img src={item.foto_preview_url} alt={item.nome ?? "Item"} className="h-full w-full object-cover" /> : null}
               </div>
-              <span className="group-hover:text-[#00a5b5]">{item.nome}</span>
+              <span className="group-hover:text-[#EB5727]">{item.nome}</span>
             </Link>
           </td>
           <td className="px-4 py-3 text-slate-300">{item.categoria}</td>
@@ -88,7 +88,7 @@ export function ItemRowEditor({ item, updateAction, deleteAction }: ItemRowEdito
           <td className="px-4 py-3 text-slate-300">{item.descricao ?? "-"}</td>
           <td className="px-4 py-3 text-right">
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setIsEditing(true)} className="mc4-badge rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-[var(--foreground)]">
+              <button type="button" onClick={() => setIsEditing(true)} className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]">
                 Editar
               </button>
               <button type="button" onClick={() => setShowDeleteConfirm(true)} className="mc4-badge mc4-badge-orange rounded-full px-4 py-2">

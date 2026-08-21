@@ -191,7 +191,7 @@ export function RelatoriosFiltersTable({
             currentItems.map((row) => (
               <div 
                 key={row.id} 
-                className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 hover:border-[#00a5b5]/30 transition-all"
+                className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 hover:border-[#EB5727]/30 transition-all"
               >
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">

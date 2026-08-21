@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --sidebar-bg: linear-gradient(180deg, #416ba9 0%, #365c92 100%);
+  --sidebar-bg: linear-gradient(180deg, #eb5727 0%, #c9431b 100%);
   --sidebar-border: rgba(255, 255, 255, 0.16);
   --sidebar-text: #f4f7f9;
   --sidebar-muted: rgba(244, 247, 249, 0.82);
   --sidebar-link-hover: rgba(255, 255, 255, 0.14);
   --active-bg: rgba(255, 255, 255, 0.15);
   --mc4-lime: #cedb05;
+  --mc4-primary: #eb5727;
+  --mc4-primary-strong: #c9431b;
+  --mc4-yellow: #f2c029;
   --mc4-cyan: #00a5b5;
-  --mc4-orange: #eb5727;
+  --mc4-orange: var(--mc4-primary);
   --bg-light: #f4f7f9;
   --kanban-bg: #ebf0f3;
   --background: #f4f7f9;
@@ -19,8 +22,8 @@
   --panel-border: rgba(65, 107, 169, 0.16);
   --input-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 247, 249, 0.96));
   --input-border: rgba(65, 107, 169, 0.18);
-  --accent: var(--mc4-cyan);
-  --accent-strong: #00879a;
+  --accent: var(--mc4-primary);
+  --accent-strong: var(--mc4-primary-strong);
   --secondary: var(--mc4-lime);
   --secondary-strong: #b2c000;
   --warning: var(--mc4-orange);
@@ -34,7 +37,7 @@
   --panel-border: rgba(255, 255, 255, 0.12);
   --input-bg: rgba(255, 255, 255, 0.08);
   --input-border: rgba(255, 255, 255, 0.14);
-  --sidebar-bg: linear-gradient(180deg, #0b1728 0%, #111d33 100%);
+  --sidebar-bg: linear-gradient(180deg, #8f2d16 0%, #5f2013 100%);
   --sidebar-border: rgba(255, 255, 255, 0.12);
   --sidebar-text: #f8fafc;
   --sidebar-muted: rgba(226, 232, 240, 0.82);
@@ -54,7 +57,7 @@
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(0, 165, 181, 0.12), transparent 24%),
+    radial-gradient(circle at top left, rgba(235, 87, 39, 0.12), transparent 24%),
     linear-gradient(135deg, var(--background) 0%, #eef3f7 100%);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
@@ -111,8 +114,8 @@ a {
 .mc4-form-select:focus,
 .mc4-form-textarea:focus {
   outline: none;
-  border-color: var(--mc4-cyan);
-  box-shadow: 0 0 0 3px rgba(0, 165, 181, 0.16);
+  border-color: var(--mc4-primary);
+  box-shadow: 0 0 0 3px rgba(235, 87, 39, 0.16);
 }
 
 .mc4-form-select option,
@@ -160,9 +163,9 @@ a {
 }
 
 .mc4-btn-primary {
-  background: linear-gradient(135deg, var(--mc4-cyan), #0f7c87);
+  background: linear-gradient(135deg, var(--mc4-primary), var(--mc4-primary-strong));
   color: white;
-  box-shadow: 0 10px 24px rgba(0, 165, 181, 0.22);
+  box-shadow: 0 10px 24px rgba(235, 87, 39, 0.22);
 }
 
 .mc4-btn-primary:hover {
@@ -217,7 +220,7 @@ a {
   height: 2.75rem;
   border-radius: 999px;
   border: 4px solid rgba(65, 107, 169, 0.16);
-  border-top-color: var(--mc4-cyan);
+  border-top-color: var(--mc4-primary);
   border-right-color: var(--mc4-lime);
   animation: spin 0.9s linear infinite;
 }

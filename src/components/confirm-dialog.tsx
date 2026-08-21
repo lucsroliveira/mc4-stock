@@ -40,7 +40,7 @@ export function ConfirmDialog({
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-[1.5rem] border border-white/10 bg-[var(--panel)] p-6 shadow-2xl">
-        <p className="text-xs uppercase tracking-[0.3em] text-[#00a5b5]">Confirmação</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-[#EB5727]">Confirmação</p>
         <h3 className="mt-3 text-xl font-semibold text-[var(--foreground)]">{title}</h3>
         <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">{description}</p>
         <div className="mt-6 flex flex-wrap justify-end gap-3">

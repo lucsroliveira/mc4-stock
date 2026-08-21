@@ -53,7 +53,7 @@ export default function DataTableSearch<T>({
           placeholder={placeholder}
           value={searchTerm}
           onChange={handleSearchChange}
-          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#00a5b5] focus:outline-none"
+          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
         />
       </div>
 
@@ -83,7 +83,7 @@ export default function DataTableSearch<T>({
                           ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-200"
                           : tipoStr === "saida"
                             ? "bg-rose-500/15 text-rose-600 dark:text-rose-200"
-                            : "bg-cyan-500/15 text-cyan-600 dark:text-cyan-200";
+                            : "bg-orange-500/15 text-orange-600 dark:text-orange-200";
 
                       return (
                         <td key={colIndex} className={`px-4 py-3 ${col.className ?? "text-left"}`}>

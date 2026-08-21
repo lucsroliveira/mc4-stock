@@ -28,7 +28,7 @@ export default function StockSearchList({ initialRows }: { initialRows: StockRow
           placeholder="Buscar item pelo nome..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#00a5b5] focus:outline-none"
+          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
         />
       </div>
 
@@ -51,11 +51,11 @@ export default function StockSearchList({ initialRows }: { initialRows: StockRow
           filteredRows.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 transition-colors hover:border-[#00a5b5]/50"
+              className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 transition-colors hover:border-[#EB5727]/50"
             >
               <div className="flex min-w-0 items-center gap-3">
                 <ImageLightbox src={item.fotoPreviewUrl} alt={item.nome} />
-                <Link href={`/itens/${item.id}`} className="min-w-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00a5b5]">
+                <Link href={`/itens/${item.id}`} className="min-w-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EB5727]">
                   <p className="truncate font-medium text-[var(--foreground)]">{item.nome}</p>
                   <p className="text-xs text-[var(--text-muted)]">{item.cliente}</p>
                 </Link>

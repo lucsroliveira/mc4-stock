@@ -32,8 +32,8 @@ export default async function LoginPage() {
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl flex-col justify-center gap-8 lg:flex-row lg:items-center lg:justify-between">
         <section className="max-w-2xl">
           <div className="flex items-center gap-2">
-            <div className="flex h-15 w-40 items-center justify-center">
-              <img src="/MC4 STOCK_BRANCA_1.svg" alt="Logo MC4" className="h-38 w-38" />
+            <div className="flex h-20 w-20 items-center justify-left">
+              <img src="/MC4 STOCK_ICONE.png" alt="Logo MC4" className="h-20 w-20" />
             </div>
           </div>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--foreground)] sm:text-6xl">
@@ -46,8 +46,8 @@ export default async function LoginPage() {
 
         <div className="w-full max-w-md space-y-4">
           <LoginForm />
-          <div className="rounded-[1.5rem] border border-dashed border-cyan-400/20 bg-white/70 p-6 text-sm leading-6 text-slate-700">
-            <p className="font-semibold text-[#00a5b5]">Fluxo integrado</p>
+          <div className="rounded-[1.5rem] border border-dashed border-orange-400/20 bg-white/70 p-6 text-sm leading-6 text-slate-700">
+            <p className="font-semibold text-[#EB5727]">Fluxo integrado</p>
             <p className="mt-3">
               O login, os cadastros e as movimentações já estão conectados ao fluxo do estoque com identidade MC4.
             </p>

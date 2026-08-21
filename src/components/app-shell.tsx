@@ -116,11 +116,11 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
   return (
     <div className="min-h-screen soft-grid text-slate-100">
       <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col lg:flex-row">
-        <aside className="sticky top-0 hidden h-screen w-[280px] shrink-0 border-r border-[var(--sidebar-border)] p-6 lg:flex lg:flex-col" style={{ background: "var(--sidebar-bg)", color: "var(--sidebar-text)" }}>
-          <div className="mb-10">
+        <aside className="sticky top-0 hidden h-screen max-h-screen w-[280px] shrink-0 border-r border-[var(--sidebar-border)] p-4 lg:flex lg:flex-col lg:p-6" style={{ background: "var(--sidebar-bg)", color: "var(--sidebar-text)" }}>
+          <div className="mb-6 shrink-0 lg:mb-8">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/15">
-                <Image src="/MC4 STOCK_ICONE.svg" alt="Logo MC4" width={28} height={28} />
+                <Image src="/MC4 STOCK_ICONE.png" alt="Logo MC4" width={28} height={28} />
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.4em] text-[#cedb05]">MC4</p>
@@ -130,7 +130,7 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
             <p className="mt-3 text-sm leading-6 text-[var(--sidebar-muted)]">Controle operacional, saldo e auditoria para a operação MC4.</p>
           </div>
 
-          <div className="mb-6 rounded-3xl border border-white/15 bg-white/10 p-4 text-sm text-slate-100">
+          <div className="mb-4 shrink-0 rounded-3xl border border-white/15 bg-white/10 p-3 text-sm text-slate-100 lg:mb-5 lg:p-4">
             <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-[0.3em] text-[#cedb05]">Sessão</p>
               <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
@@ -141,20 +141,20 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
             <p className="mt-1 text-xs text-[var(--sidebar-muted)]">Conectado ao Supabase</p>
           </div>
 
-          <nav className="flex flex-1 flex-col gap-2">
+          <nav className="flex min-h-0 flex-1 flex-col gap-1.5">
             {filteredNavigation.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition ${
+                  className={`flex min-h-0 flex-1 items-center gap-3 rounded-2xl border px-3 py-2 text-sm transition lg:px-4 lg:py-2.5 ${
                     isActive
                       ? "border-white/30 bg-white/15 font-medium text-white"
                       : "border-transparent text-[var(--sidebar-text)] hover:border-white/15 hover:bg-[var(--sidebar-link-hover)]"
                   }`}
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/10 lg:h-8 lg:w-8">
                     {navigationIcons[item.icon]}
                   </span>
                   {item.label}
@@ -163,7 +163,7 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
             })}
           </nav>
 
-          <div className="mt-8">
+          <div className="mt-4 shrink-0 lg:mt-6">
             <button
               type="button"
               onClick={() => setShowLogoutConfirm(true)}
@@ -177,7 +177,7 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
         <main className="flex min-h-screen flex-1 flex-col overflow-y-auto px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
           <header className="glass-panel mb-6 rounded-3xl border border-white/10 px-5 py-4">
             <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.3em] text-[#00a5b5]">Sistema de estoque</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-[#EB5727]">Sistema de estoque</p>
               <span className="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-800/40 text-slate-300 border border-white/10 lg:hidden">
                 Perfil: {roleBadgeLabels[userRole]}
               </span>
@@ -188,7 +188,7 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
                 <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">{currentPage.subtitle}</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <div className="rounded-full border border-[#00a5b5]/20 bg-[#00a5b5]/10 px-4 py-2 text-xs uppercase tracking-[0.25em] text-[#0a4d56]">
+                <div className="rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-xs uppercase tracking-[0.25em] text-[#8f2d16]">
                   MC4 • Supabase
                 </div>
                 <ThemeToggle />

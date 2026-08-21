@@ -204,7 +204,7 @@ export default async function DashboardPage() {
       <section className="grid gap-4 lg:grid-cols-3">
         {kpis.map((item) => (
           <article key={item.label} className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 shadow-[0_16px_40px_rgba(65,107,169,0.12)]">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00a5b5]">{item.label}</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#EB5727]">{item.label}</p>
             <p className="mt-4 text-4xl font-semibold tracking-tight text-[var(--foreground)]">{item.value}</p>
             <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">{item.note}</p>
           </article>
@@ -214,7 +214,7 @@ export default async function DashboardPage() {
       <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#00a5b5]">Visão operacional</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#EB5727]">Visão operacional</p>
             <h3 className="mt-2 text-xl font-semibold text-[var(--foreground)]">Saldo, locais e movimentações em tempo real</h3>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">
               O painel agora consolida unidades em estoque, itens ativos e os principais locais com saldo para apoiar decisões rápidas.
@@ -299,7 +299,7 @@ export default async function DashboardPage() {
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] p-4">
-              <p className="font-medium text-[#00a5b5]">Saldo destacado</p>
+              <p className="font-medium text-[#EB5727]">Saldo destacado</p>
               <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                 {highlightItem} concentra {highlightUnits.toLocaleString('pt-BR')} unidade(s) no inventário consolidado.
               </p>
@@ -345,7 +345,7 @@ export default async function DashboardPage() {
                         ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-200"
                         : movement.tipo === "saida"
                           ? "bg-rose-500/15 text-rose-600 dark:text-rose-200"
-                          : "bg-cyan-500/15 text-cyan-600 dark:text-cyan-200";
+                          : "bg-orange-500/15 text-orange-600 dark:text-orange-200";
 
                     return (
                       <tr key={`${movement.data_movimentacao}-${movement.tipo}-${movement.quantidade}`} className="hover:bg-[var(--panel-border)]/10 transition-colors">

@@ -59,7 +59,7 @@ export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: Estoqu
         </div>
       ) : (
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={() => setIsEditing(true)} className="mc4-badge rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-[var(--foreground)]">
+          <button type="button" onClick={() => setIsEditing(true)} className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]">
             Editar
           </button>
           <button type="button" onClick={() => setShowDeleteConfirm(true)} className="mc4-badge mc4-badge-orange rounded-full px-4 py-2">

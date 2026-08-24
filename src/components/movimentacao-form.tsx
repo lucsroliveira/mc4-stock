@@ -112,7 +112,7 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
           name="origem_id"
           value={origemId}
           onChange={(event) => setOrigemId(event.target.value)}
-          className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
+          className="mc4-form-select rounded-2xl px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--panel-border)]/40"
           disabled={isEntrada}
         >
           <option value="">{isEntrada ? "Origem não usada em entrada" : "Origem opcional"}</option>
@@ -130,7 +130,7 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
           name="destino_id"
           value={destinoId}
           onChange={(event) => setDestinoId(event.target.value)}
-          className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
+          className="mc4-form-select rounded-2xl px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--panel-border)]/40"
           disabled={isSaida}
         >
           <option value="">{isSaida ? "Destino não usado em saída" : "Destino opcional"}</option>

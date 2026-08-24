@@ -470,3 +470,131 @@ export async function deleteMovimentacao(formData: FormData) {
   revalidatePath("/consulta");
   revalidatePath("/relatorios");
 }
+
+export async function createCategoria(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam categorias
+  await assertUserRole(supabase, ["admin"]);
+
+  const nome = String(formData.get("nome") ?? "").trim();
+
+  if (!nome) {
+    throw new Error("Informe o nome da categoria.");
+  }
+
+  const { error } = await supabase.from("categorias").insert({ nome });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}
+
+export async function updateCategoria(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam categorias
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+  const nome = String(formData.get("nome") ?? "").trim();
+
+  if (!id || !nome) {
+    throw new Error("Preencha id e nome da categoria.");
+  }
+
+  const { error } = await supabase.from("categorias").update({ nome }).eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}
+
+export async function deleteCategoria(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam categorias
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    throw new Error("ID da categoria ausente.");
+  }
+
+  const { error } = await supabase.from("categorias").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}
+
+export async function createCliente(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam clientes
+  await assertUserRole(supabase, ["admin"]);
+
+  const nome = String(formData.get("nome") ?? "").trim();
+
+  if (!nome) {
+    throw new Error("Informe o nome do cliente.");
+  }
+
+  const { error } = await supabase.from("clientes").insert({ nome });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}
+
+export async function updateCliente(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam clientes
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+  const nome = String(formData.get("nome") ?? "").trim();
+
+  if (!id || !nome) {
+    throw new Error("Preencha id e nome do cliente.");
+  }
+
+  const { error } = await supabase.from("clientes").update({ nome }).eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}
+
+export async function deleteCliente(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam clientes
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    throw new Error("ID do cliente ausente.");
+  }
+
+  const { error } = await supabase.from("clientes").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}

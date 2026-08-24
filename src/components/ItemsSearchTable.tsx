@@ -18,11 +18,13 @@ type ItemsSearchTableProps = {
   initialItems: ItemRow[];
   updateAction: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
+  categoriaOptions: { id: string; nome: string | null }[];
+  clienteOptions: { id: string; nome: string | null }[];
 };
 
 const ITEMS_PER_PAGE = 10;
 
-export default function ItemsSearchTable({ initialItems, updateAction, deleteAction }: ItemsSearchTableProps) {
+export default function ItemsSearchTable({ initialItems, updateAction, deleteAction, categoriaOptions, clienteOptions }: ItemsSearchTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -80,6 +82,8 @@ export default function ItemsSearchTable({ initialItems, updateAction, deleteAct
                   item={item}
                   updateAction={updateAction}
                   deleteAction={deleteAction}
+                  categoriaOptions={categoriaOptions}
+                  clienteOptions={clienteOptions}
                 />
               ))
             ) : (

@@ -19,7 +19,7 @@ export function LoginForm() {
             id="email"
             name="email"
             type="email"
-            placeholder="usuario@mc4.com.br"
+            placeholder="usuario@somosmc4.com.br"
             autoComplete="email"
             className="mc4-form-input w-full rounded-2xl px-4 py-3 text-sm outline-none transition"
             required
@@ -34,7 +34,7 @@ export function LoginForm() {
             id="password"
             name="password"
             type="password"
-            placeholder="••••••••"
+            placeholder="*******"
             autoComplete="current-password"
             className="mc4-form-input w-full rounded-2xl px-4 py-3 text-sm outline-none transition"
             required

@@ -35,7 +35,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
 
-  const [{ data: item }, { data: stockBalances }, { data: movementRows }] = await Promise.all([
+  const [{ data: item }, { data: stockBalances }, { data: movementRows }, { data: categoriaRows }, { data: clienteRows }] = await Promise.all([
     supabase
       .from("itens")
       .select("id, nome, categoria, cliente, descricao, foto_url, created_at")
@@ -52,7 +52,11 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
       .eq("item_id", id)
       .order("data_movimentacao", { ascending: false })
       .limit(20),
+    supabase.from("categorias").select("id, nome").order("nome", { ascending: true }),
+    supabase.from("clientes").select("id, nome").order("nome", { ascending: true }),
   ]);
+  const categoriaOptions = categoriaRows ?? [];
+  const clienteOptions = clienteRows ?? [];
 
   if (!item) {
     notFound();
@@ -219,20 +223,19 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
         <form action={updateItem} className="mt-4 grid gap-4 md:grid-cols-2">
           <input type="hidden" name="id" value={item.id} />
           <input name="nome" defaultValue={item.nome ?? ""} placeholder="Nome do item" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
-          <select name="categoria" defaultValue={item.categoria ?? "Cenografia"} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-            <option value="Cenografia">Cenografia</option>
-            <option value="Vestuario">Vestuário</option>
-            <option value="Brindes">Brindes</option>
-            <option value="OOH">OOH</option>
-            <option value="Ativação">Ativação</option>
-            <option value="Outros">Outros</option>
+          <select name="categoria" defaultValue={item.categoria ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
+            {categoriaOptions.map((categoria) => (
+              <option key={categoria.id} value={categoria.nome ?? ""}>
+                {categoria.nome}
+              </option>
+            ))}
           </select>
-          <select name="cliente" defaultValue={item.cliente ?? "Interno / MC4"} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-            <option value="Interno / MC4">Interno / MC4</option>
-            <option value="Esportes da Sorte">Esportes da Sorte</option>
-            <option value="Boticário">Boticário</option>
-            <option value="MOOD">MOOD</option>
-            <option value="Cenoura e Bronze">Cenoura e Bronze</option>
+          <select name="cliente" defaultValue={item.cliente ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
+            {clienteOptions.map((cliente) => (
+              <option key={cliente.id} value={cliente.nome ?? ""}>
+                {cliente.nome}
+              </option>
+            ))}
           </select>
           <input name="foto_url" defaultValue={item.foto_url ?? ""} placeholder="URL da foto ou path do Storage" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
           <input type="file" name="foto_file" accept="image/*" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />

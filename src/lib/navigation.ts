@@ -5,4 +5,5 @@ export const inventoryNavigation = [
   { href: "/consulta", label: "Inventário", icon: "consulta" },
   { href: "/movimentacoes", label: "Movimentar", icon: "movimentacao" },
   { href: "/relatorios", label: "Relatórios", icon: "relatorios" },
+  { href: "/admin", label: "Admin", icon: "admin" },
 ] as const;

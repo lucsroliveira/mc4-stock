@@ -48,6 +48,10 @@ const pageInfoMap: Record<string, { title: string; subtitle: string }> = {
     title: "Relatórios de Movimentação",
     subtitle: "Auditoria temporal de entradas, saídas e transferências operacionais.",
   },
+  "/admin": {
+    title: "Administração",
+    subtitle: "Gerencie categorias e clientes disponíveis no cadastro de itens.",
+  },
 };
 
 export function AppShell({ children, userLabel, userRole }: AppShellProps) {
@@ -95,6 +99,12 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
         <path strokeLinecap="round" d="M14 4v4h4" />
       </svg>
     ),
+    admin: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3 4 6.5v5c0 4.7 3.2 8.6 8 9.5 4.8-.9 8-4.8 8-9.5v-5L12 3Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="m9.5 12 1.8 1.8L14.5 10" />
+      </svg>
+    ),
   };
 
   // Regras de visibilidade de menus por perfil (RBAC)
@@ -102,6 +112,10 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
     // Se o usuário for cliente, ele NÃO deve ver Cadastros (itens, estoques) nem Movimentações operacionais
     if (userRole === "cliente") {
       return ["dashboard", "consulta", "relatorios"].includes(item.icon);
+    }
+    // A área de Admin só aparece para administradores
+    if (item.icon === "admin") {
+      return userRole === "admin";
     }
     // Operadores e Admins veem tudo
     return true;

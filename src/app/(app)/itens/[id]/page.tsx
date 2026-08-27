@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { updateItem } from "@/lib/supabase/actions";
 import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
+import { ImageLightbox } from "@/components/image-lightbox";
 
 type ItemDetailPageProps = {
   params: Promise<{
@@ -14,6 +15,7 @@ type NamedRelation = {
   id?: string | null;
   nome: string | null;
   tipo?: string | null;
+  fotoPreviewUrl?: string | null;
 };
 
 type StockBalanceRow = {
@@ -84,9 +86,11 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
       <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex items-start gap-4">
-            <div className="h-20 w-20 overflow-hidden rounded-2xl border border-[var(--panel-border)] bg-[#f4f7f9]">
-              {itemPhotoPreviewUrl ? <img src={itemPhotoPreviewUrl} alt={item.nome ?? "Item"} className="h-full w-full object-cover" /> : null}
-            </div>
+            <ImageLightbox
+              src={itemPhotoPreviewUrl}
+              alt={item.nome ?? "Item"}
+              thumbnailClassName="h-20 w-20 rounded-2xl"
+            />
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#EB5727]">Detalhe do item</p>
               <h1 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{item.nome ?? "Item sem nome"}</h1>

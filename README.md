@@ -33,6 +33,10 @@ What each variable does:
 
 If the URL or anon key is missing, the app enters demo fallback mode. If the bucket is missing or the Storage policies block reads/uploads, item images will not load.
 
+### Movimentações
+
+Para habilitar entradas, saídas e transferências, execute o script [sql/movimentacoes.sql](sql/movimentacoes.sql) no SQL Editor do projeto Supabase. Ele cria a função `atualizar_estoque`, usada pelo formulário para atualizar os saldos com segurança.
+
 ## Getting Started
 
 First, run the development server:

@@ -389,7 +389,7 @@ export async function createMovimentacao(formData: FormData) {
   const quantidade = Number(formData.get("quantidade") ?? 0);
   const observacao = String(formData.get("observacao") ?? "").trim();
 
-  if (!itemId || !tipo || !quantidade || quantidade <= 0) {
+  if (!itemId || !["entrada", "saida", "transferencia"].includes(tipo) || !Number.isInteger(quantidade) || quantidade <= 0) {
     throw new Error("Preencha item, tipo e quantidade.");
   }
 
@@ -426,6 +426,10 @@ export async function createMovimentacao(formData: FormData) {
   });
 
   if (rpcError) {
+    if (rpcError.message.toLowerCase().includes("atualizar_estoque")) {
+      throw new Error("A função de atualização de estoque não está configurada no Supabase. Execute o script sql/movimentacoes.sql no SQL Editor.");
+    }
+
     throw new Error(rpcError.message);
   }
 

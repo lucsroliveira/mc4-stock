@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 
- type ImageLightboxProps = {
+type ImageLightboxProps = {
   src: string | null;
   alt: string;
+  thumbnailClassName?: string;
 };
 
-export function ImageLightbox({ src, alt }: ImageLightboxProps) {
+export function ImageLightbox({ src, alt, thumbnailClassName = "h-12 w-12" }: ImageLightboxProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export function ImageLightbox({ src, alt }: ImageLightboxProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="group h-12 w-12 overflow-hidden rounded-xl border border-[var(--panel-border)] bg-[#f4f7f9] focus:outline-none focus:ring-2 focus:ring-[#EB5727]"
+        className={`group overflow-hidden rounded-xl border border-[var(--panel-border)] bg-[#f4f7f9] focus:outline-none focus:ring-2 focus:ring-[#EB5727] ${thumbnailClassName}`}
         aria-label={`Ampliar foto de ${alt}`}
       >
         <img src={src} alt={alt} className="h-full w-full object-cover transition duration-200 group-hover:scale-110" />

@@ -11,6 +11,10 @@ export type AuthState = {
   error?: string;
 };
 
+export type MovimentacaoState = {
+  error?: string;
+} | null;
+
 export type UserRole = "cliente" | "operador" | "admin";
 
 async function createActionClient() {
@@ -373,10 +377,11 @@ export async function deleteEstoque(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
-export async function createMovimentacao(formData: FormData) {
+export async function createMovimentacao(_previousState: MovimentacaoState, formData: FormData): Promise<MovimentacaoState> {
   const supabase = await createActionClient();
-  // Apenas Operadores e Admins podem registrar movimentações operacionais
-  await assertUserRole(supabase, ["operador", "admin"]);
+  try {
+    // Apenas Operadores e Admins podem registrar movimentações operacionais
+    await assertUserRole(supabase, ["operador", "admin"]);
 
   const {
     data: { user },
@@ -447,9 +452,13 @@ export async function createMovimentacao(formData: FormData) {
     throw new Error(insertError.message);
   }
 
-  revalidatePath("/dashboard");
-  revalidatePath("/movimentacoes");
-  revalidatePath("/consulta");
+    revalidatePath("/dashboard");
+    revalidatePath("/movimentacoes");
+    revalidatePath("/consulta");
+    return null;
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Não foi possível registrar a movimentação." };
+  }
 }
 
 export async function deleteMovimentacao(formData: FormData) {

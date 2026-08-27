@@ -1,11 +1,16 @@
 -- Execute este script no SQL Editor do Supabase para habilitar
 -- entradas, saídas e transferências de estoque.
 
+drop function if exists public.atualizar_estoque(uuid, uuid, uuid, integer);
+
+create unique index if not exists estoque_itens_item_estoque_key
+  on public.estoque_itens (item_id, estoque_id);
+
 create or replace function public.atualizar_estoque(
   p_item_id uuid,
   p_origem_id uuid,
   p_destino_id uuid,
-  p_quantidade integer
+  p_quantidade bigint
 )
 returns void
 language plpgsql
@@ -63,5 +68,5 @@ begin
 end;
 $$;
 
-revoke all on function public.atualizar_estoque(uuid, uuid, uuid, integer) from public;
-grant execute on function public.atualizar_estoque(uuid, uuid, uuid, integer) to authenticated;
+revoke all on function public.atualizar_estoque(uuid, uuid, uuid, bigint) from public;
+grant execute on function public.atualizar_estoque(uuid, uuid, uuid, bigint) to authenticated;

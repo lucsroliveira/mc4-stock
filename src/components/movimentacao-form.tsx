@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { createMovimentacao } from "@/lib/supabase/actions";
 
 type ItemOption = {
@@ -27,6 +27,7 @@ type MovimentacaoFormProps = {
 };
 
 export function MovimentacaoForm({ itemRows, estoqueRows, balances }: MovimentacaoFormProps) {
+  const [actionError, submitAction, isPending] = useActionState(createMovimentacao, null);
   const [tipo, setTipo] = useState("transferencia");
   const [itemId, setItemId] = useState("");
   const [origemId, setOrigemId] = useState("");
@@ -42,7 +43,7 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
   const isTransferencia = tipo === "transferencia";
 
   return (
-    <form action={createMovimentacao} className="mt-6 grid gap-4 md:grid-cols-2">
+    <form action={submitAction} className="mt-6 grid gap-4 md:grid-cols-2">
       <label className="grid gap-2 md:col-span-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Item</span>
         <select
@@ -166,8 +167,9 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
       </label>
 
       <div className="md:col-span-2">
-        <button type="submit" className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition">
-          Confirmar movimentação
+        {actionError?.error ? <p className="mb-3 text-sm font-medium text-red-600" role="alert">{actionError.error}</p> : null}
+        <button type="submit" disabled={isPending} className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60">
+          {isPending ? "Salvando..." : "Confirmar movimentação"}
         </button>
       </div>
     </form>

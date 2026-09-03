@@ -1,16 +1,25 @@
 /**
  * GESTÃO DE ESTOQUES - CAMADA DE IMPORTAÇÃO
  * 1. createSupabaseServerClient: Gerencia a sessão do lado do servidor.
- * 2. create/delete/updateEstoque: Server Actions que encapsulam a lógica de 
- *    persistência no Supabase, garantindo revalidação automática da página. [1]
+ * 2. create/delete/updateEstoque: Server Actions que encapsulam a lógica de
+ *    persistência no Supabase, garantindo revalidação automática da página. [3]
  * 3. EstoqueRowEditor: Componente cliente para edição em linha (inline editing).
  */
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createEstoque, deleteEstoque, updateEstoque } from "@/lib/supabase/actions";
 import { EstoqueRowEditor } from "@/components/estoque-row-editor";
+import { EstoqueForm } from "@/components/estoque-form"; // Importação do novo formulário com Toast
 
 export default async function EstoquesPage() {
   const supabase = await createSupabaseServerClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id)
+    .single();
+  const userRole = profile?.role ?? "cliente";
 
   // OTIMIZAÇÃO: Busca em paralelo a definição dos estoques e a tabela de junção de saldos.
   // Isso permite calcular quantos itens existem em cada local sem múltiplas idas ao banco.
@@ -24,7 +33,6 @@ export default async function EstoquesPage() {
     quantidade: number;
   };
 
-
   // LÓGICA DE NEGÓCIO: Agrega o saldo bruto por ID de estoque utilizando um Map.
   // Resolve o problema de transformar linhas individuais de itens em um resumo por local.
   const resumoPorEstoque = new Map<string, { itens: number; total: number }>();
@@ -37,29 +45,14 @@ export default async function EstoquesPage() {
 
   return (
     <div className="grid gap-6">
-      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
-        <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo estoque</h3>
-
-        {/* INTEGRAÇÃO: O formulário utiliza Server Actions (createEstoque).
-            Os nomes dos inputs (name="nome", etc) devem corresponder exatamente 
-            às colunas da tabela 'estoques' no Supabase. */}
-
-        <form action={createEstoque} className="mt-4 grid gap-4 md:grid-cols-2">
-          <input name="nome" placeholder="Nome do local ou veículo" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
-          <select name="tipo" defaultValue="Regional" className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-            <option value="Regional">Regional (Fixo)</option>
-            <option value="Temporario">Temporário / Veículo</option>
-          </select>
-          
-          {/* Campos de responsabilidade e contato para rastreabilidade operacional */}
-          <input name="responsavel" placeholder="Responsável" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
-          <input name="contato" placeholder="WhatsApp / contato" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
-          <input name="endereco" placeholder="Endereço / placa" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-          <div className="md:col-span-2">
-            <button type="submit" className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition">Salvar local</button>
-          </div>
-        </form>
-      </section>
+      {/* EXCLUSIVO PARA OPERADORES E ADMINS: Clientes não visualizam o formulário de cadastro */}
+      {userRole !== "cliente" && (
+        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo estoque</h3>
+          {/* Componente reativo que integra o useToast e useActionState */}
+          <EstoqueForm />
+        </section>
+      )}
 
       <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
         <h3 className="text-lg font-semibold text-[var(--foreground)]">Locais cadastrados</h3>
@@ -72,7 +65,8 @@ export default async function EstoquesPage() {
                 <th className="px-4 py-3 text-left font-medium">Responsável</th>
                 <th className="px-4 py-3 text-left font-medium">Contato</th>
                 <th className="px-4 py-3 text-left font-medium">Saldo / Itens</th>
-                <th className="px-4 py-3 text-right font-medium">Ações</th>
+                {/* Oculta o cabeçalho de ações caso o usuário seja cliente */}
+                {userRole !== "cliente" && <th className="px-4 py-3 text-right font-medium">Ações</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
@@ -89,15 +83,18 @@ export default async function EstoquesPage() {
                       <td className="px-4 py-3 text-[var(--text-muted)]">
                         {resumo.total} unidades em {resumo.itens} vínculos
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        <EstoqueRowEditor estoque={estoque} updateAction={updateEstoque} deleteAction={deleteEstoque} />
-                      </td>
+                      {/* Oculta as ações de edição e exclusão para perfis com nível "Cliente" */}
+                      {userRole !== "cliente" && (
+                        <td className="px-4 py-3 text-right">
+                          <EstoqueRowEditor estoque={estoque} updateAction={updateEstoque} deleteAction={deleteEstoque} />
+                        </td>
+                      )}
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={6}>
+                  <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={userRole === "cliente" ? 5 : 6}>
                     Nenhum estoque cadastrado.
                   </td>
                 </tr>

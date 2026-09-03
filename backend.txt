@@ -1,0 +1,1588 @@
+===== eslint.config.mjs =====
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
+
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  // Override default ignores of eslint-config-next.
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
+]);
+
+export default eslintConfig;
+
+
+
+
+===== next-env.d.ts =====
+/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+import "./.next/dev/types/routes.d.ts";
+
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+
+
+
+
+===== next.config.ts =====
+import type { NextConfig } from "next";
+import path from "node:path";
+
+const nextConfig: NextConfig = {
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "vkoeeykvdtaztqceftlf.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+  },
+};
+
+export default nextConfig;
+
+
+
+
+===== postcss.config.mjs =====
+const config = {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
+
+export default config;
+
+
+
+
+===== sql\categorias_clientes.sql =====
+-- Execute este script no SQL Editor do Supabase para habilitar o
+-- gerenciamento de Categorias e Clientes pela área de Administração.
+
+create table if not exists public.categorias (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null unique,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.clientes (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null unique,
+  created_at timestamptz not null default now()
+);
+
+alter table public.categorias enable row level security;
+alter table public.clientes enable row level security;
+
+drop policy if exists "categorias_select_authenticated" on public.categorias;
+create policy "categorias_select_authenticated" on public.categorias
+  for select using (auth.role() = 'authenticated');
+
+drop policy if exists "categorias_admin_manage" on public.categorias;
+create policy "categorias_admin_manage" on public.categorias
+  for all using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin')
+  )
+  with check (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin')
+  );
+
+drop policy if exists "clientes_select_authenticated" on public.clientes;
+create policy "clientes_select_authenticated" on public.clientes
+  for select using (auth.role() = 'authenticated');
+
+drop policy if exists "clientes_admin_manage" on public.clientes;
+create policy "clientes_admin_manage" on public.clientes
+  for all using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin')
+  )
+  with check (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin')
+  );
+
+-- Popula com os valores que já estavam fixos no código, para não perder nada.
+insert into public.categorias (nome) values
+  ('Cenografia'), ('Vestuario'), ('Brindes'), ('OOH'), ('Ativação'), ('Outros')
+on conflict (nome) do nothing;
+
+insert into public.clientes (nome) values
+  ('Interno / MC4'), ('Esportes da Sorte'), ('Boticário'), ('MOOD'), ('Cenoura e Bronze')
+on conflict (nome) do nothing;
+
+
+
+
+===== sql\movimentacoes.sql =====
+-- Execute este script no SQL Editor do Supabase para habilitar
+-- entradas, saídas e transferências de estoque.
+
+drop function if exists public.atualizar_estoque(uuid, uuid, uuid, integer);
+
+create unique index if not exists estoque_itens_item_estoque_key
+  on public.estoque_itens (item_id, estoque_id);
+
+create or replace function public.atualizar_estoque(
+  p_item_id uuid,
+  p_origem_id uuid,
+  p_destino_id uuid,
+  p_quantidade bigint
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  origem_saldo integer;
+begin
+  if auth.uid() is null then
+    raise exception 'Usuário não autenticado.';
+  end if;
+
+  if not exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and role in ('operador', 'admin')
+  ) then
+    raise exception 'Usuário sem permissão para movimentar estoque.';
+  end if;
+
+  if p_quantidade is null or p_quantidade <= 0 then
+    raise exception 'A quantidade deve ser maior que zero.';
+  end if;
+
+  if p_origem_id is not null and p_origem_id = p_destino_id then
+    raise exception 'A origem e o destino devem ser diferentes.';
+  end if;
+
+  if p_origem_id is not null then
+    select quantidade
+      into origem_saldo
+      from public.estoque_itens
+     where item_id = p_item_id
+       and estoque_id = p_origem_id
+     for update;
+
+    if coalesce(origem_saldo, 0) < p_quantidade then
+      raise exception 'Saldo insuficiente no local de origem.';
+    end if;
+
+    update public.estoque_itens
+       set quantidade = quantidade - p_quantidade
+     where item_id = p_item_id
+       and estoque_id = p_origem_id;
+  end if;
+
+  if p_destino_id is not null then
+    insert into public.estoque_itens (item_id, estoque_id, quantidade)
+    values (p_item_id, p_destino_id, p_quantidade)
+    on conflict (item_id, estoque_id)
+    do update set quantidade = public.estoque_itens.quantidade + excluded.quantidade;
+  end if;
+end;
+$$;
+
+revoke all on function public.atualizar_estoque(uuid, uuid, uuid, bigint) from public;
+grant execute on function public.atualizar_estoque(uuid, uuid, uuid, bigint) to authenticated;
+
+
+
+===== src\proxy.ts =====
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+import { getSupabaseConfig, hasSupabaseConfig } from "./lib/supabase/config";
+
+export async function proxy(request: NextRequest) {
+  // Evita erro 500 no edge runtime quando as variáveis do Supabase ainda não foram configuradas no Vercel.
+  if (!hasSupabaseConfig()) {
+    return NextResponse.next({ request });
+  }
+
+  let response = NextResponse.next({ request });
+  const { url, anonKey } = getSupabaseConfig();
+
+  const supabase = createServerClient(
+    url,
+    anonKey,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value);
+          });
+
+          response = NextResponse.next({ request });
+
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    },
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+  const isLoginRoute = pathname.startsWith("/login");
+  const isStaticAsset = pathname.startsWith("/_next") || pathname.includes(".");
+
+  if (!user && !isLoginRoute && !isStaticAsset) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (user && isLoginRoute) {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = "/dashboard";
+    return NextResponse.redirect(dashboardUrl);
+  }
+
+  return response;
+}
+
+export const config = {
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
+
+
+
+===== src\app\manifest.ts =====
+import type { MetadataRoute } from "next";
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "MC4 Estoque",
+    short_name: "MC4 Estoque",
+    description: "Sistema de estoque da MC4",
+    start_url: "/dashboard",
+    display: "standalone",
+    background_color: "#030712",
+    theme_color: "#EB5727",
+    icons: [
+      {
+        src: "/mc4-192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        src: "/mc4-512.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
+    ],
+  };
+}
+
+
+
+===== src\app\(app)\consulta\export\csv\route.ts =====
+import { NextResponse } from "next/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentUserRole } from "@/lib/supabase/auth-guard";
+
+function normalizeText(value: string | null | undefined) {
+  return (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function csvEscape(value: string | number | null | undefined) {
+  const text = value === null || value === undefined ? "" : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function normalizeSearch(value: string | null | undefined) {
+  return (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+export async function GET(request: Request) {
+  const userRole = await getCurrentUserRole();
+  if (userRole === "cliente") {
+    return NextResponse.json({ error: "Acesso negado para exportação." }, { status: 403 });
+  }
+
+  const url = new URL(request.url);
+  const requestedEstoqueId = url.searchParams.get("estoqueId") ?? "";
+  const searchTerm = normalizeSearch(url.searchParams.get("q"));
+  const supabase = await createSupabaseServerClient();
+
+  const { data: estoques } = await supabase.from("estoques").select("id, nome").order("nome", { ascending: true });
+  const estoqueRows = (estoques ?? []) as Array<{ id: string; nome: string | null }>;
+  const recifeEstoque = estoqueRows.find((estoque) => normalizeText(estoque.nome) === "recife");
+  const selectedEstoqueId = requestedEstoqueId || recifeEstoque?.id || estoqueRows[0]?.id || "";
+
+  const { data: inventario } = await supabase
+    .from("estoque_itens")
+    .select("quantidade, itens ( nome, categoria, cliente, foto_url )")
+    .eq("estoque_id", selectedEstoqueId);
+
+  const rows = (inventario ?? []) as Array<{
+    quantidade: number;
+    itens:
+      | { nome: string | null; categoria: string | null; cliente: string | null; foto_url: string | null }
+      | { nome: string | null; categoria: string | null; cliente: string | null; foto_url: string | null }[]
+      | null;
+  }>;
+
+  const filteredRows = rows.filter((row) => {
+    if (!searchTerm) return true;
+    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
+    const haystack = `${item?.nome ?? ""} ${item?.cliente ?? ""} ${item?.categoria ?? ""}`.toLowerCase();
+    return haystack.includes(searchTerm);
+  });
+
+  const header = ["item", "cliente", "categoria", "quantidade"];
+  const csvLines = [header.map(csvEscape).join(",")];
+
+  filteredRows.forEach((row) => {
+    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
+    csvLines.push([
+      item?.nome ?? "Item excluído",
+      item?.cliente ?? "-",
+      item?.categoria ?? "-",
+      row.quantidade,
+    ].map(csvEscape).join(","));
+  });
+
+  const csv = `\ufeff${csvLines.join("\r\n")}`;
+  const fileName = `inventario${selectedEstoqueId ? `-${selectedEstoqueId}` : ""}.csv`;
+
+  return new NextResponse(csv, {
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+    },
+  });
+}
+
+
+
+===== src\app\(app)\consulta\export\pdf\route.ts =====
+import { NextRequest, NextResponse } from "next/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import "jspdf-autotable";
+
+export async function GET(request: NextRequest) {
+  const supabase = await createSupabaseServerClient();
+  const { searchParams } = new URL(request.url);
+  
+  const estoqueId = searchParams.get("estoqueId");
+  const searchTerm = searchParams.get("q")?.trim();
+
+  // 1. VERIFICAÇÃO DE PERMISSÕES
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return new NextResponse("Não autorizado", { status: 401 });
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role === "cliente") {
+    return new NextResponse("Clientes não possuem permissão para exportar.", { status: 403 });
+  }
+
+  // 2. BUSCA DE DADOS (Correção: Adição de aspas no select)
+  let query = supabase
+    .from("estoque_itens")
+    .select("quantidade, itens!inner(nome, cliente, ativo), estoques(nome)")
+    .eq("itens.ativo", true);
+
+  if (estoqueId) query = query.eq("estoque_id", estoqueId);
+
+  const { data: inventoryData } = await query;
+  const rows = inventoryData ?? [];
+
+  // Filtragem por termo de busca
+  const filteredRows = rows.filter((row: any) => {
+    if (!searchTerm) return true;
+    const item = row.itens;
+    const haystack = `${item?.nome ?? ""} ${item?.cliente ?? ""}`.toLowerCase();
+    return haystack.includes(searchTerm.toLowerCase());
+  });
+
+  // 3. GERAÇÃO DO PDF
+  const doc = new jsPDF();
+  const dataEmissao = new Date().toLocaleString("pt-BR");
+  const estoqueNome = rows[0]?.estoques?.[0]?.nome ?? "Geral";
+  // Cabeçalho MC4
+  doc.setFillColor(0, 165, 181); 
+  doc.rect(0, 0, 210, 35, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(20);
+  doc.setFont("helvetica", "bold");
+  doc.text("MC4 - GESTÃO DE ESTOQUE", 15, 22);
+
+  // Auditoria
+  doc.setTextColor(40, 40, 40);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Emitido por: ${profile?.full_name ?? user.email}`, 15, 45);
+  doc.text(`Data de Emissão: ${dataEmissao}`, 15, 50);
+  doc.text(`Local: ${estoqueNome}`, 15, 55);
+
+  const tableColumn = ["Nome do Item", "Cliente", "Quantidade"];
+  const tableRows = filteredRows.map((row: any) => [
+    row.itens?.nome ?? "Item Indisponível",
+    row.itens?.cliente ?? "Geral",
+    Number(row.quantidade ?? 0).toLocaleString("pt-BR")
+  ]);
+
+  autoTable(doc, {
+    startY: 65,
+    head: [tableColumn],
+    body: tableRows,
+    headStyles: { 
+      fillColor: [0, 165, 181],
+      textColor: [255, 255, 255],
+      fontSize: 10,
+      fontStyle: "bold"
+    },
+    styles: { fontSize: 9, cellPadding: 4 },
+    alternateRowStyles: { fillColor: [240, 248, 250] },
+    theme: "grid",
+  });
+
+  doc.setFontSize(8);
+  doc.setTextColor(150, 150, 150);
+  doc.text("Este documento é um espelho oficial do inventário MC4 Stock.", 105, 285, { align: "center" });
+
+  const pdfBuffer = doc.output("arraybuffer");
+  return new NextResponse(pdfBuffer, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="Inventario_${estoqueNome.replace(/\s+/g, "_")}.pdf"`,
+    },
+  });
+}
+
+
+
+===== src\app\(app)\relatorios\export\route.ts =====
+import { NextResponse } from "next/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentUserRole } from "@/lib/supabase/auth-guard";
+
+type SearchParams = {
+  inicio?: string | null;
+  fim?: string | null;
+  tipo?: string | null;
+  q?: string | null;
+};
+
+type MovementRow = {
+  id: string;
+  data_movimentacao: string;
+  tipo: string;
+  quantidade: number;
+  observacao: string | null;
+  criado_por: string | null;
+  itens: { nome: string | null } | { nome: string | null }[] | null;
+  origem: { nome: string | null } | { nome: string | null }[] | null;
+  destino: { nome: string | null } | { nome: string | null }[] | null;
+};
+
+function csvEscape(value: string | number | null | undefined) {
+  const text = value === null || value === undefined ? "" : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function normalizeText(value: string | null | undefined) {
+  return (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function buildDateRangeParams(searchParams: URLSearchParams) {
+  return {
+    inicio: searchParams.get("inicio"),
+    fim: searchParams.get("fim"),
+    tipo: searchParams.get("tipo"),
+    q: searchParams.get("q"),
+  } satisfies SearchParams;
+}
+
+export async function GET(request: Request) {
+  const userRole = await getCurrentUserRole();
+  if (userRole === "cliente") {
+    return NextResponse.json({ error: "Acesso negado para exportação." }, { status: 403 });
+  }
+
+  const url = new URL(request.url);
+  const { inicio, fim, tipo, q } = buildDateRangeParams(url.searchParams);
+  const supabase = await createSupabaseServerClient();
+
+  const { data: movimentos, error } = await supabase
+    .from("movimentacoes")
+    .select("id, data_movimentacao, tipo, quantidade, observacao, criado_por, itens ( nome ), origem:estoques!origem_id ( nome ), destino:estoques!destino_id ( nome )")
+    .order("data_movimentacao", { ascending: false });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  const rows = (movimentos ?? []) as MovementRow[];
+  const search = normalizeText(q);
+
+  const filteredRows = rows.filter((row) => {
+    const movementTime = new Date(row.data_movimentacao).getTime();
+
+    if (inicio) {
+      const startDate = new Date(`${inicio}T00:00:00.000Z`).getTime();
+      if (movementTime < startDate) return false;
+    }
+
+    if (fim) {
+      const endDate = new Date(`${fim}T23:59:59.999Z`).getTime();
+      if (movementTime > endDate) return false;
+    }
+
+    if (tipo && tipo !== "todos" && row.tipo !== tipo) {
+      return false;
+    }
+
+    if (!search) {
+      return true;
+    }
+
+    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
+    const origem = Array.isArray(row.origem) ? row.origem[0] : row.origem;
+    const destino = Array.isArray(row.destino) ? row.destino[0] : row.destino;
+
+    return [
+      new Date(row.data_movimentacao).toLocaleString("pt-BR"),
+      item?.nome ?? "",
+      row.tipo,
+      origem?.nome ?? "",
+      destino?.nome ?? "",
+      row.quantidade,
+      row.observacao ?? "",
+      row.criado_por ?? "",
+    ]
+      .map((value) => normalizeText(String(value)))
+      .some((value) => value.includes(search));
+  });
+
+  const header = ["data", "item", "tipo", "origem", "destino", "quantidade", "observacao", "criado_por"];
+  const csvLines = [header.map(csvEscape).join(",")];
+
+  filteredRows.forEach((row) => {
+    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
+    const origem = Array.isArray(row.origem) ? row.origem[0] : row.origem;
+    const destino = Array.isArray(row.destino) ? row.destino[0] : row.destino;
+
+    csvLines.push(
+      [
+        new Date(row.data_movimentacao).toLocaleString("pt-BR"),
+        item?.nome ?? "Item excluído",
+        row.tipo,
+        origem?.nome ?? "Externo",
+        destino?.nome ?? "Baixa",
+        row.quantidade,
+        row.observacao ?? "",
+        row.criado_por ?? "",
+      ]
+        .map(csvEscape)
+        .join(","),
+    );
+  });
+
+  const csv = `\ufeff${csvLines.join("\r\n")}`;
+  const fileNameParts = ["relatorios"];
+
+  if (inicio) fileNameParts.push(inicio);
+  if (fim) fileNameParts.push(fim);
+  if (tipo && tipo !== "todos") fileNameParts.push(tipo);
+  if (q) fileNameParts.push("busca");
+
+  const fileName = `${fileNameParts.join("-")}.csv`;
+
+  return new NextResponse(csv, {
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+    },
+  });
+}
+
+
+
+===== src\lib\navigation.ts =====
+export const inventoryNavigation = [
+  { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
+  { href: "/itens", label: "Itens", icon: "itens" },
+  { href: "/estoques", label: "Estoques", icon: "estoques" },
+  { href: "/consulta", label: "Inventário", icon: "consulta" },
+  { href: "/movimentacoes", label: "Movimentar", icon: "movimentacao" },
+  { href: "/relatorios", label: "Relatórios", icon: "relatorios" },
+  { href: "/admin", label: "Admin", icon: "admin" },
+] as const;
+
+
+
+===== src\lib\supabase\actions.ts =====
+"use server";
+
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { getSupabaseConfig } from "./config";
+import { uploadFileToSupabaseStorage } from "./storage";
+
+export type AuthState = {
+  error?: string;
+};
+
+export type MovimentacaoState = {
+  error?: string;
+} | null;
+
+export type UserRole = "cliente" | "operador" | "admin";
+
+async function createActionClient() {
+  const cookieStore = await cookies();
+  const { url, anonKey } = getSupabaseConfig();
+
+  return createServerClient(
+    url,
+    anonKey,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        },
+      },
+    },
+  );
+}
+
+/**
+ * Helper de segurança RBAC: Obtém a role do usuário logado e valida se está permitida.
+ */
+async function assertUserRole(
+  supabase: Awaited<ReturnType<typeof createActionClient>>,
+  allowedRoles: UserRole[],
+): Promise<UserRole> {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Usuário não autenticado.");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const currentRole = (profile?.role ?? "cliente") as UserRole;
+
+  if (!allowedRoles.includes(currentRole)) {
+    throw new Error(
+      `Acesso negado: o seu perfil (${currentRole}) não tem permissão para esta operação.`,
+    );
+  }
+
+  return currentRole;
+}
+
+async function resolveItemPhotoReference(formData: FormData, supabase: Awaited<ReturnType<typeof createActionClient>>) {
+  const manualReference = String(formData.get("foto_url") ?? "").trim();
+  const uploadedFile = formData.get("foto_file");
+
+  if (uploadedFile instanceof File && uploadedFile.size > 0) {
+    return uploadFileToSupabaseStorage(supabase, uploadedFile);
+  }
+
+  return manualReference || null;
+}
+
+export async function signIn(
+  _previousState: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+
+  if (!email || !password) {
+    return { error: "Informe e-mail e senha." };
+  }
+
+  const supabase = await createActionClient();
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (signInError) {
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (signUpError) {
+      return { error: signUpError.message };
+    }
+
+    const { error: retryError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (retryError) {
+      return { error: retryError.message };
+    }
+  }
+
+  redirect("/dashboard");
+}
+
+export async function signOut() {
+  const supabase = await createActionClient();
+  await supabase.auth.signOut();
+  redirect("/login");
+}
+
+export async function createItem(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Operadores e Admins podem criar itens
+  await assertUserRole(supabase, ["operador", "admin"]);
+
+  const nome = String(formData.get("nome") ?? "").trim();
+  const categoria = String(formData.get("categoria") ?? "").trim();
+  const cliente = String(formData.get("cliente") ?? "").trim();
+  const descricao = String(formData.get("descricao") ?? "").trim();
+  const fotoUrl = await resolveItemPhotoReference(formData, supabase);
+
+  if (!nome || !categoria || !cliente) {
+    throw new Error("Preencha nome, categoria e cliente.");
+  }
+
+  const { error } = await supabase.from("itens").insert({
+    nome,
+    categoria,
+    cliente,
+    descricao: descricao || null,
+    foto_url: fotoUrl || null,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/itens");
+  revalidatePath("/dashboard");
+}
+
+export async function updateItem(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Operadores e Admins podem atualizar itens
+  await assertUserRole(supabase, ["operador", "admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+  const nome = String(formData.get("nome") ?? "").trim();
+  const categoria = String(formData.get("categoria") ?? "").trim();
+  const cliente = String(formData.get("cliente") ?? "").trim();
+  const descricao = String(formData.get("descricao") ?? "").trim();
+  const fotoUrl = await resolveItemPhotoReference(formData, supabase);
+
+  if (!id || !nome || !categoria || !cliente) {
+    throw new Error("Preencha id, nome, categoria e cliente.");
+  }
+
+  const { error } = await supabase
+    .from("itens")
+    .update({
+      nome,
+      categoria,
+      cliente,
+      descricao: descricao || null,
+      foto_url: fotoUrl || null,
+    })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/itens");
+  revalidatePath(`/itens/${id}`);
+  revalidatePath("/dashboard");
+}
+
+export async function deleteItem(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores podem deletar itens
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    throw new Error("ID do item ausente.");
+  }
+
+  const { count: movementCount, error: movementCountError } = await supabase
+    .from("movimentacoes")
+    .select("id", { count: "exact", head: true })
+    .eq("item_id", id);
+
+  if (movementCountError) {
+    throw new Error(movementCountError.message);
+  }
+
+  // Se houver histórico de movimentação, preservamos auditoria e marcamos o item como inativo.
+  if ((movementCount ?? 0) > 0) {
+    const { error: inactivateError } = await supabase
+      .from("itens")
+      .update({ ativo: false })
+      .eq("id", id);
+
+    if (inactivateError) {
+      if (inactivateError.message.toLowerCase().includes("column") && inactivateError.message.toLowerCase().includes("ativo")) {
+        throw new Error(
+          "Não foi possível inativar o item porque a coluna 'ativo' não existe na tabela 'itens'. Crie essa coluna no Supabase para usar exclusão lógica.",
+        );
+      }
+
+      throw new Error(inactivateError.message);
+    }
+
+    revalidatePath("/itens");
+    revalidatePath(`/itens/${id}`);
+    revalidatePath("/dashboard");
+    revalidatePath("/movimentacoes");
+    revalidatePath("/consulta");
+    revalidatePath("/relatorios");
+    return;
+  }
+
+  const { error: stockLinksError } = await supabase
+    .from("estoque_itens")
+    .delete()
+    .eq("item_id", id);
+
+  if (stockLinksError) {
+    throw new Error(stockLinksError.message);
+  }
+
+  const { error } = await supabase.from("itens").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/itens");
+  revalidatePath(`/itens/${id}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/movimentacoes");
+  revalidatePath("/consulta");
+  revalidatePath("/relatorios");
+}
+
+export async function reactivateItem(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores podem reativar itens inativos
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    throw new Error("ID do item ausente.");
+  }
+
+  const { error } = await supabase
+    .from("itens")
+    .update({ ativo: true })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/itens");
+  revalidatePath(`/itens/${id}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/movimentacoes");
+  revalidatePath("/consulta");
+  revalidatePath("/relatorios");
+}
+
+export async function createEstoque(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Operadores e Admins podem criar locais de estoque
+  await assertUserRole(supabase, ["operador", "admin"]);
+
+  const nome = String(formData.get("nome") ?? "").trim();
+  const tipo = String(formData.get("tipo") ?? "").trim();
+  const responsavel = String(formData.get("responsavel") ?? "").trim();
+  const contato = String(formData.get("contato") ?? "").trim();
+  const endereco = String(formData.get("endereco") ?? "").trim();
+
+  if (!nome || !tipo || !responsavel || !contato) {
+    throw new Error("Preencha nome, tipo, responsável e contato.");
+  }
+
+  const { error } = await supabase.from("estoques").insert({
+    nome,
+    tipo,
+    responsavel,
+    contato,
+    endereco: endereco || null,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/estoques");
+  revalidatePath("/dashboard");
+}
+
+export async function updateEstoque(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Operadores e Admins podem atualizar estoques
+  await assertUserRole(supabase, ["operador", "admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+  const nome = String(formData.get("nome") ?? "").trim();
+  const tipo = String(formData.get("tipo") ?? "").trim();
+  const responsavel = String(formData.get("responsavel") ?? "").trim();
+  const contato = String(formData.get("contato") ?? "").trim();
+  const endereco = String(formData.get("endereco") ?? "").trim();
+
+  if (!id || !nome || !tipo || !responsavel || !contato) {
+    throw new Error("Preencha id, nome, tipo, responsável e contato.");
+  }
+
+  const { error } = await supabase
+    .from("estoques")
+    .update({
+      nome,
+      tipo,
+      responsavel,
+      contato,
+      endereco: endereco || null,
+    })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/estoques");
+  revalidatePath("/dashboard");
+}
+
+export async function deleteEstoque(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores podem deletar estoques
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    throw new Error("ID do estoque ausente.");
+  }
+
+  const { error } = await supabase.from("estoques").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/estoques");
+  revalidatePath("/dashboard");
+}
+
+export async function createMovimentacao(_previousState: MovimentacaoState, formData: FormData): Promise<MovimentacaoState> {
+  const supabase = await createActionClient();
+  try {
+    // Apenas Operadores e Admins podem registrar movimentações operacionais
+    await assertUserRole(supabase, ["operador", "admin"]);
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const itemId = String(formData.get("item_id") ?? "").trim();
+  const tipo = String(formData.get("tipo") ?? "").trim();
+  const origemId = String(formData.get("origem_id") ?? "").trim();
+  const destinoId = String(formData.get("destino_id") ?? "").trim();
+  const quantidade = Number(formData.get("quantidade") ?? 0);
+  const observacao = String(formData.get("observacao") ?? "").trim();
+
+  if (!itemId || !["entrada", "saida", "transferencia"].includes(tipo) || !Number.isInteger(quantidade) || quantidade <= 0) {
+    throw new Error("Preencha item, tipo e quantidade.");
+  }
+
+  if ((tipo === "saida" || tipo === "transferencia") && !origemId) {
+    throw new Error("Selecione a origem para saída ou transferência.");
+  }
+
+  if ((tipo === "entrada" || tipo === "transferencia") && !destinoId) {
+    throw new Error("Selecione o destino para entrada ou transferência.");
+  }
+
+  if (tipo === "saida" || tipo === "transferencia") {
+    const { data: saldoAtual, error: saldoError } = await supabase
+      .from("estoque_itens")
+      .select("quantidade")
+      .eq("item_id", itemId)
+      .eq("estoque_id", origemId)
+      .maybeSingle();
+
+    if (saldoError) {
+      throw new Error(saldoError.message);
+    }
+
+    if ((saldoAtual?.quantidade ?? 0) < quantidade) {
+      throw new Error(`Saldo insuficiente no local selecionado. Disponível: ${saldoAtual?.quantidade ?? 0}`);
+    }
+  }
+
+  const { error: rpcError } = await supabase.rpc("atualizar_estoque", {
+    p_item_id: itemId,
+    p_origem_id: origemId || null,
+    p_destino_id: destinoId || null,
+    p_quantidade: quantidade,
+  });
+
+  if (rpcError) {
+    if (rpcError.message.toLowerCase().includes("atualizar_estoque")) {
+      throw new Error("A função de atualização de estoque não está configurada no Supabase. Execute o script sql/movimentacoes.sql no SQL Editor.");
+    }
+
+    throw new Error(rpcError.message);
+  }
+
+  const { error: insertError } = await supabase.from("movimentacoes").insert({
+    item_id: itemId,
+    tipo,
+    origem_id: origemId || null,
+    destino_id: destinoId || null,
+    quantidade,
+    observacao: observacao || null,
+    criado_por: user?.email ?? null,
+  });
+
+  if (insertError) {
+    throw new Error(insertError.message);
+  }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/movimentacoes");
+    revalidatePath("/consulta");
+    return null;
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Não foi possível registrar a movimentação." };
+  }
+}
+
+export async function deleteMovimentacao(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores podem deletar movimentações
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    throw new Error("ID da movimentação ausente.");
+  }
+
+  const { error } = await supabase.from("movimentacoes").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/movimentacoes");
+  revalidatePath("/consulta");
+  revalidatePath("/relatorios");
+}
+
+export async function createCategoria(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam categorias
+  await assertUserRole(supabase, ["admin"]);
+
+  const nome = String(formData.get("nome") ?? "").trim();
+
+  if (!nome) {
+    throw new Error("Informe o nome da categoria.");
+  }
+
+  const { error } = await supabase.from("categorias").insert({ nome });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}
+
+export async function updateCategoria(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam categorias
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+  const nome = String(formData.get("nome") ?? "").trim();
+
+  if (!id || !nome) {
+    throw new Error("Preencha id e nome da categoria.");
+  }
+
+  const { error } = await supabase.from("categorias").update({ nome }).eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}
+
+export async function deleteCategoria(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam categorias
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    throw new Error("ID da categoria ausente.");
+  }
+
+  const { error } = await supabase.from("categorias").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}
+
+export async function createCliente(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam clientes
+  await assertUserRole(supabase, ["admin"]);
+
+  const nome = String(formData.get("nome") ?? "").trim();
+
+  if (!nome) {
+    throw new Error("Informe o nome do cliente.");
+  }
+
+  const { error } = await supabase.from("clientes").insert({ nome });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}
+
+export async function updateCliente(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam clientes
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+  const nome = String(formData.get("nome") ?? "").trim();
+
+  if (!id || !nome) {
+    throw new Error("Preencha id e nome do cliente.");
+  }
+
+  const { error } = await supabase.from("clientes").update({ nome }).eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}
+
+export async function deleteCliente(formData: FormData) {
+  const supabase = await createActionClient();
+  // Apenas Administradores gerenciam clientes
+  await assertUserRole(supabase, ["admin"]);
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    throw new Error("ID do cliente ausente.");
+  }
+
+  const { error } = await supabase.from("clientes").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/itens");
+}
+
+
+
+===== src\lib\supabase\auth-guard.ts =====
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+export type UserRole = "cliente" | "operador" | "admin";
+
+export async function getCurrentUserRole(): Promise<UserRole> {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return "cliente";
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  return profile?.role ?? "cliente";
+}
+
+export async function assertUserRole(allowedRoles: UserRole[]) {
+  const role = await getCurrentUserRole();
+  if (!allowedRoles.includes(role)) {
+    throw new Error("Acesso negado: a sua conta não possui permissão para realizar esta operação.");
+  }
+  return role;
+}
+
+
+
+===== src\lib\supabase\client.ts =====
+import { createBrowserClient } from "@supabase/ssr";
+import { getSupabaseConfig } from "./config";
+
+export function createSupabaseBrowserClient() {
+  const { url, anonKey } = getSupabaseConfig();
+
+  return createBrowserClient(url, anonKey);
+}
+
+
+
+===== src\lib\supabase\config.ts =====
+function getFirstDefinedEnv(names: string[]) {
+  for (const name of names) {
+    const value = process.env[name]?.trim();
+    if (value) {
+      return value;
+    }
+  }
+
+  return "";
+}
+
+function getSupabaseUrlFromEnv() {
+  return getFirstDefinedEnv(["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_URL"]);
+}
+
+function getSupabasePublicKeyFromEnv() {
+  return getFirstDefinedEnv([
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_ANON_KEY",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "SUPABASE_PUBLISHABLE_KEY",
+  ]);
+}
+
+export function hasSupabaseConfig() {
+  const url = getSupabaseUrlFromEnv();
+  const key = getSupabasePublicKeyFromEnv();
+
+  if (!url || !key) {
+    return false;
+  }
+
+  return !url.includes("your-project") && !key.includes("your-anon-key");
+}
+
+export function getSupabaseConfig() {
+  const url = getSupabaseUrlFromEnv();
+  const anonKey = getSupabasePublicKeyFromEnv();
+
+  if (!hasSupabaseConfig() || !url || !anonKey) {
+    throw new Error(
+      "Supabase não configurado. Defina NEXT_PUBLIC_SUPABASE_URL (ou SUPABASE_URL) e NEXT_PUBLIC_SUPABASE_ANON_KEY/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY com valores reais.",
+    );
+  }
+
+  return { url, anonKey };
+}
+
+
+
+===== src\lib\supabase\diagnostics.ts =====
+import { createSupabaseServerClient } from "./server";
+import { hasSupabaseConfig } from "./config";
+import { getSupabaseStorageBucket } from "./storage";
+
+type DiagnosticCheck = {
+  target: string;
+  ok: boolean;
+  detail: string;
+};
+
+export type SupabaseDiagnostics = {
+  mode: "misconfigured" | "supabase";
+  checks: DiagnosticCheck[];
+  hasFailures: boolean;
+};
+
+export async function getSupabaseDiagnostics(): Promise<SupabaseDiagnostics> {
+  if (!hasSupabaseConfig()) {
+    const checks: DiagnosticCheck[] = [
+      {
+        target: "configuração",
+        ok: false,
+        detail: "NEXT_PUBLIC_SUPABASE_URL ou NEXT_PUBLIC_SUPABASE_ANON_KEY não foram definidos com valores reais.",
+      },
+    ];
+
+    return {
+      mode: "misconfigured",
+      checks,
+      hasFailures: true,
+    };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const tableNames = ["itens", "estoques", "movimentacoes", "estoque_itens"];
+  const tableChecks = await Promise.all(
+    tableNames.map(async (tableName) => {
+      const { error } = await supabase.from(tableName).select("id", { head: true, count: "exact" });
+
+      return {
+        target: `table:${tableName}`,
+        ok: !error,
+        detail: error ? `Falha ao ler ${tableName}: ${error.message}` : `Leitura da tabela ${tableName} ok.`,
+      };
+    }),
+  );
+
+  const bucket = getSupabaseStorageBucket();
+  const storageCheck = !bucket
+    ? {
+        target: "storage",
+        ok: false,
+        detail: "NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET não foi definido.",
+      }
+    : await supabase.storage.from(bucket).list("", { limit: 1 }).then(({ error }: { error: { message: string } | null }) => ({
+        target: `storage:${bucket}`,
+        ok: !error,
+        detail: error ? `Falha ao acessar o bucket ${bucket}: ${error.message}` : `Acesso ao bucket ${bucket} ok.`,
+      }));
+
+  const checks = [...tableChecks, storageCheck];
+
+  return {
+    mode: "supabase",
+    checks,
+    hasFailures: checks.some((check) => !check.ok),
+  };
+}
+
+
+
+===== src\lib\supabase\server.ts =====
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { getSupabaseConfig } from "./config";
+
+export async function createSupabaseServerClient() {
+  const cookieStore = await cookies();
+  const { url, anonKey } = getSupabaseConfig();
+
+  return createServerClient(
+    url,
+    anonKey,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll() {
+          return undefined;
+        },
+      },
+    },
+  );
+}
+
+
+
+===== src\lib\supabase\storage.ts =====
+function isAbsoluteUrl(value: string) {
+  return /^https?:\/\//i.test(value);
+}
+
+function encodeStoragePath(path: string) {
+  return path
+    .split("/")
+    .filter(Boolean)
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+}
+
+function normalizeStorageValue(value: string | null | undefined) {
+  return (value ?? "").trim().replace(/^\/+/, "");
+}
+
+function sanitizeFileName(fileName: string) {
+  const normalized = fileName
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9.-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return normalized || "arquivo";
+}
+
+export function getSupabaseStorageBucket() {
+  const bucket = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET?.trim() || process.env.SUPABASE_STORAGE_BUCKET?.trim();
+
+  if (!bucket || bucket.includes("your-") || bucket.includes("example")) {
+    return null;
+  }
+
+  return bucket;
+}
+
+export function isSupabaseStoragePath(value: string | null | undefined) {
+  const normalized = normalizeStorageValue(value);
+  return Boolean(normalized) && !isAbsoluteUrl(normalized);
+}
+
+export function resolveSupabaseStoragePublicUrl(value: string | null | undefined) {
+  const normalized = normalizeStorageValue(value);
+
+  if (!normalized) {
+    return null;
+  }
+
+  if (isAbsoluteUrl(normalized)) {
+    return normalized;
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const bucket = getSupabaseStorageBucket();
+
+  if (!baseUrl || !bucket) {
+    return null;
+  }
+
+  return `${baseUrl}/storage/v1/object/public/${bucket}/${encodeStoragePath(normalized)}`;
+}
+
+type StorageClientLike = {
+  storage: {
+    from: (bucket: string) => {
+      upload: (path: string, body: ArrayBuffer, options?: { contentType?: string; upsert?: boolean }) => Promise<{ error: { message: string } | null }>;
+      createSignedUrl: (path: string, expiresIn: number) => Promise<{ data: { signedUrl: string } | null; error: { message: string } | null }>;
+      list: (path?: string, options?: { limit?: number }) => Promise<{ data: unknown[] | null; error: { message: string } | null }>;
+    };
+  };
+};
+
+export async function uploadFileToSupabaseStorage(supabase: StorageClientLike, file: File, folder = "itens") {
+  const bucket = getSupabaseStorageBucket();
+
+  if (!bucket) {
+    throw new Error("Defina NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET para enviar arquivos ao Supabase Storage.");
+  }
+
+  const sanitizedName = sanitizeFileName(file.name);
+  const filePath = `${folder}/${Date.now()}-${sanitizedName}`;
+  const fileBuffer = await file.arrayBuffer();
+  const { error } = await supabase.storage.from(bucket).upload(filePath, fileBuffer, {
+    contentType: file.type || undefined,
+    upsert: false,
+  });
+
+  if (error) {
+    throw new Error(`Falha no upload do arquivo: ${error.message}`);
+  }
+
+  return filePath;
+}
+
+export async function resolveSupabaseAssetUrl(supabase: StorageClientLike, value: string | null | undefined, expiresIn = 3600) {
+  const normalized = normalizeStorageValue(value);
+
+  if (!normalized) {
+    return null;
+  }
+
+  if (isAbsoluteUrl(normalized)) {
+    return normalized;
+  }
+
+  const bucket = getSupabaseStorageBucket();
+
+  if (!bucket) {
+    return null;
+  }
+
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(normalized, expiresIn);
+
+  if (error) {
+    return resolveSupabaseStoragePublicUrl(normalized);
+  }
+
+  return data?.signedUrl ?? resolveSupabaseStoragePublicUrl(normalized);
+}
+
+
+

@@ -5,11 +5,11 @@
  * 3. ItemsSearchTable: Componente cliente que gerencia a busca e filtragem de itens.
  * 4. resolveSupabaseAssetUrl: Utilitário que transforma o path do Storage em URL visível.
  */
-
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createItem, deleteItem, reactivateItem, updateItem } from "@/lib/supabase/actions";
 import ItemsSearchTable from "@/components/ItemsSearchTable";
 import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
+import { ItemForm } from "@/components/item-form"; // Chamando o novo formulário Client-side
 
 export default async function ItensPage() {
   const supabase = await createSupabaseServerClient();
@@ -25,9 +25,7 @@ export default async function ItensPage() {
     created_at: string | null;
   };
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
@@ -43,13 +41,13 @@ export default async function ItensPage() {
     .order("created_at", { ascending: false });
 
   // PROCESSO DE RESOLUÇÃO DE MÍDIA:
-  // Para cada item, verificamos se existe um path em 'foto_url' e solicitamos 
+  // Para cada item, verificamos se existe um path em 'foto_url' e solicitamos
   // ao Supabase Storage uma URL válida para renderização do preview.
   const itemRows = await Promise.all(
     ((itens ?? []) as Omit<ItemRow, "foto_preview_url">[]).map(async (item) => ({
       ...item,
       foto_preview_url: await resolveSupabaseAssetUrl(supabase, item.foto_url),
-    })),
+    }))
   );
 
   const { data: inactiveItems } = isAdmin
@@ -69,39 +67,13 @@ export default async function ItensPage() {
 
   return (
     <div className="grid gap-6">
-      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
-        <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo item</h3>
-
-        {/* O formulário envia os dados para a Server Action 'createItem'.
-            Note o uso de 'foto_file' para upload direto de arquivos para o bucket. */}
-        <form action={createItem} className="mt-4 grid gap-4 md:grid-cols-2">
-          <input name="nome" placeholder="Nome do item" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
-          
-          {/* Categorias gerenciadas pelo administrador em /admin */}
-          <select name="categoria" defaultValue={categoriaOptions[0]?.nome ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-            {categoriaOptions.map((categoria) => (
-              <option key={categoria.id} value={categoria.nome ?? ""}>
-                {categoria.nome}
-              </option>
-            ))}
-          </select>
-
-          {/* Clientes gerenciados pelo administrador em /admin */}
-          <select name="cliente" defaultValue={clienteOptions[0]?.nome ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-            {clienteOptions.map((cliente) => (
-              <option key={cliente.id} value={cliente.nome ?? ""}>
-                {cliente.nome}
-              </option>
-            ))}
-          </select>
-          <input name="foto_url" placeholder="URL da foto ou path salvo no bucket (opcional)" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-          <input type="file" name="foto_file" accept="image/*" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-          <textarea name="descricao" placeholder="Descrição do item" rows={3} className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-          <div className="md:col-span-2">
-            <button type="submit" className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition">Salvar item</button>
-          </div>
-        </form>
-      </section>
+      {profile?.role !== "cliente" && (
+        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo item</h3>
+          {/* O formulário envia os dados reativamente pelo componente cliente integrado ao useToast */}
+          <ItemForm categoriaOptions={categoriaOptions} clienteOptions={clienteOptions} />
+        </section>
+      )}
 
       <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
         <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Itens cadastrados</h3>

@@ -1,37 +1,24 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useMemo, useState, useEffect } from "react";
 import { createMovimentacao } from "@/lib/supabase/actions";
+import { useToast } from "@/components/toast-context"; // Importando o hook do Toast Global
 
-type ItemOption = {
-  id: string;
-  nome: string | null;
-};
-
-type EstoqueOption = {
-  id: string;
-  nome: string | null;
-};
-
-type BalanceOption = {
-  item_id: string;
-  estoque_id: string;
-  quantidade: number;
-  estoque_nome: string | null;
-};
-
-type MovimentacaoFormProps = {
-  itemRows: ItemOption[];
-  estoqueRows: EstoqueOption[];
-  balances: BalanceOption[];
-};
+type ItemOption = { id: string; nome: string | null; };
+type EstoqueOption = { id: string; nome: string | null; };
+type BalanceOption = { item_id: string; estoque_id: string; quantidade: number; estoque_nome: string | null; };
+type MovimentacaoFormProps = { itemRows: ItemOption[]; estoqueRows: EstoqueOption[]; balances: BalanceOption[]; };
 
 export function MovimentacaoForm({ itemRows, estoqueRows, balances }: MovimentacaoFormProps) {
+  const { showToast } = useToast(); // Consumindo o contexto de Toasts
   const [actionError, submitAction, isPending] = useActionState(createMovimentacao, null);
   const [tipo, setTipo] = useState("transferencia");
   const [itemId, setItemId] = useState("");
   const [origemId, setOrigemId] = useState("");
   const [destinoId, setDestinoId] = useState("");
+  const [quantidade, setQuantidade] = useState<number | "">(""); // Controlado para reset reativo
+  const [observacao, setObservacao] = useState(""); // Controlado para reset reativo
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedItemBalances = useMemo(() => balances.filter((entry) => entry.item_id === itemId), [balances, itemId]);
   const currentOriginBalance = selectedItemBalances.find((entry) => entry.estoque_id === origemId)?.quantidade ?? 0;
@@ -42,8 +29,30 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
   const isSaida = tipo === "saida";
   const isTransferencia = tipo === "transferencia";
 
+  // EFEITO DE AUDITORIA VISUAL: Captura o término da Server Action para exibir o Toast correspondente
+  useEffect(() => {
+    if (isPending) {
+      setIsSubmitting(true);
+    }
+    if (!isPending && isSubmitting) {
+      setIsSubmitting(false);
+      if (!actionError?.error) {
+        showToast("Movimentação registrada com sucesso!", "success");
+        // Reseta todos os estados do formulário após a gravação bem-sucedida
+        setItemId("");
+        setOrigemId("");
+        setDestinoId("");
+        setQuantidade("");
+        setObservacao("");
+      } else {
+        showToast(actionError.error, "error");
+      }
+    }
+  }, [isPending, isSubmitting, actionError, showToast]);
+
   return (
     <form action={submitAction} className="mt-6 grid gap-4 md:grid-cols-2">
+      <input type="hidden" name="item_id" value={itemId} />
       <label className="grid gap-2 md:col-span-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Item</span>
         <select
@@ -101,10 +110,12 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
           type="number"
           min="1"
           max={isSaida && origemId ? currentOriginBalance : undefined}
+          value={quantidade}
+          onChange={(e) => setQuantidade(e.target.value ? Number(e.target.value) : "")}
           placeholder="Quantidade"
           className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
           required
-        />
+            />
       </label>
 
       <label className="grid gap-2">
@@ -163,7 +174,15 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
 
       <label className="grid gap-2 md:col-span-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Motivo / observação</span>
-        <textarea name="observacao" rows={3} placeholder="Motivo / observação" className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm" required />
+        <textarea 
+          name="observacao" 
+          value={observacao}
+          onChange={(e) => setObservacao(e.target.value)}
+          rows={3} 
+          placeholder="Motivo / observação" 
+          className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm" 
+          required 
+        />
       </label>
 
       <div className="md:col-span-2">

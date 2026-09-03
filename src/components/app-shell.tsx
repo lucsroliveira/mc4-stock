@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { inventoryNavigation } from "@/lib/navigation";
 import { signOut } from "@/lib/supabase/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { PageLoading } from "@/components/page-loading";
 
 export type UserRole = "cliente" | "operador" | "admin";
 
@@ -56,13 +57,46 @@ const pageInfoMap: Record<string, { title: string; subtitle: string }> = {
 
 export function AppShell({ children, userLabel, userRole }: AppShellProps) {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false); // Estado para gerenciar o spinner de carregamento
   const pathname = usePathname();
 
-  // Pega o título correspondente à rota atual (ou define um padrão se não encontrar)
   const currentPage = pageInfoMap[pathname] || {
     title: "Sistema de Estoque",
     subtitle: "Controle operacional, saldo e auditoria para a operação MC4.",
   };
+
+  // 1. DESATIVA O SPINNER ASSIM QUE A NOVA ROTA É MONTADA NO DOM
+  useEffect(() => {
+    setIsNavigating(false);
+  }, [pathname]);
+
+    // 2. INTERCEPTADOR GLOBAL DE CLIQUES EM LINKS COM TRATAMENTO DE DOWNLOADS E QUERY PARAMS
+  useEffect(() => {
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest("a");
+
+      if (anchor) {
+        const href = anchor.getAttribute("href");
+        
+        // Verifica se é uma rota interna, não é uma âncora de scroll e não é um link de exportação
+        if (href && href.startsWith("/") && !href.startsWith("#") && !href.includes("/export")) {
+          // CORREÇÃO: Pegamos estritamente a primeira parte da string (antes do "?")
+          // O [0] é essencial: sem ele, split() retorna um array e a comparação com pathname
+          // (string) é sempre verdadeira, deixando o spinner travado em mudanças de query param.
+          const targetPath = href.split("?")[0];
+          
+          // Só exibe o spinner se o usuário estiver de fato mudando de tela (ex: /consulta -> /itens)
+          if (targetPath !== pathname && anchor.target !== "_blank") {
+            setIsNavigating(true);
+          }
+        }
+      }
+    };
+
+    document.addEventListener("click", handleAnchorClick);
+    return () => document.removeEventListener("click", handleAnchorClick);
+  }, [pathname]);
 
   const navigationIcons: Record<string, ReactNode> = {
     dashboard: (
@@ -107,17 +141,13 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
     ),
   };
 
-  // Regras de visibilidade de menus por perfil (RBAC)
   const filteredNavigation = inventoryNavigation.filter((item) => {
-    // Se o usuário for cliente, ele NÃO deve ver Cadastros (itens, estoques) nem Movimentações operacionais
     if (userRole === "cliente") {
       return ["dashboard", "consulta", "relatorios"].includes(item.icon);
     }
-    // A área de Admin só aparece para administradores
     if (item.icon === "admin") {
       return userRole === "admin";
     }
-    // Operadores e Admins veem tudo
     return true;
   });
 
@@ -129,6 +159,13 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
 
   return (
     <div className="min-h-screen soft-grid text-slate-100">
+      {/* EXIBIÇÃO DO SPINNER GLOBAL */}
+      {isNavigating && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm">
+          <PageLoading label="Aguarde..." />
+        </div>
+      )}
+
       <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col lg:flex-row">
         <aside className="sticky top-0 hidden h-screen max-h-screen w-[280px] shrink-0 border-r border-[var(--sidebar-border)] p-4 lg:flex lg:flex-col lg:p-6" style={{ background: "var(--sidebar-bg)", color: "var(--sidebar-text)" }}>
           <div className="mb-6 shrink-0 lg:mb-8">
@@ -191,7 +228,7 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
         <main className="flex min-h-screen flex-1 flex-col overflow-y-auto px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
           <header className="glass-panel mb-6 rounded-3xl border border-white/10 px-5 py-4">
             <div className="flex items-center justify-between">
-                <p className="text-xs uppercase tracking-[0.3em] text-[#EB5727]">Sistema de estoque</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-[#EB5727]">Sistema de estoque</p>
               <span className="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-800/40 text-slate-300 border border-white/10 lg:hidden">
                 Perfil: {roleBadgeLabels[userRole]}
               </span>

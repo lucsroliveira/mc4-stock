@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import type { deleteEstoque, updateEstoque } from "@/lib/supabase/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useToast } from "@/components/toast-context";
 
 type EstoqueRow = {
   id: string;
@@ -24,6 +25,36 @@ export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: Estoqu
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const deleteFormRef = useRef<HTMLFormElement | null>(null);
 
+  const { showToast } = useToast();
+  const [isPendingUpdate, startUpdateTransition] = useTransition();
+  const [isPendingDelete, startDeleteTransition] = useTransition();
+
+  // Executa a transação de atualização inline e emite o feedback
+  const handleUpdate = (formData: FormData) => {
+    startUpdateTransition(async () => {
+      try {
+        await updateAction(formData);
+        showToast("Local atualizado com sucesso!", "success");
+        setIsEditing(false);
+      } catch (error: any) {
+        showToast(error.message || "Erro ao atualizar o local.", "error");
+      }
+    });
+  };
+
+  // Executa a transação de exclusão e emite o feedback
+  const handleDelete = (formData: FormData) => {
+    startDeleteTransition(async () => {
+      try {
+        await deleteAction(formData);
+        showToast("Local removido do cadastro!", "success");
+        setShowDeleteConfirm(false);
+      } catch (error: any) {
+        showToast(error.message || "Erro ao excluir o local.", "error");
+      }
+    });
+  };
+
   return (
     <>
       {isEditing ? (
@@ -37,7 +68,7 @@ export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: Estoqu
               Fechar
             </button>
           </div>
-          <form action={updateAction} className="grid gap-3 md:grid-cols-2">
+          <form action={handleUpdate} className="grid gap-3 md:grid-cols-2">
             <input type="hidden" name="id" value={estoque.id} />
             <input name="nome" defaultValue={estoque.nome ?? ""} placeholder="Nome do local" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
             <select name="tipo" defaultValue={estoque.tipo ?? "Regional"} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
@@ -48,8 +79,8 @@ export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: Estoqu
             <input name="contato" defaultValue={estoque.contato ?? ""} placeholder="WhatsApp / contato" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
             <input name="endereco" defaultValue={estoque.endereco ?? ""} placeholder="Endereço / placa" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
             <div className="flex gap-2 md:col-span-2">
-              <button type="submit" className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
-                Salvar alterações
+              <button type="submit" disabled={isPendingUpdate} className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
+                {isPendingUpdate ? "Salvando..." : "Salvar alterações"}
               </button>
               <button type="button" onClick={() => setIsEditing(false)} className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)]">
                 Cancelar
@@ -68,7 +99,7 @@ export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: Estoqu
         </div>
       )}
 
-      <form ref={deleteFormRef} action={deleteAction} className="hidden">
+      <form ref={deleteFormRef} action={handleDelete} className="hidden">
         <input type="hidden" name="id" value={estoque.id} />
       </form>
 

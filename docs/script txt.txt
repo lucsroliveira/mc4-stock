@@ -1,0 +1,90 @@
+<# 
+Exporta o código-fonte do projeto para dois arquivos .txt (frontend e backend), 
+ignorando node_modules, builds e arquivos de segredo (.env*).
+
+Uso: .\export-code.ps1 -RootPath "C:\caminho\do\seu-projeto" -OutputDir "C:\caminho\de-saida"
+#>
+param(
+    [string]$RootPath = (Get-Location).Path,
+    [string]$OutputDir = (Get-Location).Path
+)
+
+# Pastas que nunca devem ser lidas (dependências, build, Git, etc.)
+$excludeDirs = @('node_modules', '.next', '.git', '.vercel', 'out', 'dist', 'coverage')
+
+# Arquivos/padrões que nunca devem ser incluídos (segredos, lockfiles, logs)
+$excludeFilePatterns = @('.env', '.env.*', 'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', '*.tsbuildinfo', 'export-code.ps1', 'frontend.txt', 'backend.txt')
+
+# Extensões que caracterizam código de front (componentes/UI) e de back (actions, configs, SQL)
+$frontendExtensions = @('.tsx', '.css')
+$backendExtensions  = @('.ts', '.mjs', '.sql')
+
+# Função auxiliar para validar se um arquivo deve ser ignorado pelos padrões de nome
+function Test-Excluded {
+    param([System.IO.FileInfo]$File)
+    foreach ($pattern in $excludeFilePatterns) {
+        if ($File.Name -like $pattern) { 
+            return $true 
+        }
+    }
+    return $false
+}
+
+# Coleta todos os arquivos do projeto aplicando os filtros de diretório e nome
+$allFiles = Get-ChildItem -Path $RootPath -Recurse -File | Where-Object {
+    # Resolve o caminho relativo tratando corretamente barras de Windows ou Linux
+    $relative = $_.FullName.Substring($RootPath.Length).TrimStart('\', '/')
+    $segments = $relative -split '[\\/]'
+    
+    # Verifica se o arquivo pertence a alguma pasta que deve ser excluída
+    $inExcludedDir = $false
+    foreach ($dir in $excludeDirs) {
+        if ($segments -contains $dir) {
+            $inExcludedDir = $true
+            break
+        }
+    }
+    
+    (-not $inExcludedDir) -and (-not (Test-Excluded $_))
+}
+
+# Função de dump responsável por ler o código e gravar em lote de forma organizada
+function Write-CodeDump {
+    param(
+        [System.IO.FileInfo[]]$Files,
+        [string]$OutputPath
+    )
+    
+    # Cria ou limpa o arquivo de saída antes de gravar os dados
+    New-Item -ItemType File -Path $OutputPath -Force | Out-Null
+    
+    foreach ($file in $Files) {
+        # Calcula o caminho relativo amigável para usar como marcador de arquivo
+        $relativeName = $file.FullName.Substring($RootPath.Length).TrimStart('\', '/')
+        
+        # Grava o cabeçalho de demarcação do arquivo (ex: ===== src/app/page.tsx =====)
+        Add-Content -Path $OutputPath -Value "===== $relativeName ====="
+        
+        # Lê o conteúdo de texto cru (Raw) e anexa no arquivo final
+        $content = Get-Content -Path $file.FullName -Raw
+        Add-Content -Path $OutputPath -Value $content
+        
+        # Insere quebras de linha para separar o arquivo do próximo bloco
+        Add-Content -Path $OutputPath -Value "`n`n"
+    }
+}
+
+# Separa os arquivos mapeados com base em suas extensões de frontend e backend
+$frontendFiles = $allFiles | Where-Object { $frontendExtensions -contains $_.Extension }
+$backendFiles  = $allFiles | Where-Object { $backendExtensions -contains $_.Extension }
+
+$frontendOutput = Join-Path $OutputDir 'frontend.txt'
+$backendOutput  = Join-Path $OutputDir 'backend.txt'
+
+# Executa as escritas dos dumps
+Write-CodeDump -Files $frontendFiles -OutputPath $frontendOutput
+Write-CodeDump -Files $backendFiles -OutputPath $backendOutput
+
+# Exibe o resultado no console com formatação de cores amigável
+Write-Host "Frontend:  $($frontendFiles.Count) arquivo(s) -> $frontendOutput" -ForegroundColor Cyan
+Write-Host "Backend:   $($backendFiles.Count) arquivo(s) -> $backendOutput" -ForegroundColor Green

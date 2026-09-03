@@ -1,0 +1,3942 @@
+===== src\app\globals.css =====
+@import "tailwindcss";
+
+:root {
+  --sidebar-bg: linear-gradient(180deg, #eb5727 0%, #c9431b 100%);
+  --sidebar-border: rgba(255, 255, 255, 0.16);
+  --sidebar-text: #f4f7f9;
+  --sidebar-muted: rgba(244, 247, 249, 0.82);
+  --sidebar-link-hover: rgba(255, 255, 255, 0.14);
+  --active-bg: rgba(255, 255, 255, 0.15);
+  --mc4-lime: #cedb05;
+  --mc4-primary: #eb5727;
+  --mc4-primary-strong: #c9431b;
+  --mc4-yellow: #f2c029;
+  --mc4-cyan: #00a5b5;
+  --mc4-orange: var(--mc4-primary);
+  --bg-light: #f4f7f9;
+  --kanban-bg: #ebf0f3;
+  --background: #f4f7f9;
+  --foreground: #142033;
+  --text-muted: #53657a;
+  --panel: rgba(255, 255, 255, 0.94);
+  --panel-border: rgba(65, 107, 169, 0.16);
+  --input-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 247, 249, 0.96));
+  --input-border: rgba(65, 107, 169, 0.18);
+  --accent: var(--mc4-primary);
+  --accent-strong: var(--mc4-primary-strong);
+  --secondary: var(--mc4-lime);
+  --secondary-strong: #b2c000;
+  --warning: var(--mc4-orange);
+}
+
+[data-theme="dark"] {
+  --background: #07111f;
+  --foreground: #f7fbff;
+  --text-muted: #b7c0cc;
+  --panel: rgba(7, 17, 31, 0.94);
+  --panel-border: rgba(255, 255, 255, 0.12);
+  --input-bg: rgba(255, 255, 255, 0.08);
+  --input-border: rgba(255, 255, 255, 0.14);
+  --sidebar-bg: linear-gradient(180deg, #8f2d16 0%, #5f2013 100%);
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-text: #f8fafc;
+  --sidebar-muted: rgba(226, 232, 240, 0.82);
+  --sidebar-link-hover: rgba(255, 255, 255, 0.1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(235, 87, 39, 0.12), transparent 24%),
+    linear-gradient(135deg, var(--background) 0%, #eef3f7 100%);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.glass-panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 16px 40px rgba(65, 107, 169, 0.12);
+  color: var(--foreground);
+}
+
+.table-surface {
+  background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.glass-panel td,
+.glass-panel th {
+  color: inherit;
+}
+
+.mc4-card-accent {
+  background: linear-gradient(135deg, rgba(65, 107, 169, 0.06), rgba(0, 165, 181, 0.08));
+  border: 1px solid rgba(65, 107, 169, 0.14);
+}
+
+.mc4-form-input,
+.mc4-form-select,
+.mc4-form-textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--foreground);
+  box-shadow: inset 0 1px 2px rgba(65, 107, 169, 0.06);
+  color-scheme: light dark;
+}
+
+.mc4-form-input::placeholder,
+.mc4-form-select::placeholder,
+.mc4-form-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.mc4-form-input:focus,
+.mc4-form-select:focus,
+.mc4-form-textarea:focus {
+  outline: none;
+  border-color: var(--mc4-primary);
+  box-shadow: 0 0 0 3px rgba(235, 87, 39, 0.16);
+}
+
+.mc4-form-select option,
+.mc4-form-select optgroup {
+  background: var(--panel);
+  color: var(--foreground);
+}
+
+.mc4-form-input:disabled,
+.mc4-form-select:disabled,
+.mc4-form-textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background: var(--panel-border);
+}
+
+.mc4-form-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.4) saturate(1.2) brightness(0.8);
+}
+
+[data-theme="dark"] .mc4-form-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) saturate(1.1) brightness(1.25);
+}
+
+.mc4-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mc4-badge-cyan {
+  background: rgba(0, 165, 181, 0.12);
+  color: var(--foreground);
+  border: 1px solid rgba(0, 165, 181, 0.18);
+}
+
+.mc4-badge-lime {
+  background: rgba(206, 219, 5, 0.16);
+  color: var(--foreground);
+  border: 1px solid rgba(206, 219, 5, 0.22);
+}
+
+.mc4-badge-orange {
+  background: rgba(235, 87, 39, 0.12);
+  color: var(--foreground);
+  border: 1px solid rgba(235, 87, 39, 0.18);
+}
+
+.mc4-btn-primary {
+  background: linear-gradient(135deg, var(--mc4-primary), var(--mc4-primary-strong));
+  color: white;
+  box-shadow: 0 10px 24px rgba(235, 87, 39, 0.22);
+}
+
+.mc4-btn-primary:hover {
+  filter: brightness(1.03);
+}
+
+.mc4-btn-secondary {
+  background: linear-gradient(135deg, var(--mc4-lime), #a8bb00);
+  color: #273100;
+}
+
+.mc4-btn-secondary:hover {
+  filter: brightness(1.03);
+}
+
+.mc4-text-muted {
+  color: var(--text-muted);
+}
+
+.mc4-text-strong {
+  color: var(--foreground);
+}
+
+.soft-grid {
+  background-image:
+    linear-gradient(rgba(65, 107, 169, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(65, 107, 169, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.page-loading-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(65, 107, 169, 0.08), rgba(0, 165, 181, 0.08));
+}
+
+.page-loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.5rem 2rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 40px rgba(65, 107, 169, 0.16);
+  border: 1px solid rgba(65, 107, 169, 0.16);
+}
+
+.page-loading-spinner {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: 4px solid rgba(65, 107, 169, 0.16);
+  border-top-color: var(--mc4-primary);
+  border-right-color: var(--mc4-lime);
+  animation: spin 0.9s linear infinite;
+}
+
+.page-loading-label {
+  color: #23406a;
+  font-weight: 600;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+
+
+===== src\app\layout.tsx =====
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "MC4 Estoque",
+  description: "Sistema de estoque da MC4 com inventário, movimentações e relatórios.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/mc4-512.png",
+    apple: "/mc4-192.png",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="pt-BR" className="h-full antialiased">
+      <body className="min-h-full bg-[radial-gradient(circle_at_top,_rgba(17,24,39,0.92),_rgba(3,7,18,1))] text-slate-100">
+        {children}
+      </body>
+    </html>
+  );
+}
+
+
+
+
+===== src\app\loading.tsx =====
+import { PageLoading } from "@/components/page-loading";
+
+export default function Loading() {
+  return <PageLoading label="Carregando página" />;
+}
+
+
+
+
+===== src\app\page.tsx =====
+import { redirect } from "next/navigation";
+
+export default function Home() {
+  redirect("/login");
+}
+
+
+
+
+===== src\app\(app)\layout.tsx =====
+import { redirect } from "next/navigation";
+import { AppShell } from "@/components/app-shell";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
+import { ToastProvider } from "@/components/toast-context"; // Importando o Provider
+
+export type UserRole = "cliente" | "operador" | "admin";
+
+export default async function AppLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  if (!hasSupabaseConfig()) {
+    return (
+      <main className="min-h-screen soft-grid px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
+        <section className="mx-auto w-full max-w-3xl rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6">
+          <h1 className="text-xl font-semibold text-[var(--foreground)]">Configuração do Supabase pendente</h1>
+          <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
+            Defina as variáveis de ambiente no Vercel para liberar acesso ao app: NEXT_PUBLIC_SUPABASE_URL (ou SUPABASE_URL), NEXT_PUBLIC_SUPABASE_ANON_KEY/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY e o bucket de storage.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  // Busca o perfil e a role correspondente ao usuário logado na tabela profiles
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, full_name, email")
+    .eq("id", user.id)
+    .single();
+
+  const userLabel = profile?.full_name ?? user.user_metadata?.full_name ?? profile?.email ?? user.email ?? "Usuário";
+  const userRole = (profile?.role ?? "cliente") as UserRole;
+
+  return (
+    <ToastProvider>
+      <AppShell userLabel={userLabel} userRole={userRole}>
+        {children}
+      </AppShell>
+    </ToastProvider>
+  );
+}
+
+
+
+===== src\app\(app)\admin\page.tsx =====
+/**
+ * ÁREA DE ADMINISTRAÇÃO
+ * Permite ao administrador gerenciar (criar, editar e excluir) as listas
+ * de Categorias e Clientes usadas no cadastro de itens.
+ */
+import { redirect } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createCategoria, deleteCategoria, updateCategoria, createCliente, deleteCliente, updateCliente } from "@/lib/supabase/actions";
+import { CategoriaRowEditor } from "@/components/categoria-row-editor";
+import { ClienteRowEditor } from "@/components/cliente-row-editor";
+
+export default async function AdminPage() {
+  const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id)
+    .single();
+
+  if (profile?.role !== "admin") {
+    redirect("/dashboard");
+  }
+
+  const [{ data: categorias }, { data: clientes }] = await Promise.all([
+    supabase.from("categorias").select("id, nome").order("nome", { ascending: true }),
+    supabase.from("clientes").select("id, nome").order("nome", { ascending: true }),
+  ]);
+
+  return (
+    <div className="grid gap-6">
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Categorias</h3>
+          <span className="rounded-full border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
+            Admin
+          </span>
+        </div>
+        <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+          Estas categorias aparecem no cadastro e na edição de itens.
+        </p>
+
+        <form action={createCategoria} className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <input name="nome" placeholder="Nome da categoria" className="mc4-form-input flex-1 rounded-2xl px-4 py-3 text-sm" required />
+          <button type="submit" className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition">
+            Adicionar categoria
+          </button>
+        </form>
+
+        <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+          <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+            <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium">Categoria</th>
+                <th className="px-4 py-3 text-right font-medium">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+              {(categorias ?? []).length > 0 ? (
+                (categorias ?? []).map((categoria) => (
+                  <CategoriaRowEditor
+                    key={categoria.id}
+                    categoria={categoria}
+                    updateAction={updateCategoria}
+                    deleteAction={deleteCategoria}
+                  />
+                ))
+              ) : (
+                <tr>
+                  <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={2}>
+                    Nenhuma categoria cadastrada.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Clientes</h3>
+          <span className="rounded-full border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
+            Admin
+          </span>
+        </div>
+        <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+          Estes clientes aparecem no cadastro e na edição de itens.
+        </p>
+
+        <form action={createCliente} className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <input name="nome" placeholder="Nome do cliente" className="mc4-form-input flex-1 rounded-2xl px-4 py-3 text-sm" required />
+          <button type="submit" className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition">
+            Adicionar cliente
+          </button>
+        </form>
+
+        <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+          <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+            <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium">Cliente</th>
+                <th className="px-4 py-3 text-right font-medium">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+              {(clientes ?? []).length > 0 ? (
+                (clientes ?? []).map((cliente) => (
+                  <ClienteRowEditor
+                    key={cliente.id}
+                    cliente={cliente}
+                    updateAction={updateCliente}
+                    deleteAction={deleteCliente}
+                  />
+                ))
+              ) : (
+                <tr>
+                  <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={2}>
+                    Nenhum cliente cadastrado.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+
+
+
+===== src\app\(app)\consulta\page.tsx =====
+/**
+ * CONSULTA DE INVENTÁRIO MULTI-LOCAL E MULTI-CLIENTE (MC4)
+ * Objetivo: Rastreabilidade total de itens ativos por local e proprietário.
+ */
+
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ImageLightbox } from "@/components/image-lightbox";
+import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
+import Link from "next/link";
+
+type ConsultaPageProps = {
+  searchParams?: Promise<{
+    estoqueId?: string;
+    q?: string;
+    cliente?: string;
+    page?: string;
+  }>;
+};
+
+const ITEMS_PER_PAGE = 10;
+
+// Utilitário para gerenciar a seleção múltipla de IDs na URL
+function toggleIdInList(currentIds: string[], id: string) {
+  const ids = new Set(currentIds);
+  if (ids.has(id)) {
+    ids.delete(id);
+  } else {
+    ids.add(id);
+  }
+  return Array.from(ids).join(",");
+}
+
+export default async function ConsultaPage({ searchParams }: ConsultaPageProps) {
+  const params = (await searchParams) ?? {};
+  const searchTerm = (params.q ?? "").trim();
+  const selectedCliente = params.cliente ?? "";
+  const currentPage = Number(params.page ?? 1);
+  const supabase = await createSupabaseServerClient();
+
+  // 1. RECUPERAÇÃO DE DADOS MESTRE (PERFIL, ESTOQUES E CLIENTES)
+  const { data: { user } } = await supabase.auth.getUser();
+  const [
+    { data: profile },
+    { data: estoques },
+    { data: itensParaFiltro }
+  ] = await Promise.all([
+    supabase.from("profiles").select("role").eq("id", user?.id).single(),
+    supabase.from("estoques").select("id, nome").order("nome", { ascending: true }),
+    supabase.from("itens").select("cliente").eq("ativo", true).order("cliente", { ascending: true })
+  ]);
+
+  const userRole = profile?.role ?? "cliente";
+  const canExport = userRole === "operador" || userRole === "admin";
+  const estoqueOptions = estoques ?? [];
+  
+  // Gera lista única de clientes para o dropdown a partir de itens ativos
+  const clienteOptions = Array.from(new Set((itensParaFiltro ?? []).map(i => i.cliente).filter(Boolean)));
+  const selectedEstoqueIds = params.estoqueId ? params.estoqueId.split(",").filter(id => id !== "") : [];
+
+  // 2. CONSULTA DE SALDO COM FILTROS E SEGURANÇA (!inner)
+  // O uso de !inner garante que se o item foi excluído ou está inativo, ele não retorna na query [3].
+  let query = supabase
+    .from("estoque_itens")
+    .select(`
+      quantidade, 
+      estoques ( nome ), 
+      itens!inner ( nome, categoria, cliente, foto_url, ativo )
+    `)
+    .eq("itens.ativo", true); // Filtro rigoroso para itens ativos
+
+  if (selectedEstoqueIds.length > 0) {
+    query = query.in("estoque_id", selectedEstoqueIds);
+  }
+
+  if (selectedCliente) {
+    query = query.eq("itens.cliente", selectedCliente);
+  }
+
+  const { data: inventarioData } = await query;
+
+  // 3. NORMALIZAÇÃO E FILTRAGEM POR TEXTO
+  const allRows = await Promise.all((inventarioData ?? []).map(async (row) => {
+    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
+    const estoque = Array.isArray(row.estoques) ? row.estoques[0] : row.estoques;
+
+    return {
+      quantidade: row.quantidade,
+      itemNome: item?.nome ?? "Item Indisponível",
+      categoria: item?.categoria,
+      cliente: item?.cliente,
+      estoqueNome: estoque?.nome ?? "Geral",
+      fotoPreviewUrl: await resolveSupabaseAssetUrl(supabase, item?.foto_url),
+    };
+  }));
+
+  const filteredRows = allRows.filter((row) => {
+    if (!searchTerm) return true;
+    const haystack = `${row.itemNome} ${row.cliente} ${row.categoria}`.toLowerCase();
+    return haystack.includes(searchTerm.toLowerCase());
+  });
+
+  // 4. LÓGICA DE PAGINAÇÃO
+  const totalItems = filteredRows.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedRows = filteredRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  return (
+    <div className="grid gap-6">
+      {/* SEÇÃO DE FILTROS: TEXTO, CLIENTE E BUDGET (MULTI-SELEÇÃO) */}
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-[var(--foreground)]">Consulta de Inventário</h3>
+            <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)] leading-6">
+              Selecione locais e clientes para filtrar o saldo.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 w-full max-w-xl">
+            {/* EXPORTAÇÃO CONDICIONAL (RBAC) */}
+            {canExport && (
+              <div className="flex gap-2 justify-end">
+                <Link 
+                  href={`/consulta/export/csv?estoqueId=${selectedEstoqueIds.join(",")}&cliente=${selectedCliente}&q=${searchTerm}`} 
+                  className="mc4-badge px-3 py-1.5 text-[10px] uppercase font-bold"
+                > Exportar CSV </Link>
+                <Link 
+                  href={`/consulta/export/pdf?estoqueId=${selectedEstoqueIds.join(",")}&cliente=${selectedCliente}&q=${searchTerm}`} 
+                  className="mc4-badge px-3 py-1.5 text-[10px] uppercase font-bold"
+                > Gerar PDF </Link>
+              </div>
+            )}
+
+            <form action="/consulta" method="GET" className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr_auto] gap-2">
+              <input type="hidden" name="estoqueId" value={selectedEstoqueIds.join(",")} />
+              
+              <select name="cliente" defaultValue={selectedCliente} className="mc4-form-select rounded-2xl px-3 py-2 text-sm">
+                <option value="">Todos os Clientes</option>
+                {clienteOptions.map((c) => (
+                  <option key={c} value={c!}>{c}</option>
+                ))}
+              </select>
+
+              <input
+                name="q"
+                defaultValue={searchTerm}
+                placeholder="Buscar produto..."
+                className="mc4-form-input flex-1 rounded-2xl px-4 py-2 text-sm"
+              />
+              <button type="submit" className="mc4-btn-primary px-6 rounded-2xl">Filtrar</button>
+            </form>
+          </div>
+        </div>
+
+        {/* CHIPS DE ESTOQUE (BUDGET STYLE) */}
+        <div className="mt-8 border-t border-[var(--panel-border)] pt-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-4">Filtrar por Locais</p>
+          <div className="flex flex-wrap gap-2">
+            {estoqueOptions.map((estoque) => {
+              const isSelected = selectedEstoqueIds.includes(estoque.id);
+              const newIds = toggleIdInList(selectedEstoqueIds, estoque.id);
+              const href = `/consulta?estoqueId=${newIds}&cliente=${selectedCliente}&q=${searchTerm}`;
+
+              return (
+                <Link key={estoque.id} href={href} className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${isSelected ? "border-[#EB5727] bg-[#EB5727]/10 text-[#EB5727]" : "border-[var(--panel-border)] bg-[var(--panel)] text-[var(--text-muted)]"}`}>
+                  {estoque.nome}
+                  {isSelected && <span className="flex h-3 w-3 items-center justify-center rounded-full bg-[#EB5727] text-white text-[8px]">✕</span>}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* RESULTADOS COM BADGE DE LOCALIZAÇÃO E FORMATAÇÃO BR */}
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+        <div className="grid gap-3">
+          {paginatedRows.length > 0 ? (
+            paginatedRows.map((row, idx) => (
+              <div key={idx} className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 hover:border-[#EB5727]/30 transition-all">
+                <div className="flex min-w-0 items-center gap-3">
+                  <ImageLightbox src={row.fotoPreviewUrl} alt={row.itemNome} />
+                  <div className="flex min-w-0 flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate font-medium text-[var(--foreground)]">{row.itemNome}</p>
+                    <span className="rounded-full bg-[#EB5727]/10 px-2 py-0.5 text-[10px] font-bold text-[#EB5727] uppercase">
+                      {row.estoqueNome}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)]">{row.cliente} • {row.categoria}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="mc4-badge mc4-badge-lime text-sm font-bold">
+                    {row.quantidade.toLocaleString('pt-BR')}
+                  </span>
+                  <p className="text-[10px] uppercase text-[var(--text-muted)] mt-1">unidades</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="py-12 text-center text-sm italic text-[var(--text-muted)]">Nenhum item ativo encontrado para esta seleção.</p>
+          )}
+        </div>
+
+        {/* CONTROLES DE PAGINAÇÃO */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-between border-t border-[var(--panel-border)] pt-6">
+            <p className="text-xs text-[var(--text-muted)]">Página {currentPage} de {totalPages} ({totalItems.toLocaleString('pt-BR')} itens)</p>
+            <div className="flex gap-2">
+              <Link href={`/consulta?page=${currentPage - 1}&q=${searchTerm}&estoqueId=${selectedEstoqueIds.join(",")}&cliente=${selectedCliente}`} className={`mc4-badge px-4 py-2 ${currentPage === 1 ? "pointer-events-none opacity-30" : ""}`}>Anterior</Link>
+              <Link href={`/consulta?page=${currentPage + 1}&q=${searchTerm}&estoqueId=${selectedEstoqueIds.join(",")}&cliente=${selectedCliente}`} className={`mc4-badge px-4 py-2 ${currentPage === totalPages ? "pointer-events-none opacity-30" : ""}`}>Próximo</Link>
+            </div>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+
+
+===== src\app\(app)\dashboard\page.tsx =====
+/**
+ * IMPORTAÇÕES E TIPAGEM
+ * 1. createSupabaseServerClient: Inicializa a conexão segura no lado do servidor.
+ * 2. getSupabaseDiagnostics: Função utilitária para checar a saúde da conexão e do bucket.
+ * 3. RecentMovement/StockRelation: Tipos que lidam com a flexibilidade do Supabase,
+ * já que relacionamentos (joins) podem retornar objetos únicos ou arrays.
+ */
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import StockSearchList from "@/components/StockSearchList";
+import { getSupabaseDiagnostics } from "@/lib/supabase/diagnostics";
+import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
+
+type RecentMovement = {
+  data_movimentacao: string;
+  tipo: string;
+  quantidade: number;
+  itens: { nome: string | null } | { nome: string | null }[] | null;
+  origem: { nome: string | null } | { nome: string | null }[] | null;
+  destino: { nome: string | null } | { nome: string | null }[] | null;
+};
+
+type StockRelation = {
+  id?: string | null;
+  nome: string | null;
+  cliente?: string | null;
+  foto_url?: string | null;
+  ativo?: boolean | null;
+};
+
+type StockSummaryRow = {
+  quantidade: number;
+  estoque_id: string;
+  item_id: string;
+  estoques: StockRelation | StockRelation[] | null;
+  itens: StockRelation | StockRelation[] | null;
+};
+
+/**
+ * Dashboard Central de Estoque
+ * * Responsável por orquestrar a visualização de KPIs, histórico de movimentações
+ * e saldo consolidado. Utiliza Server Components para buscar dados em paralelo
+ * do Supabase, garantindo performance e SEO.
+ */
+export default async function DashboardPage() {
+  const supabase = await createSupabaseServerClient();
+  // Verifica se as variáveis de ambiente (.env.local) e políticas RLS estão OK
+  const diagnostics = await getSupabaseDiagnostics();
+
+  // Define a data de 30 dias atrás para os gráficos
+  const trintaDiasAtras = new Date();
+  trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+
+  // Disparamos as consultas em paralelo para reduzir o tempo de carregamento da página.
+  const [itensCount, estoquesCount, movimentacoesCount, recentMovementsResult, saldosResult, historyResult] = await Promise.all([
+    supabase.from("itens").select("id", { count: "exact", head: true }).eq("ativo", true),
+    supabase.from("estoques").select("id", { count: "exact", head: true }),
+    supabase.from("movimentacoes").select("id", { count: "exact", head: true }),
+    supabase
+      .from("movimentacoes")
+      .select(`data_movimentacao, tipo, quantidade, itens ( nome ), origem:estoques!origem_id ( nome ), destino:estoques!destino_id ( nome )`)
+      .order("data_movimentacao", { ascending: false })
+      .limit(6),
+    supabase.from("estoque_itens").select("quantidade, estoque_id, item_id, estoques ( nome ), itens ( id, nome, cliente, foto_url, ativo )"),
+    supabase
+      .from("movimentacoes")
+      .select("data_movimentacao, tipo, quantidade")
+      .gte("data_movimentacao", trintaDiasAtras.toISOString())
+      .order("data_movimentacao", { ascending: true }),
+  ]);
+
+  const kpis = [
+    { 
+      label: "Itens no catálogo", 
+      value: (itensCount.count ?? 0).toLocaleString('pt-BR'), 
+      note: "Itens cadastrados no Supabase" 
+    },
+    { 
+      label: "Locais ativos", 
+      value: (estoquesCount.count ?? 0).toLocaleString('pt-BR'), 
+      note: "Estoques regionais e veículos" 
+    },
+    { 
+      label: "Movimentações registradas", 
+      value: (movimentacoesCount.count ?? 0).toLocaleString('pt-BR'), 
+      note: "Histórico auditável da operação" 
+    },
+  ];
+
+  const recentMovements = (recentMovementsResult.data ?? []) as RecentMovement[];
+
+  const stockSummary = new Map<string, { id: string; nome: string; total: number; cliente: string; fotoUrl: string | null }>();
+  const locationSummary = new Map<string, number>();
+  let totalUnits = 0;
+  let activeItems = 0;
+
+  (saldosResult.data ?? []).forEach((row: StockSummaryRow) => {
+    const item = row.itens as StockRelation | StockRelation[] | null;
+    const itemName = Array.isArray(item) ? item[0]?.nome : item?.nome;
+    const itemClient = Array.isArray(item) ? item[0]?.cliente : item?.cliente;
+    const itemPhoto = Array.isArray(item) ? item[0]?.foto_url : item?.foto_url;
+    const itemActive = Array.isArray(item) ? item[0]?.ativo : item?.ativo;
+    const estoque = row.estoques as StockRelation | StockRelation[] | null;
+    const estoqueName = Array.isArray(estoque) ? estoque[0]?.nome : estoque?.nome;
+
+    if (!itemName || !row.item_id || itemActive === false) return;
+
+    const current = stockSummary.get(row.item_id) ?? { 
+      id: row.item_id, 
+      nome: itemName, 
+      total: 0, 
+      cliente: itemClient ?? "Geral",
+      fotoUrl: itemPhoto ?? null,
+    };
+    
+    current.total += row.quantidade ?? 0;
+    stockSummary.set(row.item_id, current);
+
+    totalUnits += row.quantidade ?? 0;
+    if ((row.quantidade ?? 0) > 0) {
+      activeItems += 1;
+    }
+
+    if (estoqueName) {
+      const locationCurrent = locationSummary.get(estoqueName) ?? 0;
+      locationSummary.set(estoqueName, locationCurrent + (row.quantidade ?? 0));
+    }
+  });
+
+  const formattedTotalUnits = totalUnits.toLocaleString('pt-BR');
+  const formattedActiveItems = activeItems.toLocaleString('pt-BR');
+
+  const stockRows = await Promise.all(
+    Array.from(stockSummary.values())
+      .sort((left, right) => right.total - left.total)
+      .map(async (row) => ({
+        ...row,
+        fotoPreviewUrl: await resolveSupabaseAssetUrl(supabase, row.fotoUrl),
+      })),
+  );
+
+  const topStockRowsForHighlight = stockRows.slice(0, 6);
+  const topLocations = Array.from(locationSummary.entries())
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 3);
+    
+  const highlightItem = topStockRowsForHighlight[0]?.nome ?? "Nenhum saldo";
+  const highlightUnits = topStockRowsForHighlight[0]?.total ?? 0;
+
+  // Cria um mapa com os últimos 30 dias zerados
+  const chartDataMap = new Map();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const label = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    chartDataMap.set(label, { name: label, entrada: 0, saida: 0, transferencia: 0 });
+  }
+
+  // Preenche o mapa com os dados reais do banco
+  (historyResult.data ?? []).forEach((mov) => {
+    const label = new Date(mov.data_movimentacao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    if (chartDataMap.has(label)) {
+      const dayData = chartDataMap.get(label);
+      // @ts-ignore
+      if (dayData && mov.tipo in dayData) {
+        dayData[mov.tipo] += mov.quantidade;
+      }
+    }
+  });
+
+  const chartData = Array.from(chartDataMap.values()) as { name: string; entrada: number; saida: number; transferencia: number }[];
+
+  // Cálculo para normalização das linhas do SVG
+  const maxVal = Math.max(...chartData.map(d => Math.max(d.entrada, d.saida, d.transferencia)), 5);
+  const svgHeight = 180;
+  const svgWidth = 600;
+  const pointsStep = svgWidth / Math.max(chartData.length - 1, 1);
+
+  const getPointsString = (key: 'entrada' | 'saida' | 'transferencia') => {
+    return chartData.map((d, index) => {
+      const x = index * pointsStep;
+      const y = svgHeight - (d[key] / maxVal) * (svgHeight - 20) - 10;
+      return `${x},${y}`;
+    }).join(" ");
+  };
+
+  return (
+    <div className="grid gap-6">
+      {diagnostics.hasFailures && (
+        <section className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6 text-sm text-[var(--foreground)]">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-300">Diagnóstico Supabase</p>
+          <p className="mt-3 text-[var(--text-muted)]">
+            O app detectou configuração ausente ou bloqueio de acesso ao Supabase. Os dados exibidos dependem exclusivamente do banco e do Storage reais.
+          </p>
+          <ul className="mt-4 space-y-2 text-[var(--text-muted)]">
+            {diagnostics.checks.map((check) => (
+              <li key={check.target}>
+                {check.ok ? "OK" : "Falha"} - {check.target}: {check.detail}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        {kpis.map((item) => (
+          <article key={item.label} className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 shadow-[0_16px_40px_rgba(65,107,169,0.12)]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#EB5727]">{item.label}</p>
+            <p className="mt-4 text-4xl font-semibold tracking-tight text-[var(--foreground)]">{item.value}</p>
+            <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">{item.note}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#EB5727]">Visão operacional</p>
+            <h3 className="mt-2 text-xl font-semibold text-[var(--foreground)]">Saldo, locais e movimentações em tempo real</h3>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">
+              O painel agora consolida unidades em estoque, itens ativos e os principais locais com saldo para apoiar decisões rápidas.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] px-4 py-3 text-sm">
+              <p className="text-[var(--text-muted)]">Unidades</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{formattedTotalUnits}</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] px-4 py-3 text-sm">
+              <p className="text-[var(--text-muted)]">Itens ativos</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{formattedActiveItems}</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(235,87,39,0.08)] px-4 py-3 text-sm">
+              <p className="text-[var(--text-muted)]">Maior saldo</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{highlightItem} ({highlightUnits.toLocaleString('pt-BR')} un.)</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <h3 className="text-lg font-semibold text-[var(--foreground)]">Resumo da operação</h3>
+              <p className="mt-1 text-sm text-[var(--text-muted)]">Fluxo de movimentações dos últimos 30 dias</p>
+            </div>
+            {/* Legenda do Gráfico */}
+            <div className="flex items-center gap-4 text-xs font-medium">
+              <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[#00a5b5]"></span> Entradas</span>
+              <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[#eb5727]"></span> Saídas</span>
+              <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[#cedb05]"></span> Transf.</span>
+            </div>
+          </div>
+
+          {/* GRÁFICO DE LINHAS SVG NATIVO */}
+          <div className="mt-6 w-full overflow-x-auto">
+            <div className="h-[220px] w-full min-w-[500px] rounded-2xl border border-[var(--panel-border)] bg-[rgba(255,255,255,0.02)] p-4 flex flex-col justify-between">
+              <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="h-full w-full overflow-visible">
+                {/* Linhas de grade horizontais de referência */}
+                <line x1="0" y1="20" x2={svgWidth} y2="20" stroke="currentColor" strokeOpacity="0.06" />
+                <line x1="0" y1={svgHeight / 2} x2={svgWidth} y2={svgHeight / 2} stroke="currentColor" strokeOpacity="0.06" />
+                <line x1="0" y1={svgHeight - 10} x2={svgWidth} y2={svgHeight - 10} stroke="currentColor" strokeOpacity="0.06" />
+
+                {/* Linha de Entrada (#00a5b5) */}
+                <polyline
+                  fill="none"
+                  stroke="#00a5b5"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  points={getPointsString('entrada')}
+                />
+                {/* Linha de Saída (#eb5727) */}
+                <polyline
+                  fill="none"
+                  stroke="#eb5727"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  points={getPointsString('saida')}
+                />
+                {/* Linha de Transferência (#cedb05) */}
+                <polyline
+                  fill="none"
+                  stroke="#cedb05"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  points={getPointsString('transferencia')}
+                />
+              </svg>
+              <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-2 pt-2 border-t border-[var(--panel-border)]/40">
+                <span>{chartData[0]?.name ?? "Início"}</span>
+                <span>{chartData[Math.floor(chartData.length / 2)]?.name ?? ""}</span>
+                <span>{chartData[chartData.length - 1]?.name ?? "Hoje"}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] p-4">
+              <p className="font-medium text-[#EB5727]">Saldo destacado</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+                {highlightItem} concentra {highlightUnits.toLocaleString('pt-BR')} unidade(s) no inventário consolidado.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] p-4">
+              <p className="font-medium text-[#cedb05]">Locais prioritários</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+                {topLocations.length > 0 ? topLocations.map(([nome, total]) => `${nome} (${total.toLocaleString('pt-BR')})`).join(" • ") : "Nenhum local com saldo registrado ainda."}
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Saldo geral por item</h3>
+          <StockSearchList initialRows={stockRows} />
+        </aside>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Movimentações recentes</h3>
+          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+            <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+              <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Data</th>
+                  <th className="px-4 py-3 text-left font-medium">Item</th>
+                  <th className="px-4 py-3 text-left font-medium">Tipo</th>
+                  <th className="px-4 py-3 text-left font-medium">Origem / Destino</th>
+                  <th className="px-4 py-3 text-right font-medium">Qtd</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+                {recentMovements.length > 0 ? (
+                  recentMovements.map((movement) => {
+                    const itemName = Array.isArray(movement.itens) ? movement.itens[0]?.nome : movement.itens?.nome;
+                    const originName = Array.isArray(movement.origem) ? movement.origem[0]?.nome : movement.origem?.nome;
+                    const destinationName = Array.isArray(movement.destino) ? movement.destino[0]?.nome : movement.destino?.nome;
+                    
+                    const badgeClass =
+                      movement.tipo === "entrada"
+                        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-200"
+                        : movement.tipo === "saida"
+                          ? "bg-rose-500/15 text-rose-600 dark:text-rose-200"
+                          : "bg-orange-500/15 text-orange-600 dark:text-orange-200";
+
+                    return (
+                      <tr key={`${movement.data_movimentacao}-${movement.tipo}-${movement.quantidade}`} className="hover:bg-[var(--panel-border)]/10 transition-colors">
+                        <td className="px-4 py-3 text-[var(--text-muted)]">{new Date(movement.data_movimentacao).toLocaleString("pt-BR")}</td>
+                        <td className="px-4 py-3 font-medium text-[var(--foreground)]">{itemName ?? "Item excluído"}</td>
+                        <td className="px-4 py-3">
+                          <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${badgeClass}`}>
+                            {movement.tipo}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-[var(--text-muted)]">
+                          {originName ?? "Externo"} → {destinationName ?? "Baixa"}
+                        </td>
+                        <td className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">{movement.quantidade}</td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={5}>
+                      Nenhuma movimentação encontrada.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Área reservada</h3>
+          <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--text-muted)]">
+            <p>Criar um histórico de comentários para controlar alterações e observações sobre os itens em estoque. Essa área ainda vai se desnvolvida hehehe.</p>
+          </ul>
+        </aside>
+      </section>
+    </div>
+  );
+}
+
+
+
+===== src\app\(app)\estoques\page.tsx =====
+/**
+ * GESTÃO DE ESTOQUES - CAMADA DE IMPORTAÇÃO
+ * 1. createSupabaseServerClient: Gerencia a sessão do lado do servidor.
+ * 2. create/delete/updateEstoque: Server Actions que encapsulam a lógica de
+ *    persistência no Supabase, garantindo revalidação automática da página. [3]
+ * 3. EstoqueRowEditor: Componente cliente para edição em linha (inline editing).
+ */
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createEstoque, deleteEstoque, updateEstoque } from "@/lib/supabase/actions";
+import { EstoqueRowEditor } from "@/components/estoque-row-editor";
+import { EstoqueForm } from "@/components/estoque-form"; // Importação do novo formulário com Toast
+
+export default async function EstoquesPage() {
+  const supabase = await createSupabaseServerClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id)
+    .single();
+  const userRole = profile?.role ?? "cliente";
+
+  // OTIMIZAÇÃO: Busca em paralelo a definição dos estoques e a tabela de junção de saldos.
+  // Isso permite calcular quantos itens existem em cada local sem múltiplas idas ao banco.
+  const [{ data: estoques }, { data: saldos }] = await Promise.all([
+    supabase.from("estoques").select("id, nome, tipo, responsavel, contato, endereco").order("nome", { ascending: true }),
+    supabase.from("estoque_itens").select("estoque_id, quantidade"),
+  ]);
+
+  type EstoqueSaldoRow = {
+    estoque_id: string;
+    quantidade: number;
+  };
+
+  // LÓGICA DE NEGÓCIO: Agrega o saldo bruto por ID de estoque utilizando um Map.
+  // Resolve o problema de transformar linhas individuais de itens em um resumo por local.
+  const resumoPorEstoque = new Map<string, { itens: number; total: number }>();
+  (saldos ?? []).forEach((row: EstoqueSaldoRow) => {
+    const current = resumoPorEstoque.get(row.estoque_id) ?? { itens: 0, total: 0 };
+    current.itens += 1;
+    current.total += row.quantidade ?? 0;
+    resumoPorEstoque.set(row.estoque_id, current);
+  });
+
+  return (
+    <div className="grid gap-6">
+      {/* EXCLUSIVO PARA OPERADORES E ADMINS: Clientes não visualizam o formulário de cadastro */}
+      {userRole !== "cliente" && (
+        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo estoque</h3>
+          {/* Componente reativo que integra o useToast e useActionState */}
+          <EstoqueForm />
+        </section>
+      )}
+
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+        <h3 className="text-lg font-semibold text-[var(--foreground)]">Locais cadastrados</h3>
+        <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+          <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+            <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium">Local</th>
+                <th className="px-4 py-3 text-left font-medium">Tipo</th>
+                <th className="px-4 py-3 text-left font-medium">Responsável</th>
+                <th className="px-4 py-3 text-left font-medium">Contato</th>
+                <th className="px-4 py-3 text-left font-medium">Saldo / Itens</th>
+                {/* Oculta o cabeçalho de ações caso o usuário seja cliente */}
+                {userRole !== "cliente" && <th className="px-4 py-3 text-right font-medium">Ações</th>}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+              {(estoques ?? []).length > 0 ? (
+                estoques?.map((estoque: { id: string; nome: string | null; tipo: string | null; responsavel: string | null; contato: string | null; endereco: string | null }) => {
+                  const resumo = resumoPorEstoque.get(estoque.id) ?? { itens: 0, total: 0 };
+
+                  return (
+                    <tr key={estoque.id}>
+                      <td className="px-4 py-3 font-medium text-[var(--foreground)]">{estoque.nome}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{estoque.tipo === "Temporario" ? "Temporário / Veículo" : "Regional"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{estoque.responsavel ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{estoque.contato ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">
+                        {resumo.total} unidades em {resumo.itens} vínculos
+                      </td>
+                      {/* Oculta as ações de edição e exclusão para perfis com nível "Cliente" */}
+                      {userRole !== "cliente" && (
+                        <td className="px-4 py-3 text-right">
+                          <EstoqueRowEditor estoque={estoque} updateAction={updateEstoque} deleteAction={deleteEstoque} />
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={userRole === "cliente" ? 5 : 6}>
+                    Nenhum estoque cadastrado.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+
+
+===== src\app\(app)\itens\page.tsx =====
+/**
+ * GESTÃO DE CATÁLOGO - MÓDULO DE ITENS
+ * 1. createSupabaseServerClient: Inicializa a conexão com o banco via Server Side.
+ * 2. create/delete/updateItem: Server Actions para manipulação direta da tabela 'itens'.
+ * 3. ItemsSearchTable: Componente cliente que gerencia a busca e filtragem de itens.
+ * 4. resolveSupabaseAssetUrl: Utilitário que transforma o path do Storage em URL visível.
+ */
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createItem, deleteItem, reactivateItem, updateItem } from "@/lib/supabase/actions";
+import ItemsSearchTable from "@/components/ItemsSearchTable";
+import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
+import { ItemForm } from "@/components/item-form"; // Chamando o novo formulário Client-side
+
+export default async function ItensPage() {
+  const supabase = await createSupabaseServerClient();
+  type ItemRow = {
+    id: string;
+    nome: string | null;
+    categoria: string | null;
+    cliente: string | null;
+    descricao: string | null;
+    foto_url: string | null;
+    ativo: boolean;
+    foto_preview_url: string | null;
+    created_at: string | null;
+  };
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id)
+    .single();
+  const isAdmin = profile?.role === "admin";
+
+  // Busca a lista mestra de itens ordenada pelos cadastros mais recentes.
+  const { data: itens } = await supabase
+    .from("itens")
+    .select("id, nome, categoria, cliente, descricao, foto_url, ativo, created_at")
+    .eq("ativo", true)
+    .order("created_at", { ascending: false });
+
+  // PROCESSO DE RESOLUÇÃO DE MÍDIA:
+  // Para cada item, verificamos se existe um path em 'foto_url' e solicitamos
+  // ao Supabase Storage uma URL válida para renderização do preview.
+  const itemRows = await Promise.all(
+    ((itens ?? []) as Omit<ItemRow, "foto_preview_url">[]).map(async (item) => ({
+      ...item,
+      foto_preview_url: await resolveSupabaseAssetUrl(supabase, item.foto_url),
+    }))
+  );
+
+  const { data: inactiveItems } = isAdmin
+    ? await supabase
+        .from("itens")
+        .select("id, nome, categoria, cliente, descricao, created_at")
+        .eq("ativo", false)
+        .order("created_at", { ascending: false })
+    : { data: [] as never[] };
+
+  const [{ data: categoriaRows }, { data: clienteRows }] = await Promise.all([
+    supabase.from("categorias").select("id, nome").order("nome", { ascending: true }),
+    supabase.from("clientes").select("id, nome").order("nome", { ascending: true }),
+  ]);
+  const categoriaOptions = categoriaRows ?? [];
+  const clienteOptions = clienteRows ?? [];
+
+  return (
+    <div className="grid gap-6">
+      {profile?.role !== "cliente" && (
+        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo item</h3>
+          {/* O formulário envia os dados reativamente pelo componente cliente integrado ao useToast */}
+          <ItemForm categoriaOptions={categoriaOptions} clienteOptions={clienteOptions} />
+        </section>
+      )}
+
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Itens cadastrados</h3>
+        
+        {/* Tabela de itens com busca, paginação e o ItemRowEditor original preservado */}
+        <ItemsSearchTable
+          initialItems={itemRows}
+          updateAction={updateItem}
+          deleteAction={deleteItem}
+          categoriaOptions={categoriaOptions}
+          clienteOptions={clienteOptions}
+        />
+      </section>
+
+      {isAdmin ? (
+        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-lg font-semibold text-[var(--foreground)]">Itens inativos</h3>
+            <span className="rounded-full border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
+              Admin
+            </span>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+            Esta aba lista os itens desativados por exclusão lógica. Você pode reativar quando precisar voltar o item para a operação.
+          </p>
+
+          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+            <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+              <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Item</th>
+                  <th className="px-4 py-3 text-left font-medium">Categoria</th>
+                  <th className="px-4 py-3 text-left font-medium">Cliente</th>
+                  <th className="px-4 py-3 text-left font-medium">Descrição</th>
+                  <th className="px-4 py-3 text-right font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+                {(inactiveItems ?? []).length > 0 ? (
+                  (inactiveItems ?? []).map((item) => (
+                    <tr key={item.id}>
+                      <td className="px-4 py-3 font-medium text-[var(--foreground)]">{item.nome ?? "Item"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.categoria ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.cliente ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.descricao ?? "-"}</td>
+                      <td className="px-4 py-3 text-right">
+                        <form action={reactivateItem}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <button
+                            type="submit"
+                            className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
+                          >
+                            Reativar
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={5}>
+                      Nenhum item inativo encontrado.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+
+
+===== src\app\(app)\itens\[id]\page.tsx =====
+/**
+ * GESTÃO DE CATÁLOGO - MÓDULO DE ITENS
+ * 1. createSupabaseServerClient: Inicializa a conexão com o banco via Server Side.
+ * 2. create/delete/updateItem: Server Actions para manipulação direta da tabela 'itens'.
+ * 3. ItemsSearchTable: Componente cliente que gerencia a busca e filtragem de itens.
+ * 4. resolveSupabaseAssetUrl: Utilitário que transforma o path do Storage em URL visível.
+ */
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createItem, deleteItem, reactivateItem, updateItem } from "@/lib/supabase/actions";
+import ItemsSearchTable from "@/components/ItemsSearchTable";
+import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
+import { ItemForm } from "@/components/item-form"; // Chamando o novo formulário Client-side
+
+export default async function ItensPage() {
+  const supabase = await createSupabaseServerClient();
+  type ItemRow = {
+    id: string;
+    nome: string | null;
+    categoria: string | null;
+    cliente: string | null;
+    descricao: string | null;
+    foto_url: string | null;
+    ativo: boolean;
+    foto_preview_url: string | null;
+    created_at: string | null;
+  };
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id)
+    .single();
+  const isAdmin = profile?.role === "admin";
+
+  // Busca a lista mestra de itens ordenada pelos cadastros mais recentes.
+  const { data: itens } = await supabase
+    .from("itens")
+    .select("id, nome, categoria, cliente, descricao, foto_url, ativo, created_at")
+    .eq("ativo", true)
+    .order("created_at", { ascending: false });
+
+  // PROCESSO DE RESOLUÇÃO DE MÍDIA:
+  // Para cada item, verificamos se existe um path em 'foto_url' e solicitamos
+  // ao Supabase Storage uma URL válida para renderização do preview.
+  const itemRows = await Promise.all(
+    ((itens ?? []) as Omit<ItemRow, "foto_preview_url">[]).map(async (item) => ({
+      ...item,
+      foto_preview_url: await resolveSupabaseAssetUrl(supabase, item.foto_url),
+    }))
+  );
+
+  const { data: inactiveItems } = isAdmin
+    ? await supabase
+        .from("itens")
+        .select("id, nome, categoria, cliente, descricao, created_at")
+        .eq("ativo", false)
+        .order("created_at", { ascending: false })
+    : { data: [] as never[] };
+
+  const [{ data: categoriaRows }, { data: clienteRows }] = await Promise.all([
+    supabase.from("categorias").select("id, nome").order("nome", { ascending: true }),
+    supabase.from("clientes").select("id, nome").order("nome", { ascending: true }),
+  ]);
+  const categoriaOptions = categoriaRows ?? [];
+  const clienteOptions = clienteRows ?? [];
+
+  return (
+    <div className="grid gap-6">
+      {profile?.role !== "cliente" && (
+        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo item</h3>
+          {/* O formulário envia os dados reativamente pelo componente cliente integrado ao useToast */}
+          <ItemForm categoriaOptions={categoriaOptions} clienteOptions={clienteOptions} />
+        </section>
+      )}
+
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Itens cadastrados</h3>
+        
+        {/* Tabela de itens com busca, paginação e o ItemRowEditor original preservado */}
+        <ItemsSearchTable
+          initialItems={itemRows}
+          updateAction={updateItem}
+          deleteAction={deleteItem}
+          categoriaOptions={categoriaOptions}
+          clienteOptions={clienteOptions}
+        />
+      </section>
+
+      {isAdmin ? (
+        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-lg font-semibold text-[var(--foreground)]">Itens inativos</h3>
+            <span className="rounded-full border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
+              Admin
+            </span>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+            Esta aba lista os itens desativados por exclusão lógica. Você pode reativar quando precisar voltar o item para a operação.
+          </p>
+
+          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+            <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+              <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Item</th>
+                  <th className="px-4 py-3 text-left font-medium">Categoria</th>
+                  <th className="px-4 py-3 text-left font-medium">Cliente</th>
+                  <th className="px-4 py-3 text-left font-medium">Descrição</th>
+                  <th className="px-4 py-3 text-right font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+                {(inactiveItems ?? []).length > 0 ? (
+                  (inactiveItems ?? []).map((item) => (
+                    <tr key={item.id}>
+                      <td className="px-4 py-3 font-medium text-[var(--foreground)]">{item.nome ?? "Item"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.categoria ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.cliente ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.descricao ?? "-"}</td>
+                      <td className="px-4 py-3 text-right">
+                        <form action={reactivateItem}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <button
+                            type="submit"
+                            className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
+                          >
+                            Reativar
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={5}>
+                      Nenhum item inativo encontrado.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+
+
+===== src\app\(app)\movimentacoes\page.tsx =====
+/**
+ * GESTÃO DE MOVIMENTAÇÕES (ENTRADAS, SAÍDAS E TRANSFERÊNCIAS)
+ * Objetivo: Registrar o histórico de fluxo e acionar a atualização de saldos.
+ */
+
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { MovimentacaoForm } from "@/components/movimentacao-form";
+import DataTableSearch from "@/components/DataTableSearch";
+import { deleteMovimentacao } from "@/lib/supabase/actions";
+
+export default async function MovimentacoesPage() {
+  const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id)
+    .single();
+  const userRole = profile?.role ?? "cliente";
+  const canDeleteMovimentacao = userRole === "admin";
+
+  // BLOCO: DATA FETCHING PARALELO
+  // Busca itens e estoques para preencher o formulário, além do histórico recente para auditoria.
+  const [{ data: itens }, { data: estoques }, { data: recentes }, { data: balances }] = await Promise.all([
+    supabase.from("itens").select("id, nome").eq("ativo", true).order("nome", { ascending: true }),
+    supabase.from("estoques").select("id, nome").order("nome", { ascending: true }),
+    supabase
+      .from("movimentacoes")
+      .select("id, data_movimentacao, tipo, quantidade, observacao, criado_por, itens ( nome ), origem:estoques!origem_id ( nome ), destino:estoques!destino_id ( nome )")
+      .order("data_movimentacao", { ascending: false }),
+    supabase.from("estoque_itens").select("item_id, estoque_id, quantidade, estoques ( nome )"),
+  ]);
+
+  type ItemOption = { id: string; nome: string | null };
+  type EstoqueOption = { id: string; nome: string | null };
+  type BalanceRow = {
+    item_id: string;
+    estoque_id: string;
+    quantidade: number;
+    estoques: { nome: string | null } | { nome: string | null }[] | null;
+  };
+  type MovementRow = {
+    id: string;
+    data_movimentacao: string;
+    tipo: string;
+    quantidade: number;
+    observacao: string | null;
+    criado_por: string | null;
+    itens: { nome: string | null } | { nome: string | null }[] | null;
+    origem: { nome: string | null } | { nome: string | null }[] | null;
+    destino: { nome: string | null } | { nome: string | null }[] | null;
+  };
+
+  const itemRows = (itens ?? []) as ItemOption[];
+  const estoqueRows = (estoques ?? []) as EstoqueOption[];
+
+  const balanceRows = (balances ?? []).map((row: BalanceRow) => ({
+    item_id: row.item_id,
+    estoque_id: row.estoque_id,
+    quantidade: row.quantidade ?? 0,
+    estoque_nome: (Array.isArray(row.estoques) ? row.estoques[0]?.nome : row.estoques?.nome) ?? null,
+  }));
+  
+  // BLOCO: MAPEAMENTO DE RESULTADOS (NORMALIZAÇÃO)
+  // Converte os retornos complexos do Supabase (objetos/arrays) em estruturas planas para facilitar a renderização na tabela.
+  const movementRows = (recentes ?? []).map((row: MovementRow) => {
+    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
+    const origem = Array.isArray(row.origem) ? row.origem[0] : row.origem;
+    const destino = Array.isArray(row.destino) ? row.destino[0] : row.destino;
+
+    return {
+      id: row.id,
+      data: new Date(row.data_movimentacao).toLocaleDateString("pt-BR"),
+      itemNome: item?.nome ?? "Item excluído",
+      tipo: row.tipo,
+      origemDestino: `${origem?.nome ?? "Externo"} → ${destino?.nome ?? "Baixa"}`,
+      quantidades: row.quantidade,
+    };
+  });
+
+  // BLOCO: INTERFACE DE REGISTRO
+  // O componente MovimentacaoForm gerencia o envio para o banco e a lógica de validação de saldo antes de salvar.
+  return (
+    <div className="grid gap-6">
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <h3 className="text-lg font-semibold text-[var(--foreground)]">Nova movimentação</h3>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
+          Registra entrada, saída ou transferência e usa a RPC do Supabase para atualizar o saldo antes de salvar o histórico.
+        </p>
+
+        <MovimentacaoForm itemRows={itemRows} estoqueRows={estoqueRows} balances={balanceRows} />
+      </section>
+
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Movimentações recentes</h3>
+        
+        <DataTableSearch
+          data={movementRows}
+          searchKeys={["itemNome", "tipo", "origemDestino"]}
+          placeholder="Buscar por item, tipo, origem ou destino..."
+          itemsPerPage={10}
+          columns={[
+            { header: "Data", accessorKey: "data", className: "text-[var(--text-muted)]" },
+            { header: "Item", accessorKey: "itemNome", className: "font-medium text-[var(--foreground)]" },
+            { header: "Tipo", accessorKey: "tipo" },
+            { header: "Origem / Destino", accessorKey: "origemDestino", className: "text-[var(--text-muted)]" },
+            { header: "Qtd", accessorKey: "quantidades", className: "text-right font-semibold text-[var(--foreground)]" },
+          ]}
+        />
+      </section>
+
+      {canDeleteMovimentacao ? (
+        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Admin: exclusão de movimentações</h3>
+          <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+            Use com cuidado: a exclusão remove o registro histórico da movimentação selecionada.
+          </p>
+
+          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+            <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+              <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Data</th>
+                  <th className="px-4 py-3 text-left font-medium">Item</th>
+                  <th className="px-4 py-3 text-left font-medium">Tipo</th>
+                  <th className="px-4 py-3 text-left font-medium">Origem / Destino</th>
+                  <th className="px-4 py-3 text-right font-medium">Qtd</th>
+                  <th className="px-4 py-3 text-right font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+                {(recentes ?? []).length > 0 ? (
+                  (recentes ?? []).slice(0, 30).map((row: MovementRow) => {
+                    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
+                    const origem = Array.isArray(row.origem) ? row.origem[0] : row.origem;
+                    const destino = Array.isArray(row.destino) ? row.destino[0] : row.destino;
+
+                    return (
+                      <tr key={row.id}>
+                        <td className="px-4 py-3 text-[var(--text-muted)]">{new Date(row.data_movimentacao).toLocaleString("pt-BR")}</td>
+                        <td className="px-4 py-3 font-medium text-[var(--foreground)]">{item?.nome ?? "Item excluído"}</td>
+                        <td className="px-4 py-3 text-[var(--foreground)]">{row.tipo}</td>
+                        <td className="px-4 py-3 text-[var(--text-muted)]">{origem?.nome ?? "Externo"} → {destino?.nome ?? "Baixa"}</td>
+                        <td className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">{row.quantidade}</td>
+                        <td className="px-4 py-3 text-right">
+                          <form action={deleteMovimentacao}>
+                            <input type="hidden" name="id" value={row.id} />
+                            <button type="submit" className="mc4-badge mc4-badge-orange rounded-full px-4 py-2">
+                              Excluir
+                            </button>
+                          </form>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={6}>
+                      Nenhuma movimentação encontrada.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+
+
+===== src\app\(app)\relatorios\page.tsx =====
+/**
+ * RELATÓRIOS DE MOVIMENTAÇÃO
+ * Objetivo: Auditoria completa do histórico de estoque com exportação e filtros temporais.
+ */
+
+
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { RelatoriosFiltersTable } from "@/components/relatorios-filters-table";
+
+// Configura a página para ser sempre dinâmica, garantindo dados atualizados em cada acesso.
+export const dynamic = "force-dynamic";
+
+type SearchParams = {
+  inicio?: string | string[];
+  fim?: string | string[];
+  tipo?: string | string[];
+  q?: string | string[];
+};
+
+type MovementRow = {
+  id: string;
+  data_movimentacao: string;
+  tipo: string;
+  quantidade: number;
+  observacao: string | null;
+  criado_por: string | null;
+  itens: { nome: string | null } | { nome: string | null }[] | null;
+  origem: { nome: string | null } | { nome: string | null }[] | null;
+  destino: { nome: string | null } | { nome: string | null }[] | null;
+};
+
+function getParamValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
+type RelatoriosPageProps = {
+  searchParams?: Promise<SearchParams>;
+};
+
+export default async function RelatoriosPage({ searchParams }: RelatoriosPageProps) {
+  const supabase = await createSupabaseServerClient();
+
+  // BLOCO: SEGURANÇA E PERFIS (RBAC)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id)
+    .single();
+  const userRole = profile?.role ?? "cliente";
+  const canExport = userRole === "operador" || userRole === "admin";
+
+  // BLOCO: TRATAMENTO DE PARÂMETROS DINÂMICOS
+  // Extrai filtros de data (início/fim), tipo de movimentação e termo de pesquisa da URL.
+  const params = (await searchParams) ?? {};
+  const inicio = getParamValue(params.inicio);
+  const fim = getParamValue(params.fim);
+  const tipo = getParamValue(params.tipo);
+  const pesquisa = getParamValue(params.q);
+
+
+  // BLOCO: CONSULTA HISTÓRICA
+  // Busca todos os registros de movimentação com joins para identificar itens, origens e destinos pelo nome.
+  const { data: movimentos } = await supabase
+    .from("movimentacoes")
+    .select("id, data_movimentacao, tipo, quantidade, observacao, criado_por, itens ( nome ), origem:estoques!origem_id ( nome ), destino:estoques!destino_id ( nome )")
+    .order("data_movimentacao", { ascending: false });
+
+
+  // BLOCO: MAPEAMENTO PARA COMPONENTE CLIENT-SIDE
+  const movementRows = (movimentos ?? []).map((row: MovementRow) => {
+    const item = Array.isArray(row.itens) ? row.itens[0] : row.itens;
+    const origem = Array.isArray(row.origem) ? row.origem[0] : row.origem;
+    const destino = Array.isArray(row.destino) ? row.destino[0] : row.destino;
+
+    return {
+      id: row.id,
+      dataMovimentacao: row.data_movimentacao,
+      tipo: row.tipo,
+      itemNome: item?.nome ?? "Item excluído",
+      origemNome: origem?.nome ?? "Externo",
+      destinoNome: destino?.nome ?? "Baixa",
+      quantidade: row.quantidade,
+      observacao: row.observacao ?? "-",
+      usuarioResponsavel: row.criado_por ?? "Não identificado",
+    };
+  });
+
+  // BLOCO: RENDERIZAÇÃO COM COMPONENTE DE FILTRO (CLIENT-SIDE)
+  // Envia os dados iniciais para o RelatoriosFiltersTable, que gerencia a filtragem interativa no lado do cliente.
+  return (
+    <RelatoriosFiltersTable
+      initialRows={movementRows}
+      initialInicio={inicio}  
+      initialFim={fim}
+      initialTipo={tipo}
+      initialPesquisa={pesquisa}
+      canExport={canExport}
+    />
+  );
+}
+
+
+
+===== src\app\login\page.tsx =====
+import { redirect } from "next/navigation";
+import { LoginForm } from "@/components/login-form";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
+
+export default async function LoginPage() {
+  if (!hasSupabaseConfig()) {
+    return (
+      <main className="min-h-screen soft-grid px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
+        <section className="mx-auto w-full max-w-3xl rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6">
+          <h1 className="text-xl font-semibold text-[var(--foreground)]">Supabase não configurado no ambiente</h1>
+          <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
+            No Vercel, configure as variáveis NEXT_PUBLIC_SUPABASE_URL (ou SUPABASE_URL) e
+            NEXT_PUBLIC_SUPABASE_ANON_KEY/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY para liberar o login.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect("/dashboard");
+  }
+
+  return (
+    <main className="min-h-screen soft-grid px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl flex-col justify-center gap-8 lg:flex-row lg:items-center lg:justify-between">
+        <section className="max-w-2xl">
+          <div className="flex items-center gap-2">
+            <div className="flex h-20 w-20 items-center justify-left">
+              <img src="/MC4 STOCK_ICONE.png" alt="Logo MC4" className="h-20 w-20" />
+            </div>
+          </div>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--foreground)] sm:text-6xl">
+            Controle de estoque com visão de operação, saldo e auditoria.
+          </h1>
+          <p className="mt-5 max-w-xl text-base leading-8 text-[var(--foreground)] sm:text-lg">
+            Seja bem vindo ao sistema arretado desenvolvido por Lucas Oliveira.
+          </p>
+        </section>
+
+        <div className="w-full max-w-md space-y-4">
+          <LoginForm />
+          <div className="rounded-[1.5rem] border border-dashed border-orange-400/20 bg-white/70 p-6 text-sm leading-6 text-slate-700">
+            <p className="font-semibold text-[#EB5727]">Fluxo integrado</p>
+            <p className="mt-3">
+              O login, os cadastros e as movimentações já estão conectados ao fluxo do estoque com identidade MC4.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+
+
+===== src\components\app-shell.tsx =====
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
+import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { inventoryNavigation } from "@/lib/navigation";
+import { signOut } from "@/lib/supabase/actions";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+
+export type UserRole = "cliente" | "operador" | "admin";
+
+type AppShellProps = {
+  children: React.ReactNode;
+  userLabel: string;
+  userRole: UserRole;
+};
+
+// Mapeamento automático de título e subtítulo por rota
+const pageInfoMap: Record<string, { title: string; subtitle: string }> = {
+  "/": {
+    title: "Dashboard",
+    subtitle: "O painel consolida unidades em estoque, itens ativos e os principais locais com saldo.",
+  },
+  "/itens": {
+    title: "Cadastro de Itens",
+    subtitle: "Gerencie o catálogo de produtos, categorias, clientes e descrições do inventário.",
+  },
+  "/movimentacoes": {
+    title: "Movimentações de Estoque",
+    subtitle: "Registre entradas, saídas e transferências com atualização dinâmica de saldos.",
+  },
+  "/estoques": {
+    title: "Locais de Estoque",
+    subtitle: "Gerencie os estoques regionais, depósitos e veículos ativos na operação.",
+  },
+  "/consulta": {
+    title: "Inventário",
+    subtitle: "Verifique o que se encontra em cada estoque.",
+  },
+  "/dashboard": {
+    title: "Dashboard",
+    subtitle: "O painel consolida unidades em estoque, itens ativos e os principais locais com saldo.",
+  },
+  "/relatorios": {
+    title: "Relatórios de Movimentação",
+    subtitle: "Auditoria temporal de entradas, saídas e transferências operacionais.",
+  },
+  "/admin": {
+    title: "Administração",
+    subtitle: "Gerencie categorias e clientes disponíveis no cadastro de itens.",
+  },
+};
+
+export function AppShell({ children, userLabel, userRole }: AppShellProps) {
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const pathname = usePathname();
+
+  // Pega o título correspondente à rota atual (ou define um padrão se não encontrar)
+  const currentPage = pageInfoMap[pathname] || {
+    title: "Sistema de Estoque",
+    subtitle: "Controle operacional, saldo e auditoria para a operação MC4.",
+  };
+
+  const navigationIcons: Record<string, ReactNode> = {
+    dashboard: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10.5 12 3l9 7.5v9a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19.5v-9Z" />
+      </svg>
+    ),
+    itens: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <rect x="4" y="4" width="16" height="16" rx="3" />
+        <path strokeLinecap="round" d="M8 8h8M8 12h8M8 16h5" />
+      </svg>
+    ),
+    estoques: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z" />
+        <path strokeLinecap="round" d="M12 4v16" />
+      </svg>
+    ),
+    consulta: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <circle cx="11" cy="11" r="5" />
+        <path strokeLinecap="round" d="m16 16 3 3" />
+      </svg>
+    ),
+    movimentacao: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h10M7 7v10M17 17H7" />
+      </svg>
+    ),
+    relatorios: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 4h8l4 4v12H6z" />
+        <path strokeLinecap="round" d="M14 4v4h4" />
+      </svg>
+    ),
+    admin: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3 4 6.5v5c0 4.7 3.2 8.6 8 9.5 4.8-.9 8-4.8 8-9.5v-5L12 3Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="m9.5 12 1.8 1.8L14.5 10" />
+      </svg>
+    ),
+  };
+
+  // Regras de visibilidade de menus por perfil (RBAC)
+  const filteredNavigation = inventoryNavigation.filter((item) => {
+    // Se o usuário for cliente, ele NÃO deve ver Cadastros (itens, estoques) nem Movimentações operacionais
+    if (userRole === "cliente") {
+      return ["dashboard", "consulta", "relatorios"].includes(item.icon);
+    }
+    // A área de Admin só aparece para administradores
+    if (item.icon === "admin") {
+      return userRole === "admin";
+    }
+    // Operadores e Admins veem tudo
+    return true;
+  });
+
+  const roleBadgeLabels: Record<UserRole, string> = {
+    cliente: "Cliente",
+    operador: "Operador",
+    admin: "Administrador",
+  };
+
+  return (
+    <div className="min-h-screen soft-grid text-slate-100">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col lg:flex-row">
+        <aside className="sticky top-0 hidden h-screen max-h-screen w-[280px] shrink-0 border-r border-[var(--sidebar-border)] p-4 lg:flex lg:flex-col lg:p-6" style={{ background: "var(--sidebar-bg)", color: "var(--sidebar-text)" }}>
+          <div className="mb-6 shrink-0 lg:mb-8">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/15">
+                <Image src="/MC4 STOCK_ICONE.png" alt="Logo MC4" width={28} height={28} />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.4em] text-[#cedb05]">MC4</p>
+                <h1 className="text-2xl font-semibold tracking-tight text-white">Estoque</h1>
+              </div>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-[var(--sidebar-muted)]">Controle operacional, saldo e auditoria para a operação MC4.</p>
+          </div>
+
+          <div className="mb-4 shrink-0 rounded-3xl border border-white/15 bg-white/10 p-3 text-sm text-slate-100 lg:mb-5 lg:p-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs uppercase tracking-[0.3em] text-[#cedb05]">Sessão</p>
+              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+                {roleBadgeLabels[userRole]}
+              </span>
+            </div>
+            <p className="mt-2 font-medium text-white truncate" title={userLabel}>{userLabel}</p>
+            <p className="mt-1 text-xs text-[var(--sidebar-muted)]">Conectado ao Supabase</p>
+          </div>
+
+          <nav className="flex min-h-0 flex-1 flex-col gap-1.5">
+            {filteredNavigation.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex min-h-0 flex-1 items-center gap-3 rounded-2xl border px-3 py-2 text-sm transition lg:px-4 lg:py-2.5 ${
+                    isActive
+                      ? "border-white/30 bg-white/15 font-medium text-white"
+                      : "border-transparent text-[var(--sidebar-text)] hover:border-white/15 hover:bg-[var(--sidebar-link-hover)]"
+                  }`}
+                >
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/10 lg:h-8 lg:w-8">
+                    {navigationIcons[item.icon]}
+                  </span>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="mt-4 shrink-0 lg:mt-6">
+            <button
+              type="button"
+              onClick={() => setShowLogoutConfirm(true)}
+              className="w-full rounded-2xl border border-[#cedb05]/40 bg-[#cedb05]/20 px-4 py-3 text-sm font-medium text-white transition hover:bg-[#cedb05]/30"
+            >
+              Sair
+            </button>
+          </div>
+        </aside>
+
+        <main className="flex min-h-screen flex-1 flex-col overflow-y-auto px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
+          <header className="glass-panel mb-6 rounded-3xl border border-white/10 px-5 py-4">
+            <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.3em] text-[#EB5727]">Sistema de estoque</p>
+              <span className="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-800/40 text-slate-300 border border-white/10 lg:hidden">
+                Perfil: {roleBadgeLabels[userRole]}
+              </span>
+            </div>
+            <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">{currentPage.title}</h2>
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">{currentPage.subtitle}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-xs uppercase tracking-[0.25em] text-[#8f2d16]">
+                  MC4 • Supabase
+                </div>
+                <ThemeToggle />
+              </div>
+            </div>
+          </header>
+
+          {children}
+        </main>
+      </div>
+
+      <ConfirmDialog
+        open={showLogoutConfirm}
+        title="Sair da sessão"
+        description="Deseja realmente encerrar o acesso ao painel de estoque?"
+        confirmLabel="Sim, sair"
+        onConfirm={() => {
+          setShowLogoutConfirm(false);
+          void signOut();
+        }}
+        onCancel={() => setShowLogoutConfirm(false)}
+      />
+    </div>
+  );
+}
+
+
+
+===== src\components\categoria-row-editor.tsx =====
+"use client";
+
+import { useRef, useState } from "react";
+import type { deleteCategoria, updateCategoria } from "@/lib/supabase/actions";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+
+type CategoriaRow = {
+  id: string;
+  nome: string | null;
+};
+
+type CategoriaRowEditorProps = {
+  categoria: CategoriaRow;
+  updateAction: typeof updateCategoria;
+  deleteAction: typeof deleteCategoria;
+};
+
+export function CategoriaRowEditor({ categoria, updateAction, deleteAction }: CategoriaRowEditorProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const deleteFormRef = useRef<HTMLFormElement | null>(null);
+
+  return (
+    <>
+      {isEditing ? (
+        <tr>
+          <td colSpan={2} className="px-4 py-4">
+            <div className="rounded-[1.5rem] border border-[var(--panel-border)] bg-[var(--panel)] p-5 shadow-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">Editar categoria</p>
+                <button type="button" onClick={() => setIsEditing(false)} className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)]">
+                  Fechar
+                </button>
+              </div>
+              <form action={updateAction} className="flex flex-col gap-3 sm:flex-row">
+                <input type="hidden" name="id" value={categoria.id} />
+                <input name="nome" defaultValue={categoria.nome ?? ""} placeholder="Nome da categoria" className="mc4-form-input flex-1 rounded-2xl px-4 py-3 text-sm" required />
+                <div className="flex gap-2">
+                  <button type="submit" className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
+                    Salvar
+                  </button>
+                  <button type="button" onClick={() => setIsEditing(false)} className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)]">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </td>
+        </tr>
+      ) : (
+        <tr>
+          <td className="px-4 py-3 font-medium text-[var(--foreground)]">{categoria.nome}</td>
+          <td className="px-4 py-3 text-right">
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setIsEditing(true)} className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]">
+                Editar
+              </button>
+              <button type="button" onClick={() => setShowDeleteConfirm(true)} className="mc4-badge mc4-badge-orange rounded-full px-4 py-2">
+                Excluir
+              </button>
+            </div>
+          </td>
+        </tr>
+      )}
+
+      <form ref={deleteFormRef} action={deleteAction} className="hidden">
+        <input type="hidden" name="id" value={categoria.id} />
+      </form>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Excluir categoria"
+        description={`Deseja realmente remover a categoria "${categoria.nome ?? ""}"? Itens que já usam essa categoria não serão alterados.`}
+        confirmLabel="Sim, excluir"
+        onConfirm={() => {
+          deleteFormRef.current?.requestSubmit();
+          setShowDeleteConfirm(false);
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
+    </>
+  );
+}
+
+
+
+
+===== src\components\cliente-row-editor.tsx =====
+"use client";
+
+import { useRef, useState } from "react";
+import type { deleteCliente, updateCliente } from "@/lib/supabase/actions";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+
+type ClienteRow = {
+  id: string;
+  nome: string | null;
+};
+
+type ClienteRowEditorProps = {
+  cliente: ClienteRow;
+  updateAction: typeof updateCliente;
+  deleteAction: typeof deleteCliente;
+};
+
+export function ClienteRowEditor({ cliente, updateAction, deleteAction }: ClienteRowEditorProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const deleteFormRef = useRef<HTMLFormElement | null>(null);
+
+  return (
+    <>
+      {isEditing ? (
+        <tr>
+          <td colSpan={2} className="px-4 py-4">
+            <div className="rounded-[1.5rem] border border-[var(--panel-border)] bg-[var(--panel)] p-5 shadow-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">Editar cliente</p>
+                <button type="button" onClick={() => setIsEditing(false)} className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)]">
+                  Fechar
+                </button>
+              </div>
+              <form action={updateAction} className="flex flex-col gap-3 sm:flex-row">
+                <input type="hidden" name="id" value={cliente.id} />
+                <input name="nome" defaultValue={cliente.nome ?? ""} placeholder="Nome do cliente" className="mc4-form-input flex-1 rounded-2xl px-4 py-3 text-sm" required />
+                <div className="flex gap-2">
+                  <button type="submit" className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
+                    Salvar
+                  </button>
+                  <button type="button" onClick={() => setIsEditing(false)} className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)]">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </td>
+        </tr>
+      ) : (
+        <tr>
+          <td className="px-4 py-3 font-medium text-[var(--foreground)]">{cliente.nome}</td>
+          <td className="px-4 py-3 text-right">
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setIsEditing(true)} className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]">
+                Editar
+              </button>
+              <button type="button" onClick={() => setShowDeleteConfirm(true)} className="mc4-badge mc4-badge-orange rounded-full px-4 py-2">
+                Excluir
+              </button>
+            </div>
+          </td>
+        </tr>
+      )}
+
+      <form ref={deleteFormRef} action={deleteAction} className="hidden">
+        <input type="hidden" name="id" value={cliente.id} />
+      </form>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Excluir cliente"
+        description={`Deseja realmente remover o cliente "${cliente.nome ?? ""}"? Itens que já usam esse cliente não serão alterados.`}
+        confirmLabel="Sim, excluir"
+        onConfirm={() => {
+          deleteFormRef.current?.requestSubmit();
+          setShowDeleteConfirm(false);
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
+    </>
+  );
+}
+
+
+
+
+===== src\components\confirm-dialog.tsx =====
+"use client";
+
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
+
+type ConfirmDialogProps = {
+  open: boolean;
+  title: string;
+  description: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+};
+
+export function ConfirmDialog({
+  open,
+  title,
+  description,
+  confirmLabel = "Confirmar",
+  cancelLabel = "Cancelar",
+  onConfirm,
+  onCancel,
+}: ConfirmDialogProps) {
+  useEffect(() => {
+    if (!open) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onCancel();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, onCancel]);
+
+  if (!open || typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-[1.5rem] border border-white/10 bg-[var(--panel)] p-6 shadow-2xl">
+        <p className="text-xs uppercase tracking-[0.3em] text-[#EB5727]">Confirmação</p>
+        <h3 className="mt-3 text-xl font-semibold text-[var(--foreground)]">{title}</h3>
+        <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">{description}</p>
+        <div className="mt-6 flex flex-wrap justify-end gap-3">
+          <button type="button" onClick={onCancel} className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm font-medium text-[var(--foreground)]">
+            {cancelLabel}
+          </button>
+          <button type="button" onClick={onConfirm} className="rounded-2xl bg-[#eb5727] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#eb5727]/20">
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+
+
+
+===== src\components\DataTableSearch.tsx =====
+"use client";
+
+import { useState, ReactNode } from "react";
+
+type Column<T> = {
+  header: string;
+  accessorKey: keyof T | string;
+  className?: string;
+};
+
+type DataTableSearchProps<T> = {
+  data: T[];
+  searchKeys: (keyof T)[];
+  placeholder?: string;
+  columns: Column<T>[];
+  itemsPerPage?: number;
+};
+
+export default function DataTableSearch<T>({
+  data,
+  searchKeys,
+  placeholder = "Buscar...",
+  columns,
+  itemsPerPage = 10,
+}: DataTableSearchProps<T>) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const filteredData = data.filter((item) => {
+    if (!searchTerm) return true;
+    const search = searchTerm.toLowerCase();
+    return searchKeys.some((key) => {
+      const value = item[key];
+      if (value === null || value === undefined) return false;
+      return String(value).toLowerCase().includes(search);
+    });
+  });
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
+        />
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+        <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+          <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+            <tr>
+              {columns.map((col, index) => (
+                <th key={index} className={`px-4 py-3 font-medium ${col.className ?? "text-left"}`}>
+                  {col.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+            {currentData.length > 0 ? (
+              currentData.map((item, rowIndex) => (
+                <tr key={rowIndex} className="hover:bg-[var(--panel-border)]/10 transition-colors">
+                  {columns.map((col, colIndex) => {
+                    const value = item[col.accessorKey as keyof T];
+
+                    // Renderização especial baseada na coluna "tipo" para exibir o Badge colorido
+                    if (String(col.accessorKey) === "tipo") {
+                      const tipoStr = String(value);
+                      const badgeClass =
+                        tipoStr === "entrada"
+                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-200"
+                          : tipoStr === "saida"
+                            ? "bg-rose-500/15 text-rose-600 dark:text-rose-200"
+                            : "bg-orange-500/15 text-orange-600 dark:text-orange-200";
+
+                      return (
+                        <td key={colIndex} className={`px-4 py-3 ${col.className ?? "text-left"}`}>
+                          <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${badgeClass}`}>
+                            {tipoStr}
+                          </span>
+                        </td>
+                      );
+                    }
+
+                    return (
+                      <td key={colIndex} className={`px-4 py-3 text-[var(--foreground)] ${col.className ?? "text-left"}`}>
+                        {value as ReactNode}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={columns.length}>
+                  Nenhum registro encontrado.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2 text-sm text-[var(--text-muted)]">
+          <p>
+            Mostrando <span className="font-medium text-[var(--foreground)]">{startIndex + 1}</span> a{" "}
+            <span className="font-medium text-[var(--foreground)]">
+              {Math.min(startIndex + itemsPerPage, filteredData.length)}
+            </span>{" "}
+            de <span className="font-medium text-[var(--foreground)]">{filteredData.length}</span> registros
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
+
+            <span className="px-2">
+              Página {currentPage} de {totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Próxima
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+===== src\components\estoque-form.tsx =====
+"use client";
+
+import { useActionState, useEffect, useRef } from "react";
+import { createEstoque } from "@/lib/supabase/actions";
+import { useToast } from "@/components/toast-context";
+
+export function EstoqueForm() {
+  const { showToast } = useToast();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // useActionState para gerenciar o status pendente e respostas de erro da Server Action
+  const [state, formAction, isPending] = useActionState(async (prevState: any, formData: FormData) => {
+    try {
+      await createEstoque(formData);
+      return { success: true, error: null };
+    } catch (error: any) {
+      return { success: false, error: error.message || "Erro ao salvar o local." };
+    }
+  }, null);
+
+  // Exibe o Toast correspondente após a conclusão da ação do servidor
+  useEffect(() => {
+    if (state?.success) {
+      showToast("Local de estoque cadastrado com sucesso!", "success");
+      formRef.current?.reset();
+    } else if (state?.error) {
+      showToast(state.error, "error");
+    }
+  }, [state, showToast]);
+
+  return (
+    <form ref={formRef} action={formAction} className="mt-4 grid gap-4 md:grid-cols-2">
+      <input 
+        name="nome" 
+        placeholder="Nome do local ou veículo" 
+        className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" 
+        required 
+      />
+      <select name="tipo" defaultValue="Regional" className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
+        <option value="Regional">Regional (Fixo)</option>
+        <option value="Temporario">Temporário / Veículo</option>
+      </select>
+      
+      {/* Campos de responsabilidade e contato para rastreabilidade operacional */}
+      <input name="responsavel" placeholder="Responsável" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
+      <input name="contato" placeholder="WhatsApp / contato" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
+      <input name="endereco" placeholder="Endereço / placa" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
+      <div className="md:col-span-2">
+        <button 
+          type="submit" 
+          disabled={isPending} 
+          className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60"
+        >
+          {isPending ? "Salvando..." : "Salvar local"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+
+
+
+===== src\components\estoque-row-editor.tsx =====
+"use client";
+
+import { useRef, useState, useTransition } from "react";
+import type { deleteEstoque, updateEstoque } from "@/lib/supabase/actions";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useToast } from "@/components/toast-context";
+
+type EstoqueRow = {
+  id: string;
+  nome: string | null;
+  tipo: string | null;
+  responsavel: string | null;
+  contato: string | null;
+  endereco: string | null;
+};
+
+type EstoqueRowEditorProps = {
+  estoque: EstoqueRow;
+  updateAction: typeof updateEstoque;
+  deleteAction: typeof deleteEstoque;
+};
+
+export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: EstoqueRowEditorProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const deleteFormRef = useRef<HTMLFormElement | null>(null);
+
+  const { showToast } = useToast();
+  const [isPendingUpdate, startUpdateTransition] = useTransition();
+  const [isPendingDelete, startDeleteTransition] = useTransition();
+
+  // Executa a transação de atualização inline e emite o feedback
+  const handleUpdate = (formData: FormData) => {
+    startUpdateTransition(async () => {
+      try {
+        await updateAction(formData);
+        showToast("Local atualizado com sucesso!", "success");
+        setIsEditing(false);
+      } catch (error: any) {
+        showToast(error.message || "Erro ao atualizar o local.", "error");
+      }
+    });
+  };
+
+  // Executa a transação de exclusão e emite o feedback
+  const handleDelete = (formData: FormData) => {
+    startDeleteTransition(async () => {
+      try {
+        await deleteAction(formData);
+        showToast("Local removido do cadastro!", "success");
+        setShowDeleteConfirm(false);
+      } catch (error: any) {
+        showToast(error.message || "Erro ao excluir o local.", "error");
+      }
+    });
+  };
+
+  return (
+    <>
+      {isEditing ? (
+        <div className="rounded-[1.5rem] border border-[var(--panel-border)] bg-[var(--panel)] p-4 shadow-xl">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">Editar local</p>
+              <h4 className="mt-1 text-lg font-semibold text-[var(--foreground)]">{estoque.nome ?? "Local"}</h4>
+            </div>
+            <button type="button" onClick={() => setIsEditing(false)} className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)]">
+              Fechar
+            </button>
+          </div>
+          <form action={handleUpdate} className="grid gap-3 md:grid-cols-2">
+            <input type="hidden" name="id" value={estoque.id} />
+            <input name="nome" defaultValue={estoque.nome ?? ""} placeholder="Nome do local" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
+            <select name="tipo" defaultValue={estoque.tipo ?? "Regional"} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
+              <option value="Regional">Regional (Fixo)</option>
+              <option value="Temporario">Temporário / Veículo</option>
+            </select>
+            <input name="responsavel" defaultValue={estoque.responsavel ?? ""} placeholder="Responsável" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
+            <input name="contato" defaultValue={estoque.contato ?? ""} placeholder="WhatsApp / contato" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
+            <input name="endereco" defaultValue={estoque.endereco ?? ""} placeholder="Endereço / placa" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
+            <div className="flex gap-2 md:col-span-2">
+              <button type="submit" disabled={isPendingUpdate} className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
+                {isPendingUpdate ? "Salvando..." : "Salvar alterações"}
+              </button>
+              <button type="button" onClick={() => setIsEditing(false)} className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)]">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : (
+        <div className="flex justify-end gap-2">
+          <button type="button" onClick={() => setIsEditing(true)} className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]">
+            Editar
+          </button>
+          <button type="button" onClick={() => setShowDeleteConfirm(true)} className="mc4-badge mc4-badge-orange rounded-full px-4 py-2">
+            Excluir
+          </button>
+        </div>
+      )}
+
+      <form ref={deleteFormRef} action={handleDelete} className="hidden">
+        <input type="hidden" name="id" value={estoque.id} />
+      </form>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Excluir local"
+        description={`Deseja realmente remover ${estoque.nome ?? "este local"} do cadastro?`}
+        confirmLabel="Sim, excluir"
+        onConfirm={() => {
+          deleteFormRef.current?.requestSubmit();
+          setShowDeleteConfirm(false);
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
+    </>
+  );
+}
+
+
+
+===== src\components\image-lightbox.tsx =====
+"use client";
+
+import { useEffect, useState } from "react";
+
+type ImageLightboxProps = {
+  src: string | null;
+  alt: string;
+  thumbnailClassName?: string;
+};
+
+export function ImageLightbox({ src, alt, thumbnailClassName = "h-12 w-12" }: ImageLightboxProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen]);
+
+  if (!src) {
+    return <div className="h-12 w-12 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-border)]/10" aria-hidden="true" />;
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className={`group overflow-hidden rounded-xl border border-[var(--panel-border)] bg-[#f4f7f9] focus:outline-none focus:ring-2 focus:ring-[#EB5727] ${thumbnailClassName}`}
+        aria-label={`Ampliar foto de ${alt}`}
+      >
+        <img src={src} alt={alt} className="h-full w-full object-cover transition duration-200 group-hover:scale-110" />
+      </button>
+
+      {isOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Foto ampliada de ${alt}`}
+          onClick={() => setIsOpen(false)}
+        >
+          <div className="relative max-h-[90vh] max-w-[min(92vw,900px)]" onClick={(event) => event.stopPropagation()}>
+            <img src={src} alt={alt} className="max-h-[82vh] max-w-full rounded-2xl object-contain shadow-2xl" />
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="absolute -right-3 -top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-[var(--panel)] text-lg text-[var(--foreground)] shadow-lg"
+              aria-label="Fechar foto ampliada"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+
+
+
+===== src\components\item-form.tsx =====
+"use client";
+
+import { useActionState, useEffect, useRef } from "react";
+import { createItem } from "@/lib/supabase/actions";
+import { useToast } from "@/components/toast-context";
+
+type ItemFormProps = {
+  categoriaOptions: { id: string; nome: string | null }[];
+  clienteOptions: { id: string; nome: string | null }[];
+};
+
+export function ItemForm({ categoriaOptions, clienteOptions }: ItemFormProps) {
+  const { showToast } = useToast();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // useActionState encapsula a Server Action de criação de itens de forma segura
+  const [state, formAction, isPending] = useActionState(async (prevState: any, formData: FormData) => {
+    try {
+      await createItem(formData);
+      return { success: true, error: null };
+    } catch (error: any) {
+      return { success: false, error: error.message || "Erro ao salvar o item." };
+    }
+  }, null);
+
+  // Monitora o retorno da Server Action para emitir o feedback do Toast
+  useEffect(() => {
+    if (state?.success) {
+      showToast("Item cadastrado com sucesso!", "success");
+      formRef.current?.reset();
+    } else if (state?.error) {
+      showToast(state.error, "error");
+    }
+  }, [state, showToast]);
+
+  return (
+    <form ref={formRef} action={formAction} className="mt-4 grid gap-4 md:grid-cols-2">
+      <input 
+        name="nome" 
+        placeholder="Nome do item" 
+        className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" 
+        required 
+      />
+      
+      {/* Categorias gerenciadas pelo administrador em /admin */}
+      <select 
+        name="categoria" 
+        defaultValue={categoriaOptions?.nome ?? ""} 
+        className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
+      >
+        {categoriaOptions.map((categoria) => (
+          <option key={categoria.id} value={categoria.nome ?? ""}>
+            {categoria.nome}
+          </option>
+        ))}
+      </select>
+
+      {/* Clientes gerenciados pelo administrador em /admin */}
+      <select 
+        name="cliente" 
+        defaultValue={clienteOptions?.nome ?? ""} 
+        className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
+      >
+        {clienteOptions.map((cliente) => (
+          <option key={cliente.id} value={cliente.nome ?? ""}>
+            {cliente.nome}
+          </option>
+        ))}
+      </select>
+
+      <input 
+        name="foto_url" 
+        placeholder="URL da foto ou path salvo no bucket (opcional)" 
+        className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" 
+      />
+      <input 
+        type="file" 
+        name="foto_file" 
+        accept="image/*" 
+        className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" 
+      />
+      <textarea 
+        name="descricao" 
+        placeholder="Descrição do item" 
+        rows={3} 
+        className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm md:col-span-2" 
+      />
+      
+      <div className="md:col-span-2">
+        <button 
+          type="submit" 
+          disabled={isPending}
+          className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60"
+        >
+          {isPending ? "Salvando..." : "Salvar item"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+
+
+===== src\components\item-row-editor.tsx =====
+"use client";
+
+import Link from "next/link";
+import { useRef, useState, useTransition } from "react";
+import type { deleteItem, updateItem } from "@/lib/supabase/actions";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useToast } from "@/components/toast-context";
+
+type ItemRow = {
+  id: string;
+  nome: string | null;
+  categoria: string | null;
+  cliente: string | null;
+  descricao: string | null;
+  foto_url: string | null;
+  foto_preview_url?: string | null;
+};
+
+type ItemRowEditorProps = {
+  item: ItemRow;
+  updateAction: typeof updateItem;
+  deleteAction: typeof deleteItem;
+  categoriaOptions: { id: string; nome: string | null }[];
+  clienteOptions: { id: string; nome: string | null }[];
+};
+
+export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptions, clienteOptions }: ItemRowEditorProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const deleteFormRef = useRef<HTMLFormElement | null>(null);
+  
+  const { showToast } = useToast();
+  const [isPendingUpdate, startUpdateTransition] = useTransition();
+  const [isPendingDelete, startDeleteTransition] = useTransition();
+
+  // Função para lidar com o salvamento da edição inline
+  const handleUpdate = (formData: FormData) => {
+    startUpdateTransition(async () => {
+      try {
+        await updateAction(formData);
+        showToast("Item atualizado com sucesso!", "success");
+        setIsEditing(false);
+      } catch (error: any) {
+        showToast(error.message || "Erro ao atualizar o item.", "error");
+      }
+    });
+  };
+
+  // Função para lidar com a exclusão do item
+  const handleDelete = (formData: FormData) => {
+    startDeleteTransition(async () => {
+      try {
+        await deleteAction(formData);
+        showToast("Item removido/inativado com sucesso!", "success");
+        setShowDeleteConfirm(false);
+      } catch (error: any) {
+        showToast(error.message || "Erro ao excluir o item.", "error");
+      }
+    });
+  };
+
+  return (
+    <>
+      {isEditing ? (
+        <tr key={item.id}>
+          <td colSpan={5} className="px-4 py-4">
+            <div className="rounded-[1.5rem] border border-[var(--panel-border)] bg-[var(--panel)] p-5 shadow-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">Editar item</p>
+                  <h4 className="mt-1 text-lg font-semibold text-[var(--foreground)]">{item.nome ?? "Item"}</h4>
+                </div>
+                <button type="button" onClick={() => setIsEditing(false)} className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)]">
+                  Fechar
+                </button>
+              </div>
+              <form action={handleUpdate} className="grid gap-3 md:grid-cols-2">
+                <input type="hidden" name="id" value={item.id} />
+                <input name="nome" defaultValue={item.nome ?? ""} placeholder="Nome do item" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
+                <select name="categoria" defaultValue={item.categoria ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
+                  {categoriaOptions.map((categoria) => (
+                    <option key={categoria.id} value={categoria.nome ?? ""}>
+                      {categoria.nome}
+                    </option>
+                  ))}
+                </select>
+                <select name="cliente" defaultValue={item.cliente ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
+                  {clienteOptions.map((cliente) => (
+                    <option key={cliente.id} value={cliente.nome ?? ""}>
+                      {cliente.nome}
+                    </option>
+                  ))}
+                </select>
+                <input name="foto_url" defaultValue={item.foto_url ?? ""} placeholder="URL da foto ou path do Storage" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
+                <input type="file" name="foto_file" accept="image/*" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
+                <textarea name="descricao" defaultValue={item.descricao ?? ""} rows={3} placeholder="Descrição completa" className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm md:col-span-2" />
+                <div className="flex gap-2 md:col-span-2">
+                  <button type="submit" disabled={isPendingUpdate} className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
+                    {isPendingUpdate ? "Salvando..." : "Salvar alterações"}
+                  </button>
+                  <button type="button" onClick={() => setIsEditing(false)} className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)]">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </td>
+        </tr>
+      ) : (
+        <tr key={item.id}>
+          <td className="px-4 py-3 font-medium text-white">
+            <Link href={`/itens/${item.id}`} className="group flex items-center gap-3 rounded-xl transition-colors hover:bg-[var(--panel-border)]/15 p-1 -m-1">
+              <div className="h-10 w-10 overflow-hidden rounded-xl border border-[#416ba9]/10 bg-[#f4f7f9]">
+                {item.foto_preview_url ? <img src={item.foto_preview_url} alt={item.nome ?? "Item"} className="h-full w-full object-cover" /> : null}
+              </div>
+              <span className="group-hover:text-[#EB5727]">{item.nome}</span>
+            </Link>
+          </td>
+          <td className="px-4 py-3 text-slate-300">{item.categoria}</td>
+          <td className="px-4 py-3 text-slate-300">{item.cliente}</td>
+          <td className="px-4 py-3 text-slate-300">{item.descricao ?? "-"}</td>
+          <td className="px-4 py-3 text-right">
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setIsEditing(true)} className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]">
+                Editar
+              </button>
+              <button type="button" onClick={() => setShowDeleteConfirm(true)} className="mc4-badge mc4-badge-orange rounded-full px-4 py-2">
+                Excluir
+              </button>
+            </div>
+            <form ref={deleteFormRef} action={handleDelete} className="hidden">
+              <input type="hidden" name="id" value={item.id} />
+            </form>
+          </td>
+        </tr>
+      )}
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Excluir item"
+        description={`Deseja realmente remover "${item.nome ?? "este item"}" do catálogo?`}
+        confirmLabel="Sim, excluir"
+        onConfirm={() => {
+          deleteFormRef.current?.requestSubmit();
+          setShowDeleteConfirm(false);
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
+    </>
+  );
+}
+
+
+
+===== src\components\ItemsSearchTable.tsx =====
+"use client";
+
+import { useState } from "react";
+import { ItemRowEditor } from "@/components/item-row-editor";
+
+type ItemRow = {
+  id: string;
+  nome: string | null;
+  categoria: string | null;
+  cliente: string | null;
+  descricao: string | null;
+  foto_url: string | null;
+  foto_preview_url: string | null;
+  created_at: string | null;
+};
+
+type ItemsSearchTableProps = {
+  initialItems: ItemRow[];
+  updateAction: (formData: FormData) => Promise<void>;
+  deleteAction: (formData: FormData) => Promise<void>;
+  categoriaOptions: { id: string; nome: string | null }[];
+  clienteOptions: { id: string; nome: string | null }[];
+};
+
+const ITEMS_PER_PAGE = 10;
+
+export default function ItemsSearchTable({ initialItems, updateAction, deleteAction, categoriaOptions, clienteOptions }: ItemsSearchTableProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Filtra os itens com base na busca (nome, categoria, cliente ou descrição)
+  const filteredItems = initialItems.filter((item) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      (item.nome?.toLowerCase() ?? "").includes(search) ||
+      (item.categoria?.toLowerCase() ?? "").includes(search) ||
+      (item.cliente?.toLowerCase() ?? "").includes(search) ||
+      (item.descricao?.toLowerCase() ?? "").includes(search)
+    );
+  });
+
+  // Paginação
+  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reseta para a primeira página ao buscar
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Barra de Busca */}
+      <div>
+        <input
+          type="text"
+          placeholder="Buscar por nome, categoria, cliente ou descrição..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
+        />
+      </div>
+
+      {/* Tabela */}
+      <div className="overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+        <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+          <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+            <tr>
+              <th className="px-4 py-3 text-left font-medium">Item</th>
+              <th className="px-4 py-3 text-left font-medium">Categoria</th>
+              <th className="px-4 py-3 text-left font-medium">Cliente</th>
+              <th className="px-4 py-3 text-left font-medium">Descrição</th>
+              <th className="px-4 py-3 text-right font-medium">Ações</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+            {currentItems.length > 0 ? (
+              currentItems.map((item) => (
+                <ItemRowEditor
+                  key={item.id}
+                  item={item}
+                  updateAction={updateAction}
+                  deleteAction={deleteAction}
+                  categoriaOptions={categoriaOptions}
+                  clienteOptions={clienteOptions}
+                />
+              ))
+            ) : (
+              <tr>
+                <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={5}>
+                  Nenhum item encontrado.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2 text-sm text-[var(--text-muted)]">
+          <p>
+            Mostrando <span className="font-medium text-[var(--foreground)]">{startIndex + 1}</span> a{" "}
+            <span className="font-medium text-[var(--foreground)]">
+              {Math.min(startIndex + ITEMS_PER_PAGE, filteredItems.length)}
+            </span>{" "}
+            de <span className="font-medium text-[var(--foreground)]">{filteredItems.length}</span> registros
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
+
+            <span className="px-2">
+              Página {currentPage} de {totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Próxima
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+===== src\components\login-form.tsx =====
+"use client";
+
+import { useActionState } from "react";
+import { signIn, type AuthState } from "@/lib/supabase/actions";
+
+const initialState: AuthState = {};
+
+export function LoginForm() {
+  const [state, formAction, isPending] = useActionState(signIn, initialState);
+
+  return (
+    <form action={formAction} className="glass-panel rounded-[2rem] border border-white/10 p-6">
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="email" className="mb-2 block text-sm font-semibold text-[#142033]">
+            E-mail
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="usuario@somosmc4.com.br"
+            autoComplete="email"
+            className="mc4-form-input w-full rounded-2xl px-4 py-3 text-sm outline-none transition"
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="password" className="mb-2 block text-sm font-semibold text-[#142033]">
+            Senha
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="*******"
+            autoComplete="current-password"
+            className="mc4-form-input w-full rounded-2xl px-4 py-3 text-sm outline-none transition"
+            required
+          />
+        </div>
+
+        {state.error ? (
+          <p className="rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-100">
+            {state.error}
+          </p>
+        ) : null}
+
+        <button
+          type="submit"
+          disabled={isPending}
+          className="mc4-btn-primary w-full rounded-2xl px-4 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isPending ? "Entrando..." : "Entrar / Criar conta"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+
+
+===== src\components\movimentacao-form.tsx =====
+"use client";
+
+import { useActionState, useMemo, useState, useEffect } from "react";
+import { createMovimentacao } from "@/lib/supabase/actions";
+import { useToast } from "@/components/toast-context"; // Importando o hook do Toast Global
+
+type ItemOption = { id: string; nome: string | null; };
+type EstoqueOption = { id: string; nome: string | null; };
+type BalanceOption = { item_id: string; estoque_id: string; quantidade: number; estoque_nome: string | null; };
+type MovimentacaoFormProps = { itemRows: ItemOption[]; estoqueRows: EstoqueOption[]; balances: BalanceOption[]; };
+
+export function MovimentacaoForm({ itemRows, estoqueRows, balances }: MovimentacaoFormProps) {
+  const { showToast } = useToast(); // Consumindo o contexto de Toasts
+  const [actionError, submitAction, isPending] = useActionState(createMovimentacao, null);
+  const [tipo, setTipo] = useState("transferencia");
+  const [itemId, setItemId] = useState("");
+  const [origemId, setOrigemId] = useState("");
+  const [destinoId, setDestinoId] = useState("");
+  const [quantidade, setQuantidade] = useState<number | "">(""); // Controlado para reset reativo
+  const [observacao, setObservacao] = useState(""); // Controlado para reset reativo
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const selectedItemBalances = useMemo(() => balances.filter((entry) => entry.item_id === itemId), [balances, itemId]);
+  const currentOriginBalance = selectedItemBalances.find((entry) => entry.estoque_id === origemId)?.quantidade ?? 0;
+  const origemNome = estoqueRows.find((estoque) => estoque.id === origemId)?.nome ?? "o local selecionado";
+  const destinoNome = estoqueRows.find((estoque) => estoque.id === destinoId)?.nome ?? "o destino selecionado";
+
+  const isEntrada = tipo === "entrada";
+  const isSaida = tipo === "saida";
+  const isTransferencia = tipo === "transferencia";
+
+  // EFEITO DE AUDITORIA VISUAL: Captura o término da Server Action para exibir o Toast correspondente
+  useEffect(() => {
+    if (isPending) {
+      setIsSubmitting(true);
+    }
+    if (!isPending && isSubmitting) {
+      setIsSubmitting(false);
+      if (!actionError?.error) {
+        showToast("Movimentação registrada com sucesso!", "success");
+        // Reseta todos os estados do formulário após a gravação bem-sucedida
+        setItemId("");
+        setOrigemId("");
+        setDestinoId("");
+        setQuantidade("");
+        setObservacao("");
+      } else {
+        showToast(actionError.error, "error");
+      }
+    }
+  }, [isPending, isSubmitting, actionError, showToast]);
+
+  return (
+    <form action={submitAction} className="mt-6 grid gap-4 md:grid-cols-2">
+      <input type="hidden" name="item_id" value={itemId} />
+      <label className="grid gap-2 md:col-span-2">
+        <span className="text-sm font-medium text-[var(--text-muted)]">Item</span>
+        <select
+          name="item_id"
+          value={itemId}
+          onChange={(event) => {
+            setItemId(event.target.value);
+            setOrigemId("");
+            setDestinoId("");
+          }}
+          className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
+          required
+        >
+          <option value="" disabled>
+            Selecione o item
+          </option>
+          {itemRows.map((item) => (
+            <option key={item.id} value={item.id} className="bg-[var(--panel)] text-[var(--foreground)]">
+              {item.nome}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="grid gap-2">
+        <span className="text-sm font-medium text-[var(--text-muted)]">Tipo de movimentação</span>
+        <select
+          name="tipo"
+          value={tipo}
+          onChange={(event) => {
+            const nextType = event.target.value;
+            setTipo(nextType);
+
+            if (nextType === "entrada") {
+              setOrigemId("");
+            }
+
+            if (nextType === "saida") {
+              setDestinoId("");
+            }
+          }}
+          className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
+          required
+        >
+          <option value="transferencia">Transferência</option>
+          <option value="entrada">Entrada</option>
+          <option value="saida">Saída</option>
+        </select>
+      </label>
+
+      <label className="grid gap-2">
+        <span className="text-sm font-medium text-[var(--text-muted)]">Quantidade</span>
+        <input
+          name="quantidade"
+          type="number"
+          min="1"
+          max={isSaida && origemId ? currentOriginBalance : undefined}
+          value={quantidade}
+          onChange={(e) => setQuantidade(e.target.value ? Number(e.target.value) : "")}
+          placeholder="Quantidade"
+          className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+          required
+            />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="text-sm font-medium text-[var(--text-muted)]">Origem</span>
+        <select
+          name="origem_id"
+          value={origemId}
+          onChange={(event) => setOrigemId(event.target.value)}
+          className="mc4-form-select rounded-2xl px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--panel-border)]/40"
+          disabled={isEntrada}
+        >
+          <option value="">{isEntrada ? "Origem não usada em entrada" : "Origem opcional"}</option>
+          {estoqueRows.map((estoque) => (
+            <option key={estoque.id} value={estoque.id} className="bg-[var(--panel)] text-[var(--foreground)]">
+              {estoque.nome}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="grid gap-2">
+        <span className="text-sm font-medium text-[var(--text-muted)]">Destino</span>
+        <select
+          name="destino_id"
+          value={destinoId}
+          onChange={(event) => setDestinoId(event.target.value)}
+          className="mc4-form-select rounded-2xl px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--panel-border)]/40"
+          disabled={isSaida}
+        >
+          <option value="">{isSaida ? "Destino não usado em saída" : "Destino opcional"}</option>
+          {estoqueRows.map((estoque) => (
+            <option key={estoque.id} value={estoque.id} className="bg-[var(--panel)] text-[var(--foreground)]">
+              {estoque.nome}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {itemId ? (
+        <div className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)] md:col-span-2">
+          {isEntrada ? (
+            <p>Entrada registrada no destino escolhido e o saldo será somado ao local informado.</p>
+          ) : (
+            <p>
+              Saldo atual em {origemNome}: <span className="font-semibold text-[var(--text-muted)]">{currentOriginBalance}</span> unidade(s).
+            </p>
+          )}
+          {isTransferencia && destinoId ? (
+            <p className="mt-2">
+              Saldo atual em {destinoNome}: <span className="font-semibold text-[var(--text-muted)]">{currentOriginBalance}</span> unidade(s).
+            </p>
+          ) : null}
+          {isSaida && !origemId ? <p className="mt-2">Escolha a origem para validar o saldo disponível antes de salvar.</p> : null}
+        </div>
+      ) : null}
+
+      <label className="grid gap-2 md:col-span-2">
+        <span className="text-sm font-medium text-[var(--text-muted)]">Motivo / observação</span>
+        <textarea 
+          name="observacao" 
+          value={observacao}
+          onChange={(e) => setObservacao(e.target.value)}
+          rows={3} 
+          placeholder="Motivo / observação" 
+          className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm" 
+          required 
+        />
+      </label>
+
+      <div className="md:col-span-2">
+        {actionError?.error ? <p className="mb-3 text-sm font-medium text-red-600" role="alert">{actionError.error}</p> : null}
+        <button type="submit" disabled={isPending} className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60">
+          {isPending ? "Salvando..." : "Confirmar movimentação"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+
+
+===== src\components\page-loading.tsx =====
+export function PageLoading({ label = "Carregando..." }: { label?: string }) {
+  return (
+    <div className="page-loading-shell">
+      <div className="page-loading-card" role="status" aria-live="polite">
+        <div className="page-loading-spinner" />
+        <p className="page-loading-label">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+===== src\components\relatorios-filters-table.tsx =====
+"use client";
+
+import { useMemo, useState } from "react";
+
+type ReportMovementRow = {
+  id: string;
+  dataMovimentacao: string;
+  tipo: string;
+  quantidade: number;
+  observacao: string;
+  itemNome: string;
+  origemNome: string;
+  destinoNome: string;
+  usuarioResponsavel: string;
+};
+
+type RelatoriosFiltersTableProps = {
+  initialRows: ReportMovementRow[];
+  initialInicio: string;
+  initialFim: string;
+  initialTipo: string;
+  initialPesquisa: string;
+  canExport: boolean;
+};
+
+function normalizeText(value: string | null | undefined) {
+  return (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+const ITEMS_PER_PAGE = 10;
+
+function formatDateInput(value: string) {
+  if (!value) return "";
+  return value.slice(0, 10);
+}
+
+function buildExportHref(inicio: string, fim: string, tipo: string, pesquisa: string) {
+  const params = new URLSearchParams();
+
+  if (inicio) params.set("inicio", inicio);
+  if (fim) params.set("fim", fim);
+  if (tipo) params.set("tipo", tipo);
+  if (pesquisa) params.set("q", pesquisa);
+
+  return `/relatorios/export${params.toString() ? `?${params.toString()}` : ""}`;
+}
+
+export function RelatoriosFiltersTable({
+  initialRows,
+  initialInicio,
+  initialFim,
+  initialTipo,
+  initialPesquisa,
+  canExport,
+}: RelatoriosFiltersTableProps) {
+  const [inicio, setInicio] = useState(formatDateInput(initialInicio));
+  const [fim, setFim] = useState(formatDateInput(initialFim));
+  const [tipo, setTipo] = useState(initialTipo || "todos");
+  const [pesquisa, setPesquisa] = useState(initialPesquisa);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const filteredRows = useMemo(() => {
+    return initialRows.filter((row) => {
+      const search = pesquisa.toLowerCase();
+      const matchSearch =
+        row.itemNome.toLowerCase().includes(search) ||
+        row.usuarioResponsavel.toLowerCase().includes(search) ||
+        row.observacao.toLowerCase().includes(search);
+
+      const matchTipo = tipo === "todos" || row.tipo === tipo;
+
+      const movementDate = new Date(row.dataMovimentacao).getTime();
+      const matchInicio = !inicio || movementDate >= new Date(inicio).getTime();
+      const matchFim = !fim || movementDate <= new Date(fim + "T23:59:59").getTime();
+
+      return matchSearch && matchTipo && matchInicio && matchFim;
+    });
+  }, [initialRows, inicio, fim, tipo, pesquisa]);
+
+  // PAGINAÇÃO
+  const totalItems = filteredRows.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentItems = filteredRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const total = filteredRows.length;
+  const entradas = filteredRows.filter((row) => row.tipo === "entrada").length;
+  const saidas = filteredRows.filter((row) => row.tipo === "saida").length;
+  const transferencias = filteredRows.filter((row) => row.tipo === "transferencia").length;
+  const exportHref = buildExportHref(inicio, fim, tipo, pesquisa);
+
+  return (
+    <div className="grid gap-6">
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">Relatórios</p>
+        <h3 className="mt-2 text-lg font-semibold text-[var(--foreground)]">Auditoria por período e tipo de movimentação</h3>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
+          Use os filtros para recortar o histórico e enxergar somente o intervalo que interessa para conferência ou exportação.
+        </p>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-[1fr_1fr_0.8fr_1fr_auto]">
+          <input
+            type="date"
+            name="inicio"
+            value={inicio}
+            onChange={(event) => setInicio(event.target.value)}
+            className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+            aria-label="Data inicial"
+          />
+          <input
+            type="date"
+            name="fim"
+            value={fim}
+            onChange={(event) => setFim(event.target.value)}
+            className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+            aria-label="Data final"
+          />
+          <select
+            name="tipo"
+            value={tipo}
+            onChange={(event) => setTipo(event.target.value)}
+            className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
+            aria-label="Tipo de movimentação"
+          >
+            <option value="todos" className="bg-[var(--panel)] text-[var(--foreground)]">Todos os tipos</option>
+            <option value="entrada" className="bg-[var(--panel)] text-[var(--foreground)]">Entrada</option>
+            <option value="saida" className="bg-[var(--panel)] text-[var(--foreground)]">Saída</option>
+            <option value="transferencia" className="bg-[var(--panel)] text-[var(--foreground)]">Transferência</option>
+          </select>
+
+          <input
+            type="text"
+            name="q"
+            value={pesquisa}
+            onChange={(event) => setPesquisa(event.target.value)}
+            placeholder="Pesquisar item, origem, destino ou observação"
+            className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+            aria-label="Pesquisar relatórios" 
+          />
+
+          <div className="flex gap-2 md:justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                setInicio("");
+                setFim("");
+                setTipo("todos");
+                setPesquisa("");
+              }}
+              className="rounded-2xl border border-[var(--panel-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10"
+            >
+              Limpar
+            </button>
+            {canExport ? (
+              <a href={exportHref} className="rounded-2xl border border-[var(--panel-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10">
+                Exportar CSV
+              </a>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] p-4">
+            <p className="text-sm text-[var(--text-muted)]">Movimentos</p>
+            <p className="mt-1 text-2xl font-semibold text-[var(--foreground)]">{total}</p>
+          </div>
+          <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] p-4">
+            <p className="text-sm text-[var(--text-muted)]">Entradas</p>
+            <p className="mt-1 text-2xl font-semibold text-[var(--foreground)]">{entradas}</p>
+          </div>
+          <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(235,87,39,0.08)] p-4">
+            <p className="text-sm text-[var(--text-muted)]">Saídas</p>
+            <p className="mt-1 text-2xl font-semibold text-[var(--foreground)]">{saidas}</p>
+          </div>
+          <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] p-4">
+            <p className="text-sm text-[var(--text-muted)]">Transferências</p>
+            <p className="mt-1 text-2xl font-semibold text-[var(--foreground)]">{transferencias}</p>
+          </div>
+        </div>
+      </section>
+
+
+      {/* LISTA DE MOVIMENTACOES */}
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+        <div className="space-y-3">
+          {currentItems.length > 0 ? (
+            currentItems.map((row) => (
+              <div 
+                key={row.id} 
+                className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 hover:border-[#EB5727]/30 transition-all"
+              >
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-[var(--foreground)]">{row.itemNome}</p>
+                    {/* Badge do Responsável (Auditoria) */}
+                    <span className="rounded-full bg-[#cedb05]/10 px-2 py-0.5 text-[9px] font-bold text-[#cedb05] uppercase border border-[#cedb05]/20">
+                      OP: {row.usuarioResponsavel}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {row.origemNome} → {row.destinoNome} • {new Date(row.dataMovimentacao).toLocaleDateString('pt-BR')}
+                  </p>
+                  <p className="max-w-3xl break-words text-xs text-[var(--text-muted)]">
+                    <span className="font-medium text-[var(--foreground)]">Observação:</span> {row.observacao || "-"}
+                  </p>
+                </div>
+
+                <div className="text-right">
+                  <span className={`mc4-badge font-bold ${row.tipo === 'saida' ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' : 'mc4-badge-lime'}`}>
+                    {row.tipo === 'saida' ? '-' : '+'}{row.quantidade.toLocaleString('pt-BR')}
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="py-8 text-center text-sm text-[var(--text-muted)] italic">Nenhum registro encontrado.</p>
+          )}
+        </div>
+
+        {/* CONTROLES DE PAGINAÇÃO */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-between border-t border-[var(--panel-border)] pt-6">
+            <p className="text-xs text-[var(--text-muted)]">
+              Mostrando {currentItems.length} de {totalItems.toLocaleString('pt-BR')} movimentações
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setCurrentPage(prev => Math.max(prev - 1, 1)); window.scrollTo(0, 0); }}
+                disabled={currentPage === 1}
+                className="mc4-badge px-4 py-2 text-xs disabled:opacity-30 disabled:pointer-events-none"
+              > Anterior </button>
+              <button
+                onClick={() => { setCurrentPage(prev => Math.min(prev + 1, totalPages)); window.scrollTo(0, 0); }}
+                disabled={currentPage === totalPages}
+                className="mc4-badge px-4 py-2 text-xs disabled:opacity-30 disabled:pointer-events-none"
+              > Próximo </button>
+            </div>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+
+
+
+===== src\components\StockSearchList.tsx =====
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { ImageLightbox } from "@/components/image-lightbox";
+
+type StockRow = {
+  id: string;
+  nome: string;
+  total: number;
+  cliente: string;
+  fotoPreviewUrl: string | null;
+};
+
+export default function StockSearchList({ initialRows }: { initialRows: StockRow[] }) {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredRows = initialRows.filter((item) =>
+    item.nome.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* Campo de Busca */}
+      <div>
+        <input
+          type="text"
+          placeholder="Buscar item pelo nome..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
+        />
+      </div>
+
+      {/* Lista de Saldos com scroll inteligente */}
+      <div 
+        className="space-y-3 max-h-[350px] overflow-y-auto pr-2 
+                   /* Oculta a barra de rolagem por padrão em navegadores Webkit (Chrome, Safari, Edge) */
+                   [&::-webkit-scrollbar]:w-1.5
+                   [&::-webkit-scrollbar-track]:bg-transparent
+                   [&::-webkit-scrollbar-thumb]:bg-transparent
+                   hover:[&::-webkit-scrollbar-thumb]:bg-[var(--panel-border)]
+                   [&::-webkit-scrollbar-thumb]:rounded-full
+                   /* Para Firefox */
+                   scrollbar-width: thin;
+                   scrollbar-color: transparent transparent;
+                   hover:scrollbar-color: var(--panel-border) transparent;
+                   transition: scrollbar-color 0.2s;"
+      >
+        {filteredRows.length > 0 ? (
+          filteredRows.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 transition-colors hover:border-[#EB5727]/50"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <ImageLightbox src={item.fotoPreviewUrl} alt={item.nome} />
+                <Link href={`/itens/${item.id}`} className="min-w-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EB5727]">
+                  <p className="truncate font-medium text-[var(--foreground)]">{item.nome}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{item.cliente}</p>
+                </Link>
+              </div>
+              <span className="mc4-badge mc4-badge-lime">{(item.total ?? 0).toLocaleString('pt-BR')}</span>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-slate-400 text-center py-4">Nenhum item encontrado.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
+===== src\components\theme-toggle.tsx =====
+"use client";
+
+import { useEffect, useState } from "react";
+
+export function ThemeToggle() {
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") {
+      return "light";
+    }
+
+    const storedTheme = window.localStorage.getItem("mc4-theme");
+    return storedTheme === "dark" ? "dark" : "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    window.localStorage.setItem("mc4-theme", nextTheme);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggleTheme}
+      aria-label={`Alternar para modo ${theme === "light" ? "escuro" : "claro"}`}
+      className="flex items-center gap-2 rounded-full border border-[var(--panel-border)] bg-[var(--panel)] px-2 py-2 shadow-sm"
+    >
+      <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
+        {theme === "light" ? "Claro" : "Escuro"}
+      </span>
+      <span className="relative flex h-6 w-11 items-center rounded-full bg-[#416ba9]/15 p-1">
+        <span
+          className={`flex h-4 w-4 items-center justify-center rounded-full bg-[#EB5727] text-[10px] transition-transform ${theme === "light" ? "translate-x-0" : "translate-x-5"}`}
+        >
+          {theme === "light" ? "☀️" : "🌙"}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+
+
+
+===== src\components\toast-context.tsx =====
+"use client";
+
+import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import { ToastNotification } from "./toast-notification";
+
+type ToastType = "success" | "error" | "info";
+
+type ToastContextType = {
+  showToast: (message: string, type?: ToastType) => void;
+};
+
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
+
+export function ToastProvider({ children }: { children: ReactNode }) {
+  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+
+  const showToast = useCallback((message: string, type: ToastType = "success") => {
+    setToast({ message, type });
+  }, []);
+
+  const hideToast = useCallback(() => {
+    setToast(null);
+  }, []);
+
+  return (
+    <ToastContext.Provider value={{ showToast }}>
+      {children}
+      {toast && (
+        <ToastNotification
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
+      )}
+    </ToastContext.Provider>
+  );
+}
+
+export function useToast() {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error("useToast deve ser usado dentro de um ToastProvider");
+  }
+  return context;
+}
+
+
+
+===== src\components\toast-notification.tsx =====
+"use client";
+
+import { useEffect, useState } from "react";
+
+type ToastNotificationProps = {
+  message: string;
+  type?: "success" | "error" | "info";
+  onClose: () => void;
+};
+
+export function ToastNotification({ message, type = "success", onClose }: ToastNotificationProps) {
+  const [animationClass, setAnimationClass] = useState("translate-y-10 opacity-0");
+
+  useEffect(() => {
+    // Animação de entrada
+    const enterTimer = setTimeout(() => setAnimationClass("translate-y-0 opacity-100"), 50);
+    
+    // Auto-destruição após 3.5 segundos
+    const closeTimer = setTimeout(() => {
+      setAnimationClass("translate-y-10 opacity-0");
+      setTimeout(onClose, 300); // Aguarda a animação de saída terminar
+    }, 3500);
+
+    return () => {
+      clearTimeout(enterTimer);
+      clearTimeout(closeTimer);
+    };
+  }, [onClose]);
+
+  const styles = {
+    success: {
+      border: "border-emerald-500/30",
+      bg: "bg-emerald-500/10",
+      text: "text-emerald-400",
+      icon: "✓",
+      iconBg: "bg-emerald-500"
+    },
+    error: {
+      border: "border-rose-500/30",
+      bg: "bg-rose-500/10",
+      text: "text-rose-400",
+      icon: "✕",
+      iconBg: "bg-rose-500"
+    },
+    info: {
+      border: "border-cyan-500/30",
+      bg: "bg-cyan-500/10",
+      text: "text-cyan-400",
+      icon: "i",
+      iconBg: "bg-cyan-500"
+    }
+  }[type];
+
+  return (
+    <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl border ${styles.border} ${styles.bg} p-4 shadow-2xl backdrop-blur-md transition-all duration-300 transform ${animationClass}`}>
+      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${styles.iconBg} text-xs font-bold text-white`}>
+        {styles.icon}
+      </div>
+      <div className="min-w-[200px]">
+        <p className={`text-xs font-bold uppercase tracking-wider ${styles.text}`}>
+          {type === "success" ? "Concluído" : type === "error" ? "Erro" : "Informação"}
+        </p>
+        <p className="text-sm text-[var(--foreground)] mt-0.5">{message}</p>
+      </div>
+      <button 
+        type="button" 
+        onClick={() => {
+          setAnimationClass("translate-y-10 opacity-0");
+          setTimeout(onClose, 300);
+        }}
+        className="ml-2 text-lg text-[var(--text-muted)] hover:text-[var(--foreground)]"
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
+
+

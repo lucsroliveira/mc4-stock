@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import type { deleteItem, updateItem } from "@/lib/supabase/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useToast } from "@/components/toast-context";
 
 type ItemRow = {
   id: string;
@@ -27,6 +28,36 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const deleteFormRef = useRef<HTMLFormElement | null>(null);
+  
+  const { showToast } = useToast();
+  const [isPendingUpdate, startUpdateTransition] = useTransition();
+  const [isPendingDelete, startDeleteTransition] = useTransition();
+
+  // Função para lidar com o salvamento da edição inline
+  const handleUpdate = (formData: FormData) => {
+    startUpdateTransition(async () => {
+      try {
+        await updateAction(formData);
+        showToast("Item atualizado com sucesso!", "success");
+        setIsEditing(false);
+      } catch (error: any) {
+        showToast(error.message || "Erro ao atualizar o item.", "error");
+      }
+    });
+  };
+
+  // Função para lidar com a exclusão do item
+  const handleDelete = (formData: FormData) => {
+    startDeleteTransition(async () => {
+      try {
+        await deleteAction(formData);
+        showToast("Item removido/inativado com sucesso!", "success");
+        setShowDeleteConfirm(false);
+      } catch (error: any) {
+        showToast(error.message || "Erro ao excluir o item.", "error");
+      }
+    });
+  };
 
   return (
     <>
@@ -43,7 +74,7 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
                   Fechar
                 </button>
               </div>
-              <form action={updateAction} className="grid gap-3 md:grid-cols-2">
+              <form action={handleUpdate} className="grid gap-3 md:grid-cols-2">
                 <input type="hidden" name="id" value={item.id} />
                 <input name="nome" defaultValue={item.nome ?? ""} placeholder="Nome do item" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
                 <select name="categoria" defaultValue={item.categoria ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
@@ -64,8 +95,8 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
                 <input type="file" name="foto_file" accept="image/*" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
                 <textarea name="descricao" defaultValue={item.descricao ?? ""} rows={3} placeholder="Descrição completa" className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm md:col-span-2" />
                 <div className="flex gap-2 md:col-span-2">
-                  <button type="submit" className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
-                    Salvar alterações
+                  <button type="submit" disabled={isPendingUpdate} className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
+                    {isPendingUpdate ? "Salvando..." : "Salvar alterações"}
                   </button>
                   <button type="button" onClick={() => setIsEditing(false)} className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)]">
                     Cancelar
@@ -97,7 +128,7 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
                 Excluir
               </button>
             </div>
-            <form ref={deleteFormRef} action={deleteAction} className="hidden">
+            <form ref={deleteFormRef} action={handleDelete} className="hidden">
               <input type="hidden" name="id" value={item.id} />
             </form>
           </td>
@@ -107,7 +138,7 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
       <ConfirmDialog
         open={showDeleteConfirm}
         title="Excluir item"
-        description={`Deseja realmente remover ${item.nome ?? "este item"} do catálogo?`}
+        description={`Deseja realmente remover "${item.nome ?? "este item"}" do catálogo?`}
         confirmLabel="Sim, excluir"
         onConfirm={() => {
           deleteFormRef.current?.requestSubmit();

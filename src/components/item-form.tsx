@@ -45,7 +45,7 @@ export function ItemForm({ categoriaOptions, clienteOptions }: ItemFormProps) {
       {/* Categorias gerenciadas pelo administrador em /admin */}
       <select 
         name="categoria" 
-        defaultValue={categoriaOptions?.nome ?? ""} 
+        defaultValue={categoriaOptions[0]?.nome ?? ""} 
         className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
       >
         {categoriaOptions.map((categoria) => (
@@ -58,7 +58,7 @@ export function ItemForm({ categoriaOptions, clienteOptions }: ItemFormProps) {
       {/* Clientes gerenciados pelo administrador em /admin */}
       <select 
         name="cliente" 
-        defaultValue={clienteOptions?.nome ?? ""} 
+        defaultValue={clienteOptions[0]?.nome ?? ""} 
         className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
       >
         {clienteOptions.map((cliente) => (

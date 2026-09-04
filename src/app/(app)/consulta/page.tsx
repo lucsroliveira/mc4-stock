@@ -163,7 +163,10 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
               const href = `/consulta?estoqueId=${newIds}&cliente=${selectedCliente}&q=${searchTerm}`;
 
               return (
-                <Link key={estoque.id} href={href} className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${isSelected ? "border-[#EB5727] bg-[#EB5727]/10 text-[#EB5727]" : "border-[var(--panel-border)] bg-[var(--panel)] text-[var(--text-muted)]"}`}>
+                <Link 
+                  key={estoque.id}
+                  href={href} 
+                  className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${isSelected ? "border-[#EB5727] bg-[#EB5727]/10 text-[#EB5727] hover:bg-[#EB5727]/20 hover:border-[#EB5727]/80" : "border-[var(--panel-border)] bg-[var(--panel)] text-[var(--text-muted)] hover:border-[#EB5727]/40 hover:bg-[#EB5727]/5 hover:text-[var(--foreground)]"}`}>
                   {estoque.nome}
                   {isSelected && <span className="flex h-3 w-3 items-center justify-center rounded-full bg-[#EB5727] text-white text-[8px]">✕</span>}
                 </Link>
@@ -180,7 +183,13 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
             paginatedRows.map((row, idx) => (
               <div key={idx} className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 hover:border-[#EB5727]/30 transition-all">
                 <div className="flex min-w-0 items-center gap-3">
-                  <ImageLightbox src={row.fotoPreviewUrl} alt={row.itemNome} />
+                  <ImageLightbox 
+                    src={row.fotoPreviewUrl} 
+                    alt={row.itemNome} 
+                    title={row.itemNome}
+                    client={row.cliente}
+                    category={row.categoria}
+                  />
                   <div className="flex min-w-0 flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <p className="truncate font-medium text-[var(--foreground)]">{row.itemNome}</p>

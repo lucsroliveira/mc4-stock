@@ -91,7 +91,7 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
                     </option>
                   ))}
                 </select>
-                <input name="foto_url" defaultValue={item.foto_url ?? ""} placeholder="URL da foto ou path do Storage" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
+                <input type="hidden" name="foto_url" defaultValue={item.foto_url ?? ""} />
                 <input type="file" name="foto_file" accept="image/*" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
                 <textarea name="descricao" defaultValue={item.descricao ?? ""} rows={3} placeholder="Descrição completa" className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm md:col-span-2" />
                 <div className="flex gap-2 md:col-span-2">

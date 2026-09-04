@@ -37,6 +37,7 @@ type StockSummaryRow = {
 
 /**
  * Dashboard Central de Estoque
+ * 
  * * Responsável por orquestrar a visualização de KPIs, histórico de movimentações
  * e saldo consolidado. Utiliza Server Components para buscar dados em paralelo
  * do Supabase, garantindo performance e SEO.
@@ -52,6 +53,7 @@ export default async function DashboardPage() {
 
   // Disparamos as consultas em paralelo para reduzir o tempo de carregamento da página.
   const [itensCount, estoquesCount, movimentacoesCount, recentMovementsResult, saldosResult, historyResult] = await Promise.all([
+     // Contagem exata para KPIs sem trazer o corpo dos dados usando (head: true) (otimização de tráfego) 
     supabase.from("itens").select("id", { count: "exact", head: true }).eq("ativo", true),
     supabase.from("estoques").select("id", { count: "exact", head: true }),
     supabase.from("movimentacoes").select("id", { count: "exact", head: true }),
@@ -200,45 +202,66 @@ export default async function DashboardPage() {
           </ul>
         </section>
       )}
-
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section className="grid gap-2 lg:grid-cols-3">
         {kpis.map((item) => (
           <article key={item.label} className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 shadow-[0_16px_40px_rgba(65,107,169,0.12)]">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#EB5727]">{item.label}</p>
-            <p className="mt-4 text-4xl font-semibold tracking-tight text-[var(--foreground)]">{item.value}</p>
+            
+            
+            <p className="mt-4 text-5xl font-bold tracking-tight text-[var(--foreground)]">
+              {item.value}
+            </p>
+            
             <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">{item.note}</p>
           </article>
         ))}
       </section>
 
       <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        {/* CORREÇÃO: Alinhamento vertical flex-col para empilhar o bloco de texto no topo e os cards abaixo */}
+        <div className="flex flex-col gap-6">
+          
+          {/* Bloco de Texto (Topo) */}
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#EB5727]">Visão operacional</p>
             <h3 className="mt-2 text-xl font-semibold text-[var(--foreground)]">Saldo, locais e movimentações em tempo real</h3>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">
+            <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--text-muted)]">
               O painel agora consolida unidades em estoque, itens ativos e os principais locais com saldo para apoiar decisões rápidas.
             </p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] px-4 py-3 text-sm">
-              <p className="text-[var(--text-muted)]">Unidades</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{formattedTotalUnits}</p>
+
+          {/* CORREÇÃO: Grid full width horizontal (sm:grid-cols-3) posicionado abaixo do texto */}
+          <div className="grid gap-4 sm:grid-cols-3 w-full">
+            {/* Unidades Totais */}
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] p-5 text-sm">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Unidades</p>
+              <p className="mt-1.5 text-3xl font-bold tracking-tight text-[var(--foreground)]">
+                {formattedTotalUnits}
+              </p>
             </div>
-            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] px-4 py-3 text-sm">
-              <p className="text-[var(--text-muted)]">Itens ativos</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{formattedActiveItems}</p>
+
+            {/* Itens Ativos */}
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] p-5 text-sm">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Itens ativos</p>
+              <p className="mt-1.5 text-3xl font-bold tracking-tight text-[var(--foreground)]">
+                {formattedActiveItems}
+              </p>
             </div>
-            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(235,87,39,0.08)] px-4 py-3 text-sm">
-              <p className="text-[var(--text-muted)]">Maior saldo</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{highlightItem} ({highlightUnits.toLocaleString('pt-BR')} un.)</p>
+
+            {/* Maior Saldo */}
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(235,87,39,0.08)] p-5 text-sm min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Maior saldo</p>
+              <p className="mt-1.5 text-2xl font-bold tracking-tight text-[var(--foreground)] truncate" title={highlightItem}>
+                {highlightItem} <span className="text-xs font-normal text-[var(--text-muted)]">({highlightUnits.toLocaleString('pt-BR')} un.)</span>
+              </p>
             </div>
           </div>
+
         </div>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
               <h3 className="text-lg font-semibold text-[var(--foreground)]">Resumo da operação</h3>
@@ -313,14 +336,14 @@ export default async function DashboardPage() {
           </div>
         </article>
 
-        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 min-w-0">
           <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Saldo geral por item</h3>
           <StockSearchList initialRows={stockRows} />
         </aside>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 min-w-0">
           <h3 className="text-lg font-semibold text-[var(--foreground)]">Movimentações recentes</h3>
           <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
             <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
@@ -375,7 +398,7 @@ export default async function DashboardPage() {
           </div>
         </article>
 
-        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 min-w-0">
           <h3 className="text-lg font-semibold text-[var(--foreground)]">Área reservada</h3>
           <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--text-muted)]">
             <p>Criar um histórico de comentários para controlar alterações e observações sobre os itens em estoque. Essa área ainda vai se desnvolvida hehehe.</p>

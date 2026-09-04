@@ -69,11 +69,6 @@ export function ItemForm({ categoriaOptions, clienteOptions }: ItemFormProps) {
       </select>
 
       <input 
-        name="foto_url" 
-        placeholder="URL da foto ou path salvo no bucket (opcional)" 
-        className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" 
-      />
-      <input 
         type="file" 
         name="foto_file" 
         accept="image/*" 

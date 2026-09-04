@@ -54,7 +54,12 @@ export default function StockSearchList({ initialRows }: { initialRows: StockRow
               className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 transition-colors hover:border-[#EB5727]/50"
             >
               <div className="flex min-w-0 items-center gap-3">
-                <ImageLightbox src={item.fotoPreviewUrl} alt={item.nome} />
+                <ImageLightbox 
+                  src={item.fotoPreviewUrl} 
+                  alt={item.nome} 
+                  title={item.nome}
+                  client={item.cliente}
+                />
                 <Link href={`/itens/${item.id}`} className="min-w-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EB5727]">
                   <p className="truncate font-medium text-[var(--foreground)]">{item.nome}</p>
                   <p className="text-xs text-[var(--text-muted)]">{item.cliente}</p>

@@ -161,8 +161,11 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
     <div className="min-h-screen soft-grid text-slate-100">
       {/* EXIBIÇÃO DO SPINNER GLOBAL */}
       {isNavigating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm">
-          <PageLoading label="Aguarde..." />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+          <div className="page-loading-card" role="status" aria-live="polite">
+            <div className="page-loading-spinner" />
+            <p className="page-loading-label">Aguarde...</p>
+          </div>
         </div>
       )}
 

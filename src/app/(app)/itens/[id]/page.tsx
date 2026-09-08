@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { updateItem } from "@/lib/supabase/actions";
 import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
 import { ImageLightbox } from "@/components/image-lightbox";
+import { ItemEditForm } from "./item-edit-form";
 
 type ItemDetailPageProps = {
   params: Promise<{
@@ -224,32 +225,11 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
           Atualize os dados do item diretamente nesta tela. Após salvar, o dashboard e as listas são atualizados automaticamente.
         </p>
 
-        <form action={updateItem} className="mt-4 grid gap-4 md:grid-cols-2">
-          <input type="hidden" name="id" value={item.id} />
-          <input name="nome" defaultValue={item.nome ?? ""} placeholder="Nome do item" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
-          <select name="categoria" defaultValue={item.categoria ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-            {categoriaOptions.map((categoria) => (
-              <option key={categoria.id} value={categoria.nome ?? ""}>
-                {categoria.nome}
-              </option>
-            ))}
-          </select>
-          <select name="cliente" defaultValue={item.cliente ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-            {clienteOptions.map((cliente) => (
-              <option key={cliente.id} value={cliente.nome ?? ""}>
-                {cliente.nome}
-              </option>
-            ))}
-          </select>
-          <input name="foto_url" defaultValue={item.foto_url ?? ""} placeholder="URL da foto ou path do Storage" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-          <input type="file" name="foto_file" accept="image/*" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-          <textarea name="descricao" defaultValue={item.descricao ?? ""} rows={4} placeholder="Descrição do item" className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-          <div className="md:col-span-2">
-            <button type="submit" className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition">
-              Salvar alterações
-            </button>
-          </div>
-        </form>
+        <ItemEditForm 
+          item={item} 
+          categoriaOptions={categoriaOptions} 
+          clienteOptions={clienteOptions} 
+        />
       </section>
     </div>
   );

@@ -196,10 +196,6 @@ export function RelatoriosFiltersTable({
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-[var(--foreground)]">{row.itemNome}</p>
-                    {/* Badge do Responsável (Auditoria) */}
-                    <span className="rounded-full bg-[#cedb05]/10 px-2 py-0.5 text-[9px] font-bold text-[#cedb05] uppercase border border-[#cedb05]/20">
-                      OP: {row.usuarioResponsavel}
-                    </span>
                   </div>
                   <p className="text-xs text-[var(--text-muted)]">
                     {row.origemNome} → {row.destinoNome} • {new Date(row.dataMovimentacao).toLocaleDateString('pt-BR')}
@@ -207,6 +203,10 @@ export function RelatoriosFiltersTable({
                   <p className="max-w-3xl break-words text-xs text-[var(--text-muted)]">
                     <span className="font-medium text-[var(--foreground)]">Observação:</span> {row.observacao || "-"}
                   </p>
+                   {/* Badge do Responsável (Auditoria) */}
+                  <span className="max-w-3xl rounded-full bg-[#cedb05]/10 font-medium break-words text-xs text-[#eb5727] uppercase border border-[#eb5727]/20">
+                      OP: {row.usuarioResponsavel}
+                  </span>
                 </div>
 
                 <div className="text-right">

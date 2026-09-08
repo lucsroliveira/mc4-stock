@@ -7,6 +7,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { MovimentacaoForm } from "@/components/movimentacao-form";
 import DataTableSearch from "@/components/DataTableSearch";
 import { deleteMovimentacao } from "@/lib/supabase/actions";
+import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage"; // Importado utilitário de Storage
+
 
 export default async function MovimentacoesPage() {
   const supabase = await createSupabaseServerClient();
@@ -25,7 +27,7 @@ export default async function MovimentacoesPage() {
   // BLOCO: DATA FETCHING PARALELO
   // Busca itens e estoques para preencher o formulário, além do histórico recente para auditoria.
   const [{ data: itens }, { data: estoques }, { data: recentes }, { data: balances }] = await Promise.all([
-    supabase.from("itens").select("id, nome").eq("ativo", true).order("nome", { ascending: true }),
+    supabase.from("itens").select("id, nome, foto_url").eq("ativo", true).order("nome", { ascending: true }),
     supabase.from("estoques").select("id, nome").order("nome", { ascending: true }),
     supabase
       .from("movimentacoes")
@@ -34,7 +36,6 @@ export default async function MovimentacoesPage() {
     supabase.from("estoque_itens").select("item_id, estoque_id, quantidade, estoques ( nome )"),
   ]);
 
-  type ItemOption = { id: string; nome: string | null };
   type EstoqueOption = { id: string; nome: string | null };
   type BalanceRow = {
     item_id: string;
@@ -54,7 +55,13 @@ export default async function MovimentacoesPage() {
     destino: { nome: string | null } | { nome: string | null }[] | null;
   };
 
-  const itemRows = (itens ?? []) as ItemOption[];
+  const itemRows = await Promise.all(
+    (itens ?? []).map(async (item) => ({
+      id: item.id,
+      nome: item.nome,
+      fotoPreviewUrl: await resolveSupabaseAssetUrl(supabase, item.foto_url),
+    }))
+  );
   const estoqueRows = (estoques ?? []) as EstoqueOption[];
 
   const balanceRows = (balances ?? []).map((row: BalanceRow) => ({

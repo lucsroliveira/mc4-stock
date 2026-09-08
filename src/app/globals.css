@@ -243,3 +243,11 @@ a {
     transform: rotate(360deg);
   }
 }
+
+/* Quando os inputs ou textareas estiverem preenchidos e não focados, destaca com laranja MC4 sutil */
+.mc4-form-input:not(:placeholder-shown):not(:focus),
+.mc4-form-textarea:not(:placeholder-shown):not(:focus) {
+  border-color: rgba(235, 87, 39, 0.45) !important;
+  background: linear-gradient(180deg, rgba(235, 87, 39, 0.01), rgba(235, 87, 39, 0.025)) !important;
+  box-shadow: inset 0 1px 2px rgba(235, 87, 39, 0.04);
+}

@@ -74,7 +74,7 @@ export default async function DashboardPage() {
     { 
       label: "Itens no catálogo", 
       value: (itensCount.count ?? 0).toLocaleString('pt-BR'), 
-      note: "Itens cadastrados no Supabase" 
+      note: "Itens cadastrados no sistema" 
     },
     { 
       label: "Locais ativos", 

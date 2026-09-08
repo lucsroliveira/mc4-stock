@@ -2,12 +2,12 @@
 
 import { useActionState, useMemo, useState, useEffect } from "react";
 import { createMovimentacao } from "@/lib/supabase/actions";
-import { useToast } from "@/components/toast-context"; // Importando o hook do Toast Global
+import { useToast } from "@/components/toast-context";
+import { SearchableSelect } from "@/components/searchable-select"; // Importando o seletor inteligente
 
-type ItemOption = { id: string; nome: string | null; };
-type EstoqueOption = { id: string; nome: string | null; };
-type BalanceOption = { item_id: string; estoque_id: string; quantidade: number; estoque_nome: string | null; };
-type MovimentacaoFormProps = { itemRows: ItemOption[]; estoqueRows: EstoqueOption[]; balances: BalanceOption[]; };
+type ItemOption = { id: string; nome: string | null; fotoPreviewUrl?: string | null };
+type EstoqueOption = { id: string; nome: string | null };
+type MovimentacaoFormProps = { itemRows: ItemOption[]; estoqueRows: EstoqueOption[]; balances: any[]; };
 
 export function MovimentacaoForm({ itemRows, estoqueRows, balances }: MovimentacaoFormProps) {
   const { showToast } = useToast(); // Consumindo o contexto de Toasts
@@ -50,59 +50,66 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
     }
   }, [isPending, isSubmitting, actionError, showToast]);
 
+  // Opções estruturadas para o Tipo de Movimentação (sem miniatura)
+  const tipoOptions = [
+    { id: "transferencia", nome: "Transferência" },
+    { id: "entrada", nome: "Entrada" },
+    { id: "saida", nome: "Saída" },
+  ];
+
+  // Opções de Estoques (com opção de limpar seleção se for opcional)
+  const estoqueOptionsMapped = useMemo(() => {
+    return [
+      { id: "", nome: "Sem seleção / Limpar" },
+      ...estoqueRows.map((e) => ({ id: e.id, nome: e.nome })),
+    ];
+  }, [estoqueRows]);
+
   return (
     <form action={submitAction} className="mt-6 grid gap-4 md:grid-cols-2">
+      {/* Inputs ocultos necessários para envio via HTML FormData */}
       <input type="hidden" name="item_id" value={itemId} />
+      <input type="hidden" name="tipo" value={tipo} />
+      <input type="hidden" name="origem_id" value={origemId} />
+      <input type="hidden" name="destino_id" value={destinoId} />
+      
+      {/* Campo de Item (Único com Miniatura) */}
       <label className="grid gap-2 md:col-span-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Item</span>
-        <select
-          name="item_id"
+        <SearchableSelect
+          options={itemRows}
           value={itemId}
-          onChange={(event) => {
-            setItemId(event.target.value);
+          onChange={(value) => {
+            setItemId(value);
             setOrigemId("");
             setDestinoId("");
           }}
-          className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
-          required
-        >
-          <option value="" disabled>
-            Selecione o item
-          </option>
-          {itemRows.map((item) => (
-            <option key={item.id} value={item.id} className="bg-[var(--panel)] text-[var(--foreground)]">
-              {item.nome}
-            </option>
-          ))}
-        </select>
+          placeholder="Selecione o item pelo nome..."
+          showImages={true} // ATIVADO: Mostra miniaturas visuais do catálogo apenas para Itens!
+        />
       </label>
 
+      {/* Campo de Tipo de Movimentação (Sem Miniatura) */}
       <label className="grid gap-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Tipo de movimentação</span>
-        <select
-          name="tipo"
+        <SearchableSelect
+          options={tipoOptions}
           value={tipo}
-          onChange={(event) => {
-            const nextType = event.target.value;
-            setTipo(nextType);
-
-            if (nextType === "entrada") {
+          onChange={(value) => {
+            setTipo(value);
+            if (value === "entrada") {
               setOrigemId("");
             }
-
-            if (nextType === "saida") {
+            if (value === "saida") {
               setDestinoId("");
             }
           }}
-          className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
-          required
-        >
-          <option value="transferencia">Transferência</option>
-          <option value="entrada">Entrada</option>
-          <option value="saida">Saída</option>
-        </select>
+          placeholder="Selecione o tipo..."
+          showImages={false} // DESATIVADO: Sem miniaturas visuais
+        />
       </label>
 
+      {/* Campo de Quantidade */}
       <label className="grid gap-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Quantidade</span>
         <input
@@ -113,45 +120,35 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
           value={quantidade}
           onChange={(e) => setQuantidade(e.target.value ? Number(e.target.value) : "")}
           placeholder="Quantidade"
-          className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+          className="mc4-form-input rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727]"
           required
-            />
+        />
       </label>
 
+      {/* Campo de Origem (Sem Miniatura) */}
       <label className="grid gap-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Origem</span>
-        <select
-          name="origem_id"
+        <SearchableSelect
+          options={estoqueOptionsMapped}
           value={origemId}
-          onChange={(event) => setOrigemId(event.target.value)}
-          className="mc4-form-select rounded-2xl px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--panel-border)]/40"
+          onChange={setOrigemId}
+          placeholder={isEntrada ? "Origem não usada em entrada" : "Origem opcional"}
+          showImages={false} // DESATIVADO: Sem miniaturas visuais
           disabled={isEntrada}
-        >
-          <option value="">{isEntrada ? "Origem não usada em entrada" : "Origem opcional"}</option>
-          {estoqueRows.map((estoque) => (
-            <option key={estoque.id} value={estoque.id} className="bg-[var(--panel)] text-[var(--foreground)]">
-              {estoque.nome}
-            </option>
-          ))}
-        </select>
+        />
       </label>
 
+      {/* Campo de Destino (Sem Miniatura) */}
       <label className="grid gap-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Destino</span>
-        <select
-          name="destino_id"
+        <SearchableSelect
+          options={estoqueOptionsMapped}
           value={destinoId}
-          onChange={(event) => setDestinoId(event.target.value)}
-          className="mc4-form-select rounded-2xl px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--panel-border)]/40"
+          onChange={setDestinoId}
+          placeholder={isSaida ? "Destino não usado em saída" : "Destino opcional"}
+          showImages={false} // DESATIVADO: Sem miniaturas visuais
           disabled={isSaida}
-        >
-          <option value="">{isSaida ? "Destino não usado em saída" : "Destino opcional"}</option>
-          {estoqueRows.map((estoque) => (
-            <option key={estoque.id} value={estoque.id} className="bg-[var(--panel)] text-[var(--foreground)]">
-              {estoque.nome}
-            </option>
-          ))}
-        </select>
+        />
       </label>
 
       {itemId ? (
@@ -172,6 +169,7 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
         </div>
       ) : null}
 
+      {/* Campo de Motivo / Observação */}
       <label className="grid gap-2 md:col-span-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Motivo / observação</span>
         <textarea 
@@ -180,7 +178,7 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
           onChange={(e) => setObservacao(e.target.value)}
           rows={3} 
           placeholder="Motivo / observação" 
-          className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm" 
+          className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727]" 
           required 
         />
       </label>

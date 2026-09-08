@@ -5,6 +5,7 @@ import { useRef, useState, useTransition } from "react";
 import type { deleteItem, updateItem } from "@/lib/supabase/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useToast } from "@/components/toast-context";
+import { SearchableSelect } from "@/components/searchable-select"; // Importação do seletor inteligente
 
 type ItemRow = {
   id: string;
@@ -24,14 +25,24 @@ type ItemRowEditorProps = {
   clienteOptions: { id: string; nome: string | null }[];
 };
 
-export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptions, clienteOptions }: ItemRowEditorProps) {
+export function ItemRowEditor({
+  item,
+  updateAction,
+  deleteAction,
+  categoriaOptions,
+  clienteOptions,
+}: ItemRowEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const deleteFormRef = useRef<HTMLFormElement | null>(null);
-  
+
   const { showToast } = useToast();
   const [isPendingUpdate, startUpdateTransition] = useTransition();
   const [isPendingDelete, startDeleteTransition] = useTransition();
+
+  // Estados locais para controlar os seletores customizados na edição inline
+  const [categoria, setCategoria] = useState(item.categoria ?? "");
+  const [cliente, setCliente] = useState(item.cliente ?? "");
 
   // Função para lidar com o salvamento da edição inline
   const handleUpdate = (formData: FormData) => {
@@ -70,35 +81,105 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
                   <p className="text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">Editar item</p>
                   <h4 className="mt-1 text-lg font-semibold text-[var(--foreground)]">{item.nome ?? "Item"}</h4>
                 </div>
-                <button type="button" onClick={() => setIsEditing(false)} className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)]">
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)] hover:bg-[var(--panel-border)]/10 transition-colors"
+                >
                   Fechar
                 </button>
               </div>
-              <form action={handleUpdate} className="grid gap-3 md:grid-cols-2">
+
+              <form action={handleUpdate} className="grid gap-4 md:grid-cols-2">
+                {/* Inputs ocultos necessários para envio via HTML FormData */}
                 <input type="hidden" name="id" value={item.id} />
-                <input name="nome" defaultValue={item.nome ?? ""} placeholder="Nome do item" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
-                <select name="categoria" defaultValue={item.categoria ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-                  {categoriaOptions.map((categoria) => (
-                    <option key={categoria.id} value={categoria.nome ?? ""}>
-                      {categoria.nome}
-                    </option>
-                  ))}
-                </select>
-                <select name="cliente" defaultValue={item.cliente ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-                  {clienteOptions.map((cliente) => (
-                    <option key={cliente.id} value={cliente.nome ?? ""}>
-                      {cliente.nome}
-                    </option>
-                  ))}
-                </select>
-                <input type="hidden" name="foto_url" defaultValue={item.foto_url ?? ""} />
-                <input type="file" name="foto_file" accept="image/*" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-                <textarea name="descricao" defaultValue={item.descricao ?? ""} rows={3} placeholder="Descrição completa" className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-                <div className="flex gap-2 md:col-span-2">
-                  <button type="submit" disabled={isPendingUpdate} className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
+                <input type="hidden" name="categoria" value={categoria} />
+                <input type="hidden" name="cliente" value={cliente} />
+
+                {/* Nome do Item */}
+                <div className="md:col-span-2 grid gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    Nome do Item
+                  </label>
+                  <input
+                    name="nome"
+                    defaultValue={item.nome ?? ""}
+                    placeholder="Ex: Camisa Polo MC4 - Tamanho M"
+                    className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+                    required
+                  />
+                </div>
+
+                {/* Categoria Inteligente (Sem miniatura de foto) */}
+                <div className="grid gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    Categoria
+                  </label>
+                  <SearchableSelect
+                    options={categoriaOptions.map((c) => ({ id: c.nome ?? "", nome: c.nome }))}
+                    value={categoria}
+                    onChange={setCategoria}
+                    placeholder="Buscar ou escolher categoria..."
+                    showImages={false} // Mantém o campo textual e limpo
+                  />
+                </div>
+
+                {/* Cliente Proprietário Inteligente (Sem miniatura de foto) */}
+                <div className="grid gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    Cliente Proprietário
+                  </label>
+                  <SearchableSelect
+                    options={clienteOptions.map((cl) => ({ id: cl.nome ?? "", nome: cl.nome }))}
+                    value={cliente}
+                    onChange={setCliente}
+                    placeholder="Buscar ou escolher cliente..."
+                    showImages={false} // Mantém o campo textual e limpo
+                  />
+                </div>
+
+                {/* Imagem do Catálogo */}
+                <div className="md:col-span-2 grid gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    Imagem do Catálogo (Selecione um novo arquivo para substituir)
+                  </label>
+                  <input type="hidden" name="foto_url" value={item.foto_url ?? ""} />
+                  <input
+                    type="file"
+                    name="foto_file"
+                    accept="image/*"
+                    className="mc4-form-input rounded-2xl px-4 py-3 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#EB5727]/10 file:text-[#EB5727] hover:file:bg-[#EB5727]/20 file:cursor-pointer transition-colors"
+                  />
+                </div>
+
+                {/* Descrição do Item */}
+                <div className="md:col-span-2 grid gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    Descrição do Item
+                  </label>
+                  <textarea
+                    name="descricao"
+                    defaultValue={item.descricao ?? ""}
+                    placeholder="Descreva observações, tamanho, cor ou número de série do produto..."
+                    rows={3}
+                    className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm"
+                  />
+                </div>
+
+                {/* Botões de Ação */}
+                <div className="flex gap-2 md:col-span-2 mt-2">
+                  <button
+                    type="submit"
+                    disabled={isPendingUpdate}
+                    className="mc4-btn-primary rounded-2xl px-5 py-2.5 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60"
+                  >\
                     {isPendingUpdate ? "Salvando..." : "Salvar alterações"}
                   </button>
-                  <button type="button" onClick={() => setIsEditing(false)} className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)]">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="rounded-2xl border border-[var(--panel-border)] px-5 py-2.5 text-sm font-medium text-[var(--text-muted)] hover:bg-[var(--panel-border)]/10 transition-colors"
+                  >
                     Cancelar
                   </button>
                 </div>
@@ -109,9 +190,14 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
       ) : (
         <tr key={item.id}>
           <td className="px-4 py-3 font-medium text-white">
-            <Link href={`/itens/${item.id}`} className="group flex items-center gap-3 rounded-xl transition-colors hover:bg-[var(--panel-border)]/15 p-1 -m-1">
+            <Link
+              href={`/itens/${item.id}`}
+              className="group flex items-center gap-3 rounded-xl transition-colors hover:bg-[var(--panel-border)]/15 p-1 -m-1"
+            >
               <div className="h-10 w-10 overflow-hidden rounded-xl border border-[#416ba9]/10 bg-[#f4f7f9]">
-                {item.foto_preview_url ? <img src={item.foto_preview_url} alt={item.nome ?? "Item"} className="h-full w-full object-cover" /> : null}
+                {item.foto_preview_url ? (
+                  <img src={item.foto_preview_url} alt={item.nome ?? "Item"} className="h-full w-full object-cover" />
+                ) : null}
               </div>
               <span className="group-hover:text-[#EB5727]">{item.nome}</span>
             </Link>
@@ -121,10 +207,22 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
           <td className="px-4 py-3 text-slate-300">{item.descricao ?? "-"}</td>
           <td className="px-4 py-3 text-right">
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setIsEditing(true)} className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]">
+              <button
+                type="button"
+                onClick={() => {
+                  setCategoria(item.categoria ?? "");
+                  setCliente(item.cliente ?? "");
+                  setIsEditing(true);
+                }}
+                className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]"
+              >
                 Editar
               </button>
-              <button type="button" onClick={() => setShowDeleteConfirm(true)} className="mc4-badge mc4-badge-orange rounded-full px-4 py-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="mc4-badge mc4-badge-orange rounded-full px-4 py-2"
+              >
                 Excluir
               </button>
             </div>

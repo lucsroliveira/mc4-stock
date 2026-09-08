@@ -245,6 +245,13 @@ a {
   }
 }
 
+/* Quando os inputs ou textareas estiverem preenchidos e não focados, destaca com laranja MC4 sutil */
+.mc4-form-input:not(:placeholder-shown):not(:focus),
+.mc4-form-textarea:not(:placeholder-shown):not(:focus) {
+  border-color: rgba(235, 87, 39, 0.45) !important;
+  background: linear-gradient(180deg, rgba(235, 87, 39, 0.01), rgba(235, 87, 39, 0.025)) !important;
+  box-shadow: inset 0 1px 2px rgba(235, 87, 39, 0.04);
+}
 
 
 
@@ -657,7 +664,10 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
               const href = `/consulta?estoqueId=${newIds}&cliente=${selectedCliente}&q=${searchTerm}`;
 
               return (
-                <Link key={estoque.id} href={href} className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${isSelected ? "border-[#EB5727] bg-[#EB5727]/10 text-[#EB5727]" : "border-[var(--panel-border)] bg-[var(--panel)] text-[var(--text-muted)]"}`}>
+                <Link 
+                  key={estoque.id}
+                  href={href} 
+                  className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${isSelected ? "border-[#EB5727] bg-[#EB5727]/10 text-[#EB5727] hover:bg-[#EB5727]/20 hover:border-[#EB5727]/80" : "border-[var(--panel-border)] bg-[var(--panel)] text-[var(--text-muted)] hover:border-[#EB5727]/40 hover:bg-[#EB5727]/5 hover:text-[var(--foreground)]"}`}>
                   {estoque.nome}
                   {isSelected && <span className="flex h-3 w-3 items-center justify-center rounded-full bg-[#EB5727] text-white text-[8px]">✕</span>}
                 </Link>
@@ -674,7 +684,13 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
             paginatedRows.map((row, idx) => (
               <div key={idx} className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 hover:border-[#EB5727]/30 transition-all">
                 <div className="flex min-w-0 items-center gap-3">
-                  <ImageLightbox src={row.fotoPreviewUrl} alt={row.itemNome} />
+                  <ImageLightbox 
+                    src={row.fotoPreviewUrl} 
+                    alt={row.itemNome} 
+                    title={row.itemNome}
+                    client={row.cliente}
+                    category={row.categoria}
+                  />
                   <div className="flex min-w-0 flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <p className="truncate font-medium text-[var(--foreground)]">{row.itemNome}</p>
@@ -755,6 +771,7 @@ type StockSummaryRow = {
 
 /**
  * Dashboard Central de Estoque
+ * 
  * * Responsável por orquestrar a visualização de KPIs, histórico de movimentações
  * e saldo consolidado. Utiliza Server Components para buscar dados em paralelo
  * do Supabase, garantindo performance e SEO.
@@ -770,6 +787,7 @@ export default async function DashboardPage() {
 
   // Disparamos as consultas em paralelo para reduzir o tempo de carregamento da página.
   const [itensCount, estoquesCount, movimentacoesCount, recentMovementsResult, saldosResult, historyResult] = await Promise.all([
+     // Contagem exata para KPIs sem trazer o corpo dos dados usando (head: true) (otimização de tráfego) 
     supabase.from("itens").select("id", { count: "exact", head: true }).eq("ativo", true),
     supabase.from("estoques").select("id", { count: "exact", head: true }),
     supabase.from("movimentacoes").select("id", { count: "exact", head: true }),
@@ -790,7 +808,7 @@ export default async function DashboardPage() {
     { 
       label: "Itens no catálogo", 
       value: (itensCount.count ?? 0).toLocaleString('pt-BR'), 
-      note: "Itens cadastrados no Supabase" 
+      note: "Itens cadastrados no sistema" 
     },
     { 
       label: "Locais ativos", 
@@ -918,45 +936,66 @@ export default async function DashboardPage() {
           </ul>
         </section>
       )}
-
       <section className="grid gap-2 lg:grid-cols-3">
         {kpis.map((item) => (
           <article key={item.label} className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 shadow-[0_16px_40px_rgba(65,107,169,0.12)]">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#EB5727]">{item.label}</p>
-            <p className="mt-4 text-4xl font-semibold tracking-tight text-[var(--foreground)]">{item.value}</p>
+            
+            
+            <p className="mt-4 text-5xl font-bold tracking-tight text-[var(--foreground)]">
+              {item.value}
+            </p>
+            
             <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">{item.note}</p>
           </article>
         ))}
       </section>
 
       <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        {/* CORREÇÃO: Alinhamento vertical flex-col para empilhar o bloco de texto no topo e os cards abaixo */}
+        <div className="flex flex-col gap-6">
+          
+          {/* Bloco de Texto (Topo) */}
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#EB5727]">Visão operacional</p>
             <h3 className="mt-2 text-xl font-semibold text-[var(--foreground)]">Saldo, locais e movimentações em tempo real</h3>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">
+            <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--text-muted)]">
               O painel agora consolida unidades em estoque, itens ativos e os principais locais com saldo para apoiar decisões rápidas.
             </p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] px-4 py-3 text-sm">
-              <p className="text-[var(--text-muted)]">Unidades</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{formattedTotalUnits}</p>
+
+          {/* CORREÇÃO: Grid full width horizontal (sm:grid-cols-3) posicionado abaixo do texto */}
+          <div className="grid gap-4 sm:grid-cols-3 w-full">
+            {/* Unidades Totais */}
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] p-5 text-sm">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Unidades</p>
+              <p className="mt-1.5 text-3xl font-bold tracking-tight text-[var(--foreground)]">
+                {formattedTotalUnits}
+              </p>
             </div>
-            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] px-4 py-3 text-sm">
-              <p className="text-[var(--text-muted)]">Itens ativos</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{formattedActiveItems}</p>
+
+            {/* Itens Ativos */}
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] p-5 text-sm">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Itens ativos</p>
+              <p className="mt-1.5 text-3xl font-bold tracking-tight text-[var(--foreground)]">
+                {formattedActiveItems}
+              </p>
             </div>
-            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(235,87,39,0.08)] px-4 py-3 text-sm">
-              <p className="text-[var(--text-muted)]">Maior saldo</p>
-              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{highlightItem} ({highlightUnits.toLocaleString('pt-BR')} un.)</p>
+
+            {/* Maior Saldo */}
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(235,87,39,0.08)] p-5 text-sm min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Maior saldo</p>
+              <p className="mt-1.5 text-2xl font-bold tracking-tight text-[var(--foreground)] truncate" title={highlightItem}>
+                {highlightItem} <span className="text-xs font-normal text-[var(--text-muted)]">({highlightUnits.toLocaleString('pt-BR')} un.)</span>
+              </p>
             </div>
           </div>
+
         </div>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6">
+        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] p-6 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
               <h3 className="text-lg font-semibold text-[var(--foreground)]">Resumo da operação</h3>
@@ -1031,14 +1070,14 @@ export default async function DashboardPage() {
           </div>
         </article>
 
-        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 min-w-0">
           <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Saldo geral por item</h3>
           <StockSearchList initialRows={stockRows} />
         </aside>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 min-w-0">
           <h3 className="text-lg font-semibold text-[var(--foreground)]">Movimentações recentes</h3>
           <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
             <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
@@ -1093,7 +1132,7 @@ export default async function DashboardPage() {
           </div>
         </article>
 
-        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <aside className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 min-w-0">
           <h3 className="text-lg font-semibold text-[var(--foreground)]">Área reservada</h3>
           <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--text-muted)]">
             <p>Criar um histórico de comentários para controlar alterações e observações sobre os itens em estoque. Essa área ainda vai se desnvolvida hehehe.</p>
@@ -1219,6 +1258,159 @@ export default async function EstoquesPage() {
 
 
 ===== src\app\(app)\itens\page.tsx =====
+/**
+ * GESTÃO DE CATÁLOGO - MÓDULO DE ITENS
+ * 1. createSupabaseServerClient: Inicializa a conexão com o banco via Server Side.
+ * 2. create/delete/updateItem: Server Actions para manipulação direta da tabela 'itens'.
+ * 3. ItemsSearchTable: Componente cliente que gerencia a busca e filtragem de itens.
+ * 4. resolveSupabaseAssetUrl: Utilitário que transforma o path do Storage em URL visível.
+ */
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createItem, deleteItem, reactivateItem, updateItem } from "@/lib/supabase/actions";
+import ItemsSearchTable from "@/components/ItemsSearchTable";
+import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
+import { ItemForm } from "@/components/item-form"; // Chamando o novo formulário Client-side
+
+export default async function ItensPage() {
+  const supabase = await createSupabaseServerClient();
+  type ItemRow = {
+    id: string;
+    nome: string | null;
+    categoria: string | null;
+    cliente: string | null;
+    descricao: string | null;
+    foto_url: string | null;
+    ativo: boolean;
+    foto_preview_url: string | null;
+    created_at: string | null;
+  };
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id)
+    .single();
+  const isAdmin = profile?.role === "admin";
+
+  // Busca a lista mestra de itens ordenada pelos cadastros mais recentes.
+  const { data: itens } = await supabase
+    .from("itens")
+    .select("id, nome, categoria, cliente, descricao, foto_url, ativo, created_at")
+    .eq("ativo", true)
+    .order("created_at", { ascending: false });
+
+  // PROCESSO DE RESOLUÇÃO DE MÍDIA:
+  // Para cada item, verificamos se existe um path em 'foto_url' e solicitamos
+  // ao Supabase Storage uma URL válida para renderização do preview.
+  const itemRows = await Promise.all(
+    ((itens ?? []) as Omit<ItemRow, "foto_preview_url">[]).map(async (item) => ({
+      ...item,
+      foto_preview_url: await resolveSupabaseAssetUrl(supabase, item.foto_url),
+    }))
+  );
+
+  const { data: inactiveItems } = isAdmin
+    ? await supabase
+        .from("itens")
+        .select("id, nome, categoria, cliente, descricao, created_at")
+        .eq("ativo", false)
+        .order("created_at", { ascending: false })
+    : { data: [] as never[] };
+
+  const [{ data: categoriaRows }, { data: clienteRows }] = await Promise.all([
+    supabase.from("categorias").select("id, nome").order("nome", { ascending: true }),
+    supabase.from("clientes").select("id, nome").order("nome", { ascending: true }),
+  ]);
+  const categoriaOptions = categoriaRows ?? [];
+  const clienteOptions = clienteRows ?? [];
+
+  return (
+    <div className="grid gap-6">
+      {profile?.role !== "cliente" && (
+        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo item</h3>
+          {/* O formulário envia os dados reativamente pelo componente cliente integrado ao useToast */}
+          <ItemForm categoriaOptions={categoriaOptions} clienteOptions={clienteOptions} />
+        </section>
+      )}
+
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Itens cadastrados</h3>
+        
+        {/* Tabela de itens com busca, paginação e o ItemRowEditor original preservado */}
+        <ItemsSearchTable
+          initialItems={itemRows}
+          updateAction={updateItem}
+          deleteAction={deleteItem}
+          categoriaOptions={categoriaOptions}
+          clienteOptions={clienteOptions}
+        />
+      </section>
+
+      {isAdmin ? (
+        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-lg font-semibold text-[var(--foreground)]">Itens inativos</h3>
+            <span className="rounded-full border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
+              Admin
+            </span>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+            Esta aba lista os itens desativados por exclusão lógica. Você pode reativar quando precisar voltar o item para a operação.
+          </p>
+
+          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+            <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+              <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Item</th>
+                  <th className="px-4 py-3 text-left font-medium">Categoria</th>
+                  <th className="px-4 py-3 text-left font-medium">Cliente</th>
+                  <th className="px-4 py-3 text-left font-medium">Descrição</th>
+                  <th className="px-4 py-3 text-right font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+                {(inactiveItems ?? []).length > 0 ? (
+                  (inactiveItems ?? []).map((item) => (
+                    <tr key={item.id}>
+                      <td className="px-4 py-3 font-medium text-[var(--foreground)]">{item.nome ?? "Item"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.categoria ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.cliente ?? "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.descricao ?? "-"}</td>
+                      <td className="px-4 py-3 text-right">
+                        <form action={reactivateItem}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <button
+                            type="submit"
+                            className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
+                          >
+                            Reativar
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={5}>
+                      Nenhum item inativo encontrado.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+
+
+===== src\app\(app)\itens\[id]\item-edit-form.tsx =====
 /**
  * GESTÃO DE CATÁLOGO - MÓDULO DE ITENS
  * 1. createSupabaseServerClient: Inicializa a conexão com o banco via Server Side.
@@ -1534,6 +1726,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { MovimentacaoForm } from "@/components/movimentacao-form";
 import DataTableSearch from "@/components/DataTableSearch";
 import { deleteMovimentacao } from "@/lib/supabase/actions";
+import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage"; // Importado utilitário de Storage
+
 
 export default async function MovimentacoesPage() {
   const supabase = await createSupabaseServerClient();
@@ -1552,7 +1746,7 @@ export default async function MovimentacoesPage() {
   // BLOCO: DATA FETCHING PARALELO
   // Busca itens e estoques para preencher o formulário, além do histórico recente para auditoria.
   const [{ data: itens }, { data: estoques }, { data: recentes }, { data: balances }] = await Promise.all([
-    supabase.from("itens").select("id, nome").eq("ativo", true).order("nome", { ascending: true }),
+    supabase.from("itens").select("id, nome, foto_url").eq("ativo", true).order("nome", { ascending: true }),
     supabase.from("estoques").select("id, nome").order("nome", { ascending: true }),
     supabase
       .from("movimentacoes")
@@ -1561,7 +1755,6 @@ export default async function MovimentacoesPage() {
     supabase.from("estoque_itens").select("item_id, estoque_id, quantidade, estoques ( nome )"),
   ]);
 
-  type ItemOption = { id: string; nome: string | null };
   type EstoqueOption = { id: string; nome: string | null };
   type BalanceRow = {
     item_id: string;
@@ -1581,7 +1774,13 @@ export default async function MovimentacoesPage() {
     destino: { nome: string | null } | { nome: string | null }[] | null;
   };
 
-  const itemRows = (itens ?? []) as ItemOption[];
+  const itemRows = await Promise.all(
+    (itens ?? []).map(async (item) => ({
+      id: item.id,
+      nome: item.nome,
+      fotoPreviewUrl: await resolveSupabaseAssetUrl(supabase, item.foto_url),
+    }))
+  );
   const estoqueRows = (estoques ?? []) as EstoqueOption[];
 
   const balanceRows = (balances ?? []).map((row: BalanceRow) => ({
@@ -2035,8 +2234,11 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
     <div className="min-h-screen soft-grid text-slate-100">
       {/* EXIBIÇÃO DO SPINNER GLOBAL */}
       {isNavigating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm">
-          <PageLoading label="Aguarde..." />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+          <div className="page-loading-card" role="status" aria-live="polite">
+            <div className="page-loading-spinner" />
+            <p className="page-loading-label">Aguarde...</p>
+          </div>
         </div>
       )}
 
@@ -2539,13 +2741,17 @@ export default function DataTableSearch<T>({
 ===== src\components\estoque-form.tsx =====
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { createEstoque } from "@/lib/supabase/actions";
 import { useToast } from "@/components/toast-context";
+import { SearchableSelect } from "@/components/searchable-select"; // Importando o seletor inteligente
 
 export function EstoqueForm() {
   const { showToast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Estado local para o seletor customizado de Tipo de Estoque
+  const [tipo, setTipo] = useState("Regional");
 
   // useActionState para gerenciar o status pendente e respostas de erro da Server Action
   const [state, formAction, isPending] = useActionState(async (prevState: any, formData: FormData) => {
@@ -2562,33 +2768,92 @@ export function EstoqueForm() {
     if (state?.success) {
       showToast("Local de estoque cadastrado com sucesso!", "success");
       formRef.current?.reset();
+      setTipo("Regional"); // Reseta para o valor padrão
     } else if (state?.error) {
       showToast(state.error, "error");
     }
   }, [state, showToast]);
 
+  const tipoOptions = [
+    { id: "Regional", nome: "Regional (Fixo)" },
+    { id: "Temporario", nome: "Temporário / Veículo" },
+  ];
+
   return (
     <form ref={formRef} action={formAction} className="mt-4 grid gap-4 md:grid-cols-2">
-      <input 
-        name="nome" 
-        placeholder="Nome do local ou veículo" 
-        className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" 
-        required 
-      />
-      <select name="tipo" defaultValue="Regional" className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-        <option value="Regional">Regional (Fixo)</option>
-        <option value="Temporario">Temporário / Veículo</option>
-      </select>
-      
-      {/* Campos de responsabilidade e contato para rastreabilidade operacional */}
-      <input name="responsavel" placeholder="Responsável" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
-      <input name="contato" placeholder="WhatsApp / contato" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
-      <input name="endereco" placeholder="Endereço / placa" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-      <div className="md:col-span-2">
-        <button 
-          type="submit" 
-          disabled={isPending} 
-          className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60"
+      {/* Campo oculto para envio do tipo de estoque via FormData */}
+      <input type="hidden" name="tipo" value={tipo} />
+
+      {/* Nome do Local */}
+      <div className="md:col-span-2 grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Nome do Local ou Veículo
+        </label>
+        <input
+          name="nome"
+          placeholder="Ex: Almoxarifado Central ou Veículo 02"
+          className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+          required
+        />
+      </div>
+
+      {/* Tipo de Local Inteligente */}
+      <div className="grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Tipo de Estoque
+        </label>
+        <SearchableSelect
+          options={tipoOptions}
+          value={tipo}
+          onChange={setTipo}
+          placeholder="Selecione o tipo..."
+          showImages={false} // Sem miniatura para tipo de estoque
+        />
+      </div>
+
+      {/* Responsável */}
+      <div className="grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Responsável
+        </label>
+        <input
+          name="responsavel"
+          placeholder="Nome do responsável pelo estoque"
+          className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+          required
+        />
+      </div>
+
+      {/* Contato */}
+      <div className="grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          WhatsApp / Contato
+        </label>
+        <input
+          name="contato"
+          placeholder="Ex: (81) 9 9999-9999"
+          className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+          required
+        />
+      </div>
+
+      {/* Endereço / Placa */}
+      <div className="grid gap-1.5 md:col-span-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Endereço ou Placa do Veículo
+        </label>
+        <input
+          name="endereco"
+          placeholder="Rua, número, galpão ou placa do veículo de campo (opcional)"
+          className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+        />
+      </div>
+
+      <div className="md:col-span-2 mt-2">
+        <button
+          type="submit"
+          disabled={isPending}
+          className="mc4-btn-primary rounded-2xl px-6 py-3.5 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60 w-full sm:w-auto"
         >
           {isPending ? "Salvando..." : "Salvar local"}
         </button>
@@ -2607,6 +2872,7 @@ import { useRef, useState, useTransition } from "react";
 import type { deleteEstoque, updateEstoque } from "@/lib/supabase/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useToast } from "@/components/toast-context";
+import { SearchableSelect } from "@/components/searchable-select"; // Importando o seletor inteligente
 
 type EstoqueRow = {
   id: string;
@@ -2631,6 +2897,9 @@ export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: Estoqu
   const { showToast } = useToast();
   const [isPendingUpdate, startUpdateTransition] = useTransition();
   const [isPendingDelete, startDeleteTransition] = useTransition();
+
+  // Estado local para o seletor customizado de Tipo de Estoque
+  const [tipo, setTipo] = useState(estoque.tipo ?? "Regional");
 
   // Executa a transação de atualização inline e emite o feedback
   const handleUpdate = (formData: FormData) => {
@@ -2658,34 +2927,117 @@ export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: Estoqu
     });
   };
 
+  const tipoOptions = [
+    { id: "Regional", nome: "Regional (Fixo)" },
+    { id: "Temporario", nome: "Temporário / Veículo" },
+  ];
+
   return (
     <>
       {isEditing ? (
-        <div className="rounded-[1.5rem] border border-[var(--panel-border)] bg-[var(--panel)] p-4 shadow-xl">
+        <div className="rounded-[1.5rem] border border-[var(--panel-border)] bg-[var(--panel)] p-5 shadow-xl text-left">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">Editar local</p>
               <h4 className="mt-1 text-lg font-semibold text-[var(--foreground)]">{estoque.nome ?? "Local"}</h4>
             </div>
-            <button type="button" onClick={() => setIsEditing(false)} className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)]">
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)] hover:bg-[var(--panel-border)]/10 transition-colors"
+            >
               Fechar
             </button>
           </div>
-          <form action={handleUpdate} className="grid gap-3 md:grid-cols-2">
+
+          <form action={handleUpdate} className="grid gap-4 md:grid-cols-2">
+            {/* Inputs ocultos necessários para envio via HTML FormData */}
             <input type="hidden" name="id" value={estoque.id} />
-            <input name="nome" defaultValue={estoque.nome ?? ""} placeholder="Nome do local" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
-            <select name="tipo" defaultValue={estoque.tipo ?? "Regional"} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-              <option value="Regional">Regional (Fixo)</option>
-              <option value="Temporario">Temporário / Veículo</option>
-            </select>
-            <input name="responsavel" defaultValue={estoque.responsavel ?? ""} placeholder="Responsável" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
-            <input name="contato" defaultValue={estoque.contato ?? ""} placeholder="WhatsApp / contato" className="mc4-form-input rounded-2xl px-4 py-3 text-sm" required />
-            <input name="endereco" defaultValue={estoque.endereco ?? ""} placeholder="Endereço / placa" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-            <div className="flex gap-2 md:col-span-2">
-              <button type="submit" disabled={isPendingUpdate} className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
+            <input type="hidden" name="tipo" value={tipo} />
+
+            {/* Nome do Local */}
+            <div className="md:col-span-2 grid gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                Nome do Local
+              </label>
+              <input
+                name="nome"
+                defaultValue={estoque.nome ?? ""}
+                placeholder="Nome do local"
+                className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+                required
+              />
+            </div>
+
+            {/* Tipo de Local Inteligente */}
+            <div className="grid gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                Tipo de Estoque
+              </label>
+              <SearchableSelect
+                options={tipoOptions}
+                value={tipo}
+                onChange={setTipo}
+                placeholder="Selecione o tipo..."
+                showImages={false} // Sem miniatura para tipo de estoque
+              />
+            </div>
+
+            {/* Responsável */}
+            <div className="grid gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                Responsável
+              </label>
+              <input
+                name="responsavel"
+                defaultValue={estoque.responsavel ?? ""}
+                placeholder="Responsável"
+                className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+                required
+              />
+            </div>
+
+            {/* Contato */}
+            <div className="grid gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                WhatsApp / Contato
+              </label>
+              <input
+                name="contato"
+                defaultValue={estoque.contato ?? ""}
+                placeholder="WhatsApp / contato"
+                className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+                required
+              />
+            </div>
+
+            {/* Endereço / Placa */}
+            <div className="md:col-span-2 grid gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                Endereço / Placa
+              </label>
+              <input
+                name="endereco"
+                defaultValue={estoque.endereco ?? ""}
+                placeholder="Endereço / placa"
+                className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+              />
+            </div>
+
+            {/* Botões de Ação */}
+            <div className="flex gap-2 md:col-span-2 mt-2">
+              <button
+                type="submit"
+                disabled={isPendingUpdate}
+                className="mc4-btn-primary rounded-2xl px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 {isPendingUpdate ? "Salvando..." : "Salvar alterações"}
               </button>
-              <button type="button" onClick={() => setIsEditing(false)} className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)]">
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="rounded-2xl border border-[var(--panel-border)] px-5 py-2.5 text-sm font-medium text-[var(--text-muted)] hover:bg-[var(--panel-border)]/10 transition-colors"
+              >
                 Cancelar
               </button>
             </div>
@@ -2693,10 +3045,21 @@ export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: Estoqu
         </div>
       ) : (
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={() => setIsEditing(true)} className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]">
+          <button
+            type="button"
+            onClick={() => {
+              setTipo(estoque.tipo ?? "Regional");
+              setIsEditing(true);
+            }}
+            className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]"
+          >
             Editar
           </button>
-          <button type="button" onClick={() => setShowDeleteConfirm(true)} className="mc4-badge mc4-badge-orange rounded-full px-4 py-2">
+          <button
+            type="button"
+            onClick={() => setShowDeleteConfirm(true)}
+            className="mc4-badge mc4-badge-orange rounded-full px-4 py-2"
+          >
             Excluir
           </button>
         </div>
@@ -2723,80 +3086,169 @@ export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: Estoqu
 
 
 
+
 ===== src\components\image-lightbox.tsx =====
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom"; // Importamos o Portal para renderização na raiz (Body)
 
 type ImageLightboxProps = {
   src: string | null;
   alt: string;
   thumbnailClassName?: string;
+  title?: string;
+  client?: string;
+  category?: string;
 };
 
-export function ImageLightbox({ src, alt, thumbnailClassName = "h-12 w-12" }: ImageLightboxProps) {
+export function ImageLightbox({
+  src,
+  alt,
+  thumbnailClassName = "h-12 w-12",
+  title,
+  client,
+  category,
+}: ImageLightboxProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // Gerencia a montagem suave das animações CSS
+  const [isClient, setIsClient] = useState(false);   // Previne inconsistências de hidratação no Next.js (SSR)
 
+  // Sinaliza que o componente já está montado no navegador
   useEffect(() => {
-    if (!isOpen) return;
+    setIsClient(true);
+  }, []);
+
+  // Monitora interações de teclado (ESC) e transição de opacidade
+  useEffect(() => {
+    if (!isOpen) {
+      setIsMounted(false);
+      return;
+    }
+
+    // Timer de 10ms para permitir que o navegador registre a renderização antes de animar
+    const timer = setTimeout(() => setIsMounted(true), 10);
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsOpen(false);
+      if (event.key === "Escape") {
+        handleClose();
+      }
     };
 
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("keydown", onKeyDown);
+    };
   }, [isOpen]);
 
+  const handleClose = () => {
+    setIsMounted(false);
+    // Aguarda a animação de saída de 200ms concluir para desmontar o portal do DOM
+    setTimeout(() => setIsOpen(false), 200);
+  };
+
   if (!src) {
-    return <div className="h-12 w-12 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-border)]/10" aria-hidden="true" />;
+    return (
+      <div 
+        className="h-12 w-12 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-border)]/10" 
+        aria-hidden="true" 
+      />
+    );
   }
 
   return (
     <>
+      {/* Botão de Miniatura (Thumbnail) na Tabela */}
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className={`group overflow-hidden rounded-xl border border-[var(--panel-border)] bg-[#f4f7f9] focus:outline-none focus:ring-2 focus:ring-[#EB5727] ${thumbnailClassName}`}
+        className={`group overflow-hidden rounded-xl border border-[var(--panel-border)] bg-[#f4f7f9] focus:outline-none focus:ring-2 focus:ring-[#EB5727] transition-all duration-200 active:scale-95 ${thumbnailClassName}`}
         aria-label={`Ampliar foto de ${alt}`}
       >
-        <img src={src} alt={alt} className="h-full w-full object-cover transition duration-200 group-hover:scale-110" />
+        <img
+          src={src}
+          alt={alt}
+          className="h-full w-full object-cover transition duration-300 group-hover:scale-110"
+        />
       </button>
 
-      {isOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`Foto ampliada de ${alt}`}
-          onClick={() => setIsOpen(false)}
-        >
-          <div className="relative max-h-[90vh] max-w-[min(92vw,900px)]" onClick={(event) => event.stopPropagation()}>
-            <img src={src} alt={alt} className="max-h-[82vh] max-w-full rounded-2xl object-contain shadow-2xl" />
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="absolute -right-3 -top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-[var(--panel)] text-lg text-[var(--foreground)] shadow-lg"
-              aria-label="Fechar foto ampliada"
+      {/* PORTAL: Renderiza o modal fora do escopo do sidebar/aside, injetando-o diretamente na raiz do body */}
+      {isOpen && isClient && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              className={`fixed inset-0 z- flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md transition-opacity duration-200 ease-out ${
+                isMounted ? "opacity-100" : "opacity-0"
+              }`}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`Foto ampliada de ${alt}`}
+              onClick={handleClose}
             >
-              ×
-            </button>
-          </div>
-        </div>
-      ) : null}
+              {/* Card Central com Transição Suave de Zoom (Scale) e Esvanecimento (Fade) */}
+              <div
+                className={`relative flex flex-col items-center max-w-[min(90vw,850px)] transition-all duration-300 ease-out transform ${
+                  isMounted ? "scale-100 translate-y-0" : "scale-95 translate-y-4"
+                }`}
+                onClick={(event) => event.stopPropagation()}
+              >
+                {/* Botão de Fechar Superior */}
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="absolute -right-4 -top-12 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-slate-900/60 text-lg text-white shadow-xl backdrop-blur-md transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#EB5727]"
+                  aria-label="Fechar foto ampliada"
+                >
+                  ×
+                </button>
+
+                {/* Container Físico da Imagem */}
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/20 shadow-2xl">
+                  <img
+                    src={src}
+                    alt={alt}
+                    className="max-h-[70vh] w-full object-contain"
+                  />
+                </div>
+
+                {/* Seção Sutil de Legendas e Categorização */}
+                <div className="mt-4 text-center w-full">
+                  <h4 className="text-base font-semibold text-white tracking-wide">
+                    {title || alt}
+                  </h4>
+                  {(client || category) && (
+                    <div className="mt-2.5 flex items-center justify-center gap-2 text-xs font-medium">
+                      {client && (
+                        <span className="bg-white/5 text-slate-300 px-3 py-1 rounded-full border border-white/5">
+                          {client}
+                        </span>
+                      )}
+                      {category && (
+                        <span className="bg-[#EB5727]/10 text-[#ff7c4a] px-3 py-1 rounded-full border border-[#EB5727]/10">
+                          {category}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>,
+            document.body // Alvo do Portal na raiz da aplicação
+          )
+        : null}
     </>
   );
 }
 
 
 
-
 ===== src\components\item-form.tsx =====
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { createItem } from "@/lib/supabase/actions";
 import { useToast } from "@/components/toast-context";
+import { SearchableSelect } from "@/components/searchable-select"; // Importando o seletor inteligente unificado
 
 type ItemFormProps = {
   categoriaOptions: { id: string; nome: string | null }[];
@@ -2806,6 +3258,10 @@ type ItemFormProps = {
 export function ItemForm({ categoriaOptions, clienteOptions }: ItemFormProps) {
   const { showToast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Estados locais para controlar os seletores customizados
+  const [categoria, setCategoria] = useState("");
+  const [cliente, setCliente] = useState("");
 
   // useActionState encapsula a Server Action de criação de itens de forma segura
   const [state, formAction, isPending] = useActionState(async (prevState: any, formData: FormData) => {
@@ -2822,6 +3278,9 @@ export function ItemForm({ categoriaOptions, clienteOptions }: ItemFormProps) {
     if (state?.success) {
       showToast("Item cadastrado com sucesso!", "success");
       formRef.current?.reset();
+      // Reseta os estados locais de seleção customizada
+      setCategoria("");
+      setCliente("");
     } else if (state?.error) {
       showToast(state.error, "error");
     }
@@ -2829,62 +3288,81 @@ export function ItemForm({ categoriaOptions, clienteOptions }: ItemFormProps) {
 
   return (
     <form ref={formRef} action={formAction} className="mt-4 grid gap-4 md:grid-cols-2">
-      <input 
-        name="nome" 
-        placeholder="Nome do item" 
-        className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" 
-        required 
-      />
-      
-      {/* Categorias gerenciadas pelo administrador em /admin */}
-      <select 
-        name="categoria" 
-        defaultValue={categoriaOptions[0]?.nome ?? ""} 
-        className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
-      >
-        {categoriaOptions.map((categoria) => (
-          <option key={categoria.id} value={categoria.nome ?? ""}>
-            {categoria.nome}
-          </option>
-        ))}
-      </select>
+      {/* Nome do Item com rótulo descritivo */}
+      <div className="md:col-span-2 grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Nome do Item
+        </label>
+        <input
+          name="nome"
+          placeholder="Ex: Camisa Polo MC4 - Tamanho M"
+          className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+          required
+        />
+      </div>
 
-      {/* Clientes gerenciados pelo administrador em /admin */}
-      <select 
-        name="cliente" 
-        defaultValue={clienteOptions[0]?.nome ?? ""} 
-        className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
-      >
-        {clienteOptions.map((cliente) => (
-          <option key={cliente.id} value={cliente.nome ?? ""}>
-            {cliente.nome}
-          </option>
-        ))}
-      </select>
+      {/* INPUTS OCULTOS: Necessários para que os valores dos SearchableSelects 
+          sejam incluídos automaticamente no FormData enviado à Server Action */}
+      <input type="hidden" name="categoria" value={categoria} />
+      <input type="hidden" name="cliente" value={cliente} />
 
-      <input 
-        name="foto_url" 
-        placeholder="URL da foto ou path salvo no bucket (opcional)" 
-        className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" 
-      />
-      <input 
-        type="file" 
-        name="foto_file" 
-        accept="image/*" 
-        className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" 
-      />
-      <textarea 
-        name="descricao" 
-        placeholder="Descrição do item" 
-        rows={3} 
-        className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm md:col-span-2" 
-      />
-      
-      <div className="md:col-span-2">
-        <button 
-          type="submit" 
+      {/* Categoria Inteligente */}
+      <div className="grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Categoria
+        </label>
+        <SearchableSelect
+          options={categoriaOptions.map((c) => ({ id: c.nome ?? "", nome: c.nome }))}
+          value={categoria}
+          onChange={setCategoria}
+          placeholder="Buscar ou escolher categoria..."
+        />
+      </div>
+
+      {/* Cliente Proprietário Inteligente */}
+      <div className="grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Cliente Proprietário
+        </label>
+        <SearchableSelect
+          options={clienteOptions.map((cl) => ({ id: cl.nome ?? "", nome: cl.nome }))}
+          value={cliente}
+          onChange={setCliente}
+          placeholder="Buscar ou escolher cliente..."
+        />
+      </div>
+
+      {/* Input de Arquivo (Foto do Item) Personalizado */}
+      <div className="md:col-span-2 grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Imagem do Catálogo
+        </label>
+        <input
+          type="file"
+          name="foto_file"
+          accept="image/*"
+          className="mc4-form-input rounded-2xl px-4 py-3 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#EB5727]/10 file:text-[#EB5727] hover:file:bg-[#EB5727]/20 file:cursor-pointer transition-colors"
+        />
+      </div>
+
+      {/* Descrição do Item */}
+      <div className="md:col-span-2 grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Descrição do Item
+        </label>
+        <textarea
+          name="descricao"
+          placeholder="Descreva observações, tamanho, cor ou número de série do produto..."
+          rows={3}
+          className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm"
+        />
+      </div>
+
+      <div className="md:col-span-2 mt-2">
+        <button
+          type="submit"
           disabled={isPending}
-          className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60"
+          className="mc4-btn-primary rounded-2xl w-full sm:w-auto px-6 py-3.5 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60"
         >
           {isPending ? "Salvando..." : "Salvar item"}
         </button>
@@ -2903,6 +3381,7 @@ import { useRef, useState, useTransition } from "react";
 import type { deleteItem, updateItem } from "@/lib/supabase/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useToast } from "@/components/toast-context";
+import { SearchableSelect } from "@/components/searchable-select"; // Importação do seletor inteligente
 
 type ItemRow = {
   id: string;
@@ -2922,14 +3401,24 @@ type ItemRowEditorProps = {
   clienteOptions: { id: string; nome: string | null }[];
 };
 
-export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptions, clienteOptions }: ItemRowEditorProps) {
+export function ItemRowEditor({
+  item,
+  updateAction,
+  deleteAction,
+  categoriaOptions,
+  clienteOptions,
+}: ItemRowEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const deleteFormRef = useRef<HTMLFormElement | null>(null);
-  
+
   const { showToast } = useToast();
   const [isPendingUpdate, startUpdateTransition] = useTransition();
   const [isPendingDelete, startDeleteTransition] = useTransition();
+
+  // Estados locais para controlar os seletores customizados na edição inline
+  const [categoria, setCategoria] = useState(item.categoria ?? "");
+  const [cliente, setCliente] = useState(item.cliente ?? "");
 
   // Função para lidar com o salvamento da edição inline
   const handleUpdate = (formData: FormData) => {
@@ -2968,35 +3457,105 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
                   <p className="text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">Editar item</p>
                   <h4 className="mt-1 text-lg font-semibold text-[var(--foreground)]">{item.nome ?? "Item"}</h4>
                 </div>
-                <button type="button" onClick={() => setIsEditing(false)} className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)]">
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)] hover:bg-[var(--panel-border)]/10 transition-colors"
+                >
                   Fechar
                 </button>
               </div>
-              <form action={handleUpdate} className="grid gap-3 md:grid-cols-2">
+
+              <form action={handleUpdate} className="grid gap-4 md:grid-cols-2">
+                {/* Inputs ocultos necessários para envio via HTML FormData */}
                 <input type="hidden" name="id" value={item.id} />
-                <input name="nome" defaultValue={item.nome ?? ""} placeholder="Nome do item" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" required />
-                <select name="categoria" defaultValue={item.categoria ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-                  {categoriaOptions.map((categoria) => (
-                    <option key={categoria.id} value={categoria.nome ?? ""}>
-                      {categoria.nome}
-                    </option>
-                  ))}
-                </select>
-                <select name="cliente" defaultValue={item.cliente ?? ""} className="mc4-form-select rounded-2xl px-4 py-3 text-sm">
-                  {clienteOptions.map((cliente) => (
-                    <option key={cliente.id} value={cliente.nome ?? ""}>
-                      {cliente.nome}
-                    </option>
-                  ))}
-                </select>
-                <input name="foto_url" defaultValue={item.foto_url ?? ""} placeholder="URL da foto ou path do Storage" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-                <input type="file" name="foto_file" accept="image/*" className="mc4-form-input rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-                <textarea name="descricao" defaultValue={item.descricao ?? ""} rows={3} placeholder="Descrição completa" className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm md:col-span-2" />
-                <div className="flex gap-2 md:col-span-2">
-                  <button type="submit" disabled={isPendingUpdate} className="mc4-btn-primary rounded-2xl px-4 py-2 text-sm font-semibold">
+                <input type="hidden" name="categoria" value={categoria} />
+                <input type="hidden" name="cliente" value={cliente} />
+
+                {/* Nome do Item */}
+                <div className="md:col-span-2 grid gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    Nome do Item
+                  </label>
+                  <input
+                    name="nome"
+                    defaultValue={item.nome ?? ""}
+                    placeholder="Ex: Camisa Polo MC4 - Tamanho M"
+                    className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+                    required
+                  />
+                </div>
+
+                {/* Categoria Inteligente (Sem miniatura de foto) */}
+                <div className="grid gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    Categoria
+                  </label>
+                  <SearchableSelect
+                    options={categoriaOptions.map((c) => ({ id: c.nome ?? "", nome: c.nome }))}
+                    value={categoria}
+                    onChange={setCategoria}
+                    placeholder="Buscar ou escolher categoria..."
+                    showImages={false} // Mantém o campo textual e limpo
+                  />
+                </div>
+
+                {/* Cliente Proprietário Inteligente (Sem miniatura de foto) */}
+                <div className="grid gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    Cliente Proprietário
+                  </label>
+                  <SearchableSelect
+                    options={clienteOptions.map((cl) => ({ id: cl.nome ?? "", nome: cl.nome }))}
+                    value={cliente}
+                    onChange={setCliente}
+                    placeholder="Buscar ou escolher cliente..."
+                    showImages={false} // Mantém o campo textual e limpo
+                  />
+                </div>
+
+                {/* Imagem do Catálogo */}
+                <div className="md:col-span-2 grid gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    Imagem do Catálogo (Selecione um novo arquivo para substituir)
+                  </label>
+                  <input type="hidden" name="foto_url" value={item.foto_url ?? ""} />
+                  <input
+                    type="file"
+                    name="foto_file"
+                    accept="image/*"
+                    className="mc4-form-input rounded-2xl px-4 py-3 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#EB5727]/10 file:text-[#EB5727] hover:file:bg-[#EB5727]/20 file:cursor-pointer transition-colors"
+                  />
+                </div>
+
+                {/* Descrição do Item */}
+                <div className="md:col-span-2 grid gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    Descrição do Item
+                  </label>
+                  <textarea
+                    name="descricao"
+                    defaultValue={item.descricao ?? ""}
+                    placeholder="Descreva observações, tamanho, cor ou número de série do produto..."
+                    rows={3}
+                    className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm"
+                  />
+                </div>
+
+                {/* Botões de Ação */}
+                <div className="flex gap-2 md:col-span-2 mt-2">
+                  <button
+                    type="submit"
+                    disabled={isPendingUpdate}
+                    className="mc4-btn-primary rounded-2xl px-5 py-2.5 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60"
+                  >\
                     {isPendingUpdate ? "Salvando..." : "Salvar alterações"}
                   </button>
-                  <button type="button" onClick={() => setIsEditing(false)} className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)]">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="rounded-2xl border border-[var(--panel-border)] px-5 py-2.5 text-sm font-medium text-[var(--text-muted)] hover:bg-[var(--panel-border)]/10 transition-colors"
+                  >
                     Cancelar
                   </button>
                 </div>
@@ -3007,9 +3566,14 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
       ) : (
         <tr key={item.id}>
           <td className="px-4 py-3 font-medium text-white">
-            <Link href={`/itens/${item.id}`} className="group flex items-center gap-3 rounded-xl transition-colors hover:bg-[var(--panel-border)]/15 p-1 -m-1">
+            <Link
+              href={`/itens/${item.id}`}
+              className="group flex items-center gap-3 rounded-xl transition-colors hover:bg-[var(--panel-border)]/15 p-1 -m-1"
+            >
               <div className="h-10 w-10 overflow-hidden rounded-xl border border-[#416ba9]/10 bg-[#f4f7f9]">
-                {item.foto_preview_url ? <img src={item.foto_preview_url} alt={item.nome ?? "Item"} className="h-full w-full object-cover" /> : null}
+                {item.foto_preview_url ? (
+                  <img src={item.foto_preview_url} alt={item.nome ?? "Item"} className="h-full w-full object-cover" />
+                ) : null}
               </div>
               <span className="group-hover:text-[#EB5727]">{item.nome}</span>
             </Link>
@@ -3019,10 +3583,22 @@ export function ItemRowEditor({ item, updateAction, deleteAction, categoriaOptio
           <td className="px-4 py-3 text-slate-300">{item.descricao ?? "-"}</td>
           <td className="px-4 py-3 text-right">
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setIsEditing(true)} className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]">
+              <button
+                type="button"
+                onClick={() => {
+                  setCategoria(item.categoria ?? "");
+                  setCliente(item.cliente ?? "");
+                  setIsEditing(true);
+                }}
+                className="mc4-badge rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-[var(--foreground)]"
+              >
                 Editar
               </button>
-              <button type="button" onClick={() => setShowDeleteConfirm(true)} className="mc4-badge mc4-badge-orange rounded-full px-4 py-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="mc4-badge mc4-badge-orange rounded-full px-4 py-2"
+              >
                 Excluir
               </button>
             </div>
@@ -3259,12 +3835,12 @@ export function LoginForm() {
 
 import { useActionState, useMemo, useState, useEffect } from "react";
 import { createMovimentacao } from "@/lib/supabase/actions";
-import { useToast } from "@/components/toast-context"; // Importando o hook do Toast Global
+import { useToast } from "@/components/toast-context";
+import { SearchableSelect } from "@/components/searchable-select"; // Importando o seletor inteligente
 
-type ItemOption = { id: string; nome: string | null; };
-type EstoqueOption = { id: string; nome: string | null; };
-type BalanceOption = { item_id: string; estoque_id: string; quantidade: number; estoque_nome: string | null; };
-type MovimentacaoFormProps = { itemRows: ItemOption[]; estoqueRows: EstoqueOption[]; balances: BalanceOption[]; };
+type ItemOption = { id: string; nome: string | null; fotoPreviewUrl?: string | null };
+type EstoqueOption = { id: string; nome: string | null };
+type MovimentacaoFormProps = { itemRows: ItemOption[]; estoqueRows: EstoqueOption[]; balances: any[]; };
 
 export function MovimentacaoForm({ itemRows, estoqueRows, balances }: MovimentacaoFormProps) {
   const { showToast } = useToast(); // Consumindo o contexto de Toasts
@@ -3307,59 +3883,66 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
     }
   }, [isPending, isSubmitting, actionError, showToast]);
 
+  // Opções estruturadas para o Tipo de Movimentação (sem miniatura)
+  const tipoOptions = [
+    { id: "transferencia", nome: "Transferência" },
+    { id: "entrada", nome: "Entrada" },
+    { id: "saida", nome: "Saída" },
+  ];
+
+  // Opções de Estoques (com opção de limpar seleção se for opcional)
+  const estoqueOptionsMapped = useMemo(() => {
+    return [
+      { id: "", nome: "Sem seleção / Limpar" },
+      ...estoqueRows.map((e) => ({ id: e.id, nome: e.nome })),
+    ];
+  }, [estoqueRows]);
+
   return (
     <form action={submitAction} className="mt-6 grid gap-4 md:grid-cols-2">
+      {/* Inputs ocultos necessários para envio via HTML FormData */}
       <input type="hidden" name="item_id" value={itemId} />
+      <input type="hidden" name="tipo" value={tipo} />
+      <input type="hidden" name="origem_id" value={origemId} />
+      <input type="hidden" name="destino_id" value={destinoId} />
+      
+      {/* Campo de Item (Único com Miniatura) */}
       <label className="grid gap-2 md:col-span-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Item</span>
-        <select
-          name="item_id"
+        <SearchableSelect
+          options={itemRows}
           value={itemId}
-          onChange={(event) => {
-            setItemId(event.target.value);
+          onChange={(value) => {
+            setItemId(value);
             setOrigemId("");
             setDestinoId("");
           }}
-          className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
-          required
-        >
-          <option value="" disabled>
-            Selecione o item
-          </option>
-          {itemRows.map((item) => (
-            <option key={item.id} value={item.id} className="bg-[var(--panel)] text-[var(--foreground)]">
-              {item.nome}
-            </option>
-          ))}
-        </select>
+          placeholder="Selecione o item pelo nome..."
+          showImages={true} // ATIVADO: Mostra miniaturas visuais do catálogo apenas para Itens!
+        />
       </label>
 
+      {/* Campo de Tipo de Movimentação (Sem Miniatura) */}
       <label className="grid gap-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Tipo de movimentação</span>
-        <select
-          name="tipo"
+        <SearchableSelect
+          options={tipoOptions}
           value={tipo}
-          onChange={(event) => {
-            const nextType = event.target.value;
-            setTipo(nextType);
-
-            if (nextType === "entrada") {
+          onChange={(value) => {
+            setTipo(value);
+            if (value === "entrada") {
               setOrigemId("");
             }
-
-            if (nextType === "saida") {
+            if (value === "saida") {
               setDestinoId("");
             }
           }}
-          className="mc4-form-select rounded-2xl px-4 py-3 text-sm"
-          required
-        >
-          <option value="transferencia">Transferência</option>
-          <option value="entrada">Entrada</option>
-          <option value="saida">Saída</option>
-        </select>
+          placeholder="Selecione o tipo..."
+          showImages={false} // DESATIVADO: Sem miniaturas visuais
+        />
       </label>
 
+      {/* Campo de Quantidade */}
       <label className="grid gap-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Quantidade</span>
         <input
@@ -3370,45 +3953,35 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
           value={quantidade}
           onChange={(e) => setQuantidade(e.target.value ? Number(e.target.value) : "")}
           placeholder="Quantidade"
-          className="mc4-form-input rounded-2xl px-4 py-3 text-sm"
+          className="mc4-form-input rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727]"
           required
-            />
+        />
       </label>
 
+      {/* Campo de Origem (Sem Miniatura) */}
       <label className="grid gap-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Origem</span>
-        <select
-          name="origem_id"
+        <SearchableSelect
+          options={estoqueOptionsMapped}
           value={origemId}
-          onChange={(event) => setOrigemId(event.target.value)}
-          className="mc4-form-select rounded-2xl px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--panel-border)]/40"
+          onChange={setOrigemId}
+          placeholder={isEntrada ? "Origem não usada em entrada" : "Origem opcional"}
+          showImages={false} // DESATIVADO: Sem miniaturas visuais
           disabled={isEntrada}
-        >
-          <option value="">{isEntrada ? "Origem não usada em entrada" : "Origem opcional"}</option>
-          {estoqueRows.map((estoque) => (
-            <option key={estoque.id} value={estoque.id} className="bg-[var(--panel)] text-[var(--foreground)]">
-              {estoque.nome}
-            </option>
-          ))}
-        </select>
+        />
       </label>
 
+      {/* Campo de Destino (Sem Miniatura) */}
       <label className="grid gap-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Destino</span>
-        <select
-          name="destino_id"
+        <SearchableSelect
+          options={estoqueOptionsMapped}
           value={destinoId}
-          onChange={(event) => setDestinoId(event.target.value)}
-          className="mc4-form-select rounded-2xl px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--panel-border)]/40"
+          onChange={setDestinoId}
+          placeholder={isSaida ? "Destino não usado em saída" : "Destino opcional"}
+          showImages={false} // DESATIVADO: Sem miniaturas visuais
           disabled={isSaida}
-        >
-          <option value="">{isSaida ? "Destino não usado em saída" : "Destino opcional"}</option>
-          {estoqueRows.map((estoque) => (
-            <option key={estoque.id} value={estoque.id} className="bg-[var(--panel)] text-[var(--foreground)]">
-              {estoque.nome}
-            </option>
-          ))}
-        </select>
+        />
       </label>
 
       {itemId ? (
@@ -3429,6 +4002,7 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
         </div>
       ) : null}
 
+      {/* Campo de Motivo / Observação */}
       <label className="grid gap-2 md:col-span-2">
         <span className="text-sm font-medium text-[var(--text-muted)]">Motivo / observação</span>
         <textarea 
@@ -3437,7 +4011,7 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
           onChange={(e) => setObservacao(e.target.value)}
           rows={3} 
           placeholder="Motivo / observação" 
-          className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm" 
+          className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727]" 
           required 
         />
       </label>
@@ -3668,10 +4242,6 @@ export function RelatoriosFiltersTable({
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-[var(--foreground)]">{row.itemNome}</p>
-                    {/* Badge do Responsável (Auditoria) */}
-                    <span className="rounded-full bg-[#cedb05]/10 px-2 py-0.5 text-[9px] font-bold text-[#cedb05] uppercase border border-[#cedb05]/20">
-                      OP: {row.usuarioResponsavel}
-                    </span>
                   </div>
                   <p className="text-xs text-[var(--text-muted)]">
                     {row.origemNome} → {row.destinoNome} • {new Date(row.dataMovimentacao).toLocaleDateString('pt-BR')}
@@ -3679,6 +4249,10 @@ export function RelatoriosFiltersTable({
                   <p className="max-w-3xl break-words text-xs text-[var(--text-muted)]">
                     <span className="font-medium text-[var(--foreground)]">Observação:</span> {row.observacao || "-"}
                   </p>
+                   {/* Badge do Responsável (Auditoria) */}
+                  <span className="max-w-3xl rounded-full bg-[#cedb05]/10 font-medium break-words text-xs text-[#eb5727] uppercase border border-[#eb5727]/20">
+                      OP: {row.usuarioResponsavel}
+                  </span>
                 </div>
 
                 <div className="text-right">
@@ -3718,6 +4292,176 @@ export function RelatoriosFiltersTable({
   );
 }
 
+
+
+
+===== src\components\searchable-select.tsx =====
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+
+type Option = {
+  id: string;
+  nome: string | null;
+  fotoPreviewUrl?: string | null; // Suporte opcional para fotos (exclusivo para itens)
+};
+
+type SearchableSelectProps = {
+  options: Option[];
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  showImages?: boolean; // Ativa/desativa a renderização de miniaturas (thumbnails)
+  disabled?: boolean; // Ativa/desativa o campo inteiro
+};
+
+export function SearchableSelect({
+  options,
+  value,
+  onChange,
+  placeholder = "Selecione...",
+  showImages = false, // Por padrão, não exibe imagens (ótimo para Categoria, Cliente, Estoques)
+  disabled = false, // Por padrão, o campo está ativo
+}: SearchableSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Se o valor for vazio, trata como não selecionado para exibir o placeholder
+  const selectedOption = value !== "" ? options.find((opt) => opt.id === value) : undefined;
+
+  // Normaliza o texto para remover acentos e facilitar buscas
+  const normalize = (text: string) =>
+    text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  const filteredOptions = options.filter((opt) =>
+    normalize(opt.nome ?? "").includes(normalize(searchTerm))
+  );
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchTerm("");
+    }
+  }, [isOpen]);
+
+  const isFilled = !!selectedOption;
+  const borderStyle = isOpen
+    ? "border-[#EB5727] ring-2 ring-[#EB5727]/20"
+    : isFilled
+    ? "border-[#EB5727]/50 bg-[#EB5727]/[0.02]"
+    : "border-[var(--input-border)]";
+
+  return (
+    <div ref={containerRef} className="relative w-full">
+      {/* Botão de Gatilho do Dropdown */}
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        className={`mc4-form-select flex w-full items-center justify-between rounded-2xl px-4 py-3 text-sm text-left shadow-sm transition-all duration-200 ${
+          disabled
+            ? "cursor-not-allowed opacity-50 bg-[var(--panel-border)]/40 border-[var(--panel-border)]"
+            : borderStyle
+        }`}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Só renderiza a miniatura se showImages for true e houver item selecionado */}
+          {showImages && selectedOption && (
+            <div className="h-6 w-6 shrink-0 overflow-hidden rounded-lg border border-[var(--panel-border)] bg-[#f4f7f9]">
+              {selectedOption.fotoPreviewUrl ? (
+                <img src={selectedOption.fotoPreviewUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-slate-800 text-[8px] text-slate-400">
+                  N/A
+                </div>
+              )}
+            </div>
+          )}
+          <span className={`truncate ${selectedOption ? "text-[var(--foreground)]" : "text-[var(--text-muted)]"}`}>
+            {selectedOption ? selectedOption.nome : placeholder}
+          </span>
+        </div>
+        <svg
+          className={`h-4 w-4 text-[var(--text-muted)] shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* Caixa Suspensa */}
+      {isOpen && !disabled && (
+        <div className="absolute left-0 right-0 z-50 mt-1.5 max-h-60 overflow-hidden rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] shadow-xl backdrop-blur-md">
+          <div className="border-b border-[var(--panel-border)] p-2 bg-[var(--panel-border)]/10">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Digite para buscar..."
+              className="w-full rounded-xl border border-[var(--panel-border)] bg-[var(--input-bg)] px-3 py-2 text-xs text-[var(--foreground)] outline-none focus:border-[#EB5727] placeholder-[var(--text-muted)]"
+              onClick={(e) => e.stopPropagation()}
+              autoFocus
+            />
+          </div>
+
+          <ul className="max-h-44 overflow-y-auto py-1 text-sm scrollbar-thin">
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((opt) => (
+                <li key={opt.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onChange(opt.id);
+                      setIsOpen(false);
+                    }}
+                    className={`flex w-full items-center px-4 py-2.5 text-left transition-colors hover:bg-[#EB5727]/10 hover:text-[var(--foreground)] ${
+                      opt.id === value ? "bg-[#EB5727]/15 font-semibold text-[#EB5727]" : "text-[var(--foreground)]"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      {/* Só exibe a imagem na lista se showImages for true */}
+                      {showImages && (
+                        <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-[var(--panel-border)] bg-[#f4f7f9]">
+                          {opt.fotoPreviewUrl ? (
+                            <img src={opt.fotoPreviewUrl} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-slate-800 text-[10px] text-slate-400">
+                              N/A
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <span className="truncate">{opt.nome}</span>
+                    </div>
+                  </button>
+                </li>
+              ))
+            ) : (
+              <li className="px-4 py-3 text-center text-xs italic text-[var(--text-muted)]">
+                Nenhum resultado encontrado
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 
 
@@ -3778,7 +4522,12 @@ export default function StockSearchList({ initialRows }: { initialRows: StockRow
               className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 transition-colors hover:border-[#EB5727]/50"
             >
               <div className="flex min-w-0 items-center gap-3">
-                <ImageLightbox src={item.fotoPreviewUrl} alt={item.nome} />
+                <ImageLightbox 
+                  src={item.fotoPreviewUrl} 
+                  alt={item.nome} 
+                  title={item.nome}
+                  client={item.cliente}
+                />
                 <Link href={`/itens/${item.id}`} className="min-w-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EB5727]">
                   <p className="truncate font-medium text-[var(--foreground)]">{item.nome}</p>
                   <p className="text-xs text-[var(--text-muted)]">{item.cliente}</p>

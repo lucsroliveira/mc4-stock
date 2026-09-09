@@ -54,6 +54,9 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 
+
+
+
 ===== postcss.config.mjs =====
 const config = {
   plugins: {
@@ -1302,6 +1305,98 @@ export async function deleteCliente(formData: FormData) {
 
 
 ===== src\lib\supabase\auth-guard.ts =====
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+export type UserRole = "cliente" | "operador" | "admin";
+
+export async function getCurrentUserRole(): Promise<UserRole> {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return "cliente";
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  return profile?.role ?? "cliente";
+}
+
+export async function assertUserRole(allowedRoles: UserRole[]) {
+  const role = await getCurrentUserRole();
+  if (!allowedRoles.includes(role)) {
+    throw new Error("Acesso negado: a sua conta não possui permissão para realizar esta operação.");
+  }
+  return role;
+}
+
+
+
+===== src\lib\supabase\client.ts =====
+import { createBrowserClient } from "@supabase/ssr";
+import { getSupabaseConfig } from "./config";
+
+export function createSupabaseBrowserClient() {
+  const { url, anonKey } = getSupabaseConfig();
+
+  return createBrowserClient(url, anonKey);
+}
+
+
+
+===== src\lib\supabase\config.ts =====
+function getFirstDefinedEnv(names: string[]) {
+  for (const name of names) {
+    const value = process.env[name]?.trim();
+    if (value) {
+      return value;
+    }
+  }
+
+  return "";
+}
+
+function getSupabaseUrlFromEnv() {
+  return getFirstDefinedEnv(["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_URL"]);
+}
+
+function getSupabasePublicKeyFromEnv() {
+  return getFirstDefinedEnv([
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_ANON_KEY",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "SUPABASE_PUBLISHABLE_KEY",
+  ]);
+}
+
+export function hasSupabaseConfig() {
+  const url = getSupabaseUrlFromEnv();
+  const key = getSupabasePublicKeyFromEnv();
+
+  if (!url || !key) {
+    return false;
+  }
+
+  return !url.includes("your-project") && !key.includes("your-anon-key");
+}
+
+export function getSupabaseConfig() {
+  const url = getSupabaseUrlFromEnv();
+  const anonKey = getSupabasePublicKeyFromEnv();
+
+  if (!hasSupabaseConfig() || !url || !anonKey) {
+    throw new Error(
+      "Supabase não configurado. Defina NEXT_PUBLIC_SUPABASE_URL (ou SUPABASE_URL) e NEXT_PUBLIC_SUPABASE_ANON_KEY/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY com valores reais.",
+    );
+  }
+
+  return { url, anonKey };
+}
+
+
+
 ===== src\lib\supabase\diagnostics.ts =====
 import { createSupabaseServerClient } from "./server";
 import { hasSupabaseConfig } from "./config";

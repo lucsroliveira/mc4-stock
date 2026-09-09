@@ -372,8 +372,12 @@ export default async function DashboardPage() {
 
                     return (
                       <tr key={`${movement.data_movimentacao}-${movement.tipo}-${movement.quantidade}`} className="hover:bg-[var(--panel-border)]/10 transition-colors">
-                        <td className="px-4 py-3 text-[var(--text-muted)]">{new Date(movement.data_movimentacao).toLocaleString("pt-BR")}</td>
-                        <td className="px-4 py-3 font-medium text-[var(--foreground)]">{itemName ?? "Item excluído"}</td>
+                        <td className="px-4 py-3 text-[var(--text-muted)]">
+                          {new Date(movement.data_movimentacao).toLocaleDateString("pt-BR")}
+                        </td>
+                        <td className="px-4 py-3 font-medium text-[var(--foreground)]">
+                          {itemName ?? "Item excluído"}
+                        </td>
                         <td className="px-4 py-3">
                           <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${badgeClass}`}>
                             {movement.tipo}
@@ -382,7 +386,9 @@ export default async function DashboardPage() {
                         <td className="px-4 py-3 text-[var(--text-muted)]">
                           {originName ?? "Externo"} → {destinationName ?? "Baixa"}
                         </td>
-                        <td className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">{movement.quantidade}</td>
+                        <td className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">
+                          {movement.quantidade}
+                        </td>
                       </tr>
                     );
                   })

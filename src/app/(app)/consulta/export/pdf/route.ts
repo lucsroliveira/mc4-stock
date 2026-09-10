@@ -47,21 +47,13 @@ export async function GET(request: NextRequest) {
     query = query.eq("itens.cliente", clienteParam);
   }
 
-  // Filtro por Categoria de Item (Brindes, Cenografia, Vestuário, OOH, etc.)
+  // Filtro por Categoria de Item
   if (categoriaParam) {
     query = query.eq("itens.categoria", categoriaParam);
   }
 
   const { data: inventoryData } = await query;
   const rows = inventoryData ?? [];
-
-  // Filtragem local baseada no termo de busca textual (inclui Categoria no haystack)
-  const filteredRows = rows.filter((row: any) => {
-    if (!searchTerm) return true;
-    const item = row.itens;
-    const haystack = `${item?.nome ?? ""} ${item?.cliente ?? ""} ${item?.categoria ?? ""}`.toLowerCase();
-    return haystack.includes(searchTerm.toLowerCase());
-  });
 
   // Helper para extrair o nome do local de estoque
   const getEstoqueNome = (estoques: any) => {
@@ -72,6 +64,26 @@ export async function GET(request: NextRequest) {
     return estoques.nome ?? "Geral";
   };
 
+  // Filtragem local baseada no termo de busca textual
+  const filteredRows = rows.filter((row: any) => {
+    if (!searchTerm) return true;
+    const item = row.itens;
+    const haystack = `${item?.nome ?? ""} ${item?.cliente ?? ""} ${item?.categoria ?? ""}`.toLowerCase();
+    return haystack.includes(searchTerm.toLowerCase());
+  });
+
+  // ORDENAÇÃO E AGRUPAMENTO: Ordena prioritariamente por Local de Estoque e depois por Nome do Item
+  filteredRows.sort((a: any, b: any) => {
+    const localA = getEstoqueNome(a.estoques);
+    const localB = getEstoqueNome(b.estoques);
+    const localCompare = localA.localeCompare(localB, "pt-BR");
+    if (localCompare !== 0) return localCompare;
+
+    const nomeA = a.itens?.nome ?? "";
+    const nomeB = b.itens?.nome ?? "";
+    return nomeA.localeCompare(nomeB, "pt-BR");
+  });
+
   // 3. MONTAGEM E GERAÇÃO DO PDF COM JSPDF
   const doc = new jsPDF();
   const dataEmissao = new Date().toLocaleString("pt-BR");
@@ -80,7 +92,7 @@ export async function GET(request: NextRequest) {
   if (estoqueIdParam) {
     const ids = estoqueIdParam.split(",").filter(Boolean);
     if (ids.length > 1) {
-      estoqueNomeHeader = "Locais Selecionados (Consolidado)";
+      estoqueNomeHeader = "Locais Selecionados (Agrupado por Local)";
     } else if (rows.length > 0) {
       estoqueNomeHeader = getEstoqueNome(rows[0]?.estoques);
     }
@@ -95,7 +107,7 @@ export async function GET(request: NextRequest) {
   doc.text("MC4 - GESTÃO DE ESTOQUE", 15, 18);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text("RELATÓRIO DE INVENTÁRIO", 15, 26);
+  doc.text("RELATÓRIO DE INVENTÁRIO (AGRUPADO POR LOCAL)", 15, 26);
 
   // Painel de Auditoria e Filtros Ativos
   doc.setTextColor(40, 40, 40);
@@ -114,13 +126,13 @@ export async function GET(request: NextRequest) {
   doc.setFont("helvetica", "bold");
   doc.text(`Filtros: ${filtrosAtivos.join(" | ")}`, 15, 52);
 
-  // Tabela de Dados com Coluna Explicita de Categoria
-  const tableColumn = ["Nome do Item", "Cliente", "Categoria", "Local de Estoque", "Qtd"];
+  // Tabela de Dados com "Local de Estoque" como primeira coluna
+  const tableColumn = ["Local de Estoque", "Nome do Item", "Cliente", "Categoria", "Qtd"];
   const tableRows = filteredRows.map((row: any) => [
+    getEstoqueNome(row.estoques),
     row.itens?.nome ?? "Item Indisponível",
     row.itens?.cliente ?? "Geral",
     row.itens?.categoria ?? "-",
-    getEstoqueNome(row.estoques),
     Number(row.quantidade ?? 0).toLocaleString("pt-BR"),
   ]);
 
@@ -130,17 +142,17 @@ export async function GET(request: NextRequest) {
     body: tableRows,
     headStyles: {
       fillColor: [0, 165, 181],
-      textColor: [255, 255, 255],
+      textColor:[255, 255, 255],
       fontSize: 9.5,
       fontStyle: "bold",
     },
     styles: { fontSize: 8.5, cellPadding: 3.5 },
     columnStyles: {
-      0: { cellWidth: 55 }, // Nome do Item
-      1: { cellWidth: 38 }, // Cliente
-      2: { cellWidth: 32 }, // Categoria
-      3: { cellWidth: 42 }, // Local de Estoque
-      4: { cellWidth: 18, halign: "right" }, // Quantidade
+      0: { cellWidth: 42, fontStyle: "bold" }, // Local de Estoque em destaque
+      1: { cellWidth: 55 },                    // Nome do Item
+      2: { cellWidth: 38 },                    // Cliente
+      3: { cellWidth: 28 },                    // Categoria
+      4: { cellWidth: 22, halign: "right" },    // Quantidade
     },
     alternateRowStyles: { fillColor: [245, 247, 250] },
     theme: "grid",

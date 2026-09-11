@@ -276,6 +276,31 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
             <p className="py-12 text-center text-sm italic text-[var(--text-muted)]">Nenhum item ativo encontrado para esta seleção.</p>
           )}
         </div>
+
+        {/* CONTROLES DE PAGINAÇÃO */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex flex-col gap-3 border-t border-[var(--panel-border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-[var(--text-muted)]">
+              Mostrando {paginatedRows.length} de {totalItems.toLocaleString("pt-BR")} itens • página {currentPage} de {totalPages}
+            </p>
+            <div className="flex gap-2">
+              <Link
+                href={`/consulta?${exportQueryParams}&page=${Math.max(currentPage - 1, 1)}`}
+                aria-disabled={currentPage === 1}
+                className={`mc4-badge px-4 py-2 text-xs ${currentPage === 1 ? "pointer-events-none opacity-30" : ""}`}
+              >
+                Anterior
+              </Link>
+              <Link
+                href={`/consulta?${exportQueryParams}&page=${Math.min(currentPage + 1, totalPages)}`}
+                aria-disabled={currentPage === totalPages}
+                className={`mc4-badge px-4 py-2 text-xs ${currentPage === totalPages ? "pointer-events-none opacity-30" : ""}`}
+              >
+                Próximo
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

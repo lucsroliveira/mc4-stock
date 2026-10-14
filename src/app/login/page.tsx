@@ -51,7 +51,7 @@ export default async function LoginPage() {
             <p className="mt-3">
               O login, os cadastros e as movimentações já estão conectados ao fluxo do estoque com identidade MC4.
             </p>
-          </div>
+          </div>  
         </div>
       </div>
     </main>

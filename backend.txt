@@ -19,8 +19,6 @@ const eslintConfig = defineConfig([
 export default eslintConfig;
 
 
-
-
 ===== next-env.d.ts =====
 /// <reference types="next" />
 /// <reference types="next/image-types/global" />
@@ -28,8 +26,6 @@ import "./.next/dev/types/routes.d.ts";
 
 // NOTE: This file should not be edited
 // see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
-
-
 
 
 ===== next.config.ts =====
@@ -55,8 +51,6 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 
 
-
-
 ===== postcss.config.mjs =====
 const config = {
   plugins: {
@@ -65,8 +59,6 @@ const config = {
 };
 
 export default config;
-
-
 
 
 ===== sql\categorias_clientes.sql =====
@@ -122,8 +114,6 @@ on conflict (nome) do nothing;
 insert into public.clientes (nome) values
   ('Interno / MC4'), ('Esportes da Sorte'), ('Boticário'), ('MOOD'), ('Cenoura e Bronze')
 on conflict (nome) do nothing;
-
-
 
 
 ===== sql\movimentacoes.sql =====
@@ -199,103 +189,6 @@ $$;
 
 revoke all on function public.atualizar_estoque(uuid, uuid, uuid, bigint) from public;
 grant execute on function public.atualizar_estoque(uuid, uuid, uuid, bigint) to authenticated;
-
-
-
-===== src\proxy.ts =====
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
-import { getSupabaseConfig, hasSupabaseConfig } from "./lib/supabase/config";
-
-export async function proxy(request: NextRequest) {
-  // Evita erro 500 no edge runtime quando as variáveis do Supabase ainda não foram configuradas no Vercel.
-  if (!hasSupabaseConfig()) {
-    return NextResponse.next({ request });
-  }
-
-  let response = NextResponse.next({ request });
-  const { url, anonKey } = getSupabaseConfig();
-
-  const supabase = createServerClient(
-    url,
-    anonKey,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => {
-            request.cookies.set(name, value);
-          });
-
-          response = NextResponse.next({ request });
-
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
-          });
-        },
-      },
-    },
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
-  const isLoginRoute = pathname.startsWith("/login");
-  const isStaticAsset = pathname.startsWith("/_next") || pathname.includes(".");
-
-  if (!user && !isLoginRoute && !isStaticAsset) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    return NextResponse.redirect(loginUrl);
-  }
-
-  if (user && isLoginRoute) {
-    const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = "/dashboard";
-    return NextResponse.redirect(dashboardUrl);
-  }
-
-  return response;
-}
-
-export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
-};
-
-
-
-===== src\app\manifest.ts =====
-import type { MetadataRoute } from "next";
-
-export default function manifest(): MetadataRoute.Manifest {
-  return {
-    name: "MC4 Estoque",
-    short_name: "MC4 Estoque",
-    description: "Sistema de estoque da MC4",
-    start_url: "/dashboard",
-    display: "standalone",
-    background_color: "#030712",
-    theme_color: "#EB5727",
-    icons: [
-      {
-        src: "/mc4-192.png",
-        sizes: "192x192",
-        type: "image/png",
-      },
-      {
-        src: "/mc4-512.png",
-        sizes: "512x512",
-        type: "image/png",
-      },
-    ],
-  };
-}
-
-
 
 ===== src\app\(app)\consulta\export\csv\route.ts =====
 import { NextResponse } from "next/server";
@@ -383,8 +276,6 @@ export async function GET(request: Request) {
   });
 }
 
-
-
 ===== src\app\(app)\consulta\export\pdf\route.ts =====
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -435,21 +326,13 @@ export async function GET(request: NextRequest) {
     query = query.eq("itens.cliente", clienteParam);
   }
 
-  // Filtro por Categoria de Item (Brindes, Cenografia, Vestuário, OOH, etc.)
+  // Filtro por Categoria de Item
   if (categoriaParam) {
     query = query.eq("itens.categoria", categoriaParam);
   }
 
   const { data: inventoryData } = await query;
   const rows = inventoryData ?? [];
-
-  // Filtragem local baseada no termo de busca textual (inclui Categoria no haystack)
-  const filteredRows = rows.filter((row: any) => {
-    if (!searchTerm) return true;
-    const item = row.itens;
-    const haystack = `${item?.nome ?? ""} ${item?.cliente ?? ""} ${item?.categoria ?? ""}`.toLowerCase();
-    return haystack.includes(searchTerm.toLowerCase());
-  });
 
   // Helper para extrair o nome do local de estoque
   const getEstoqueNome = (estoques: any) => {
@@ -460,6 +343,26 @@ export async function GET(request: NextRequest) {
     return estoques.nome ?? "Geral";
   };
 
+  // Filtragem local baseada no termo de busca textual
+  const filteredRows = rows.filter((row: any) => {
+    if (!searchTerm) return true;
+    const item = row.itens;
+    const haystack = `${item?.nome ?? ""} ${item?.cliente ?? ""} ${item?.categoria ?? ""}`.toLowerCase();
+    return haystack.includes(searchTerm.toLowerCase());
+  });
+
+  // ORDENAÇÃO E AGRUPAMENTO: Ordena prioritariamente por Local de Estoque e depois por Nome do Item
+  filteredRows.sort((a: any, b: any) => {
+    const localA = getEstoqueNome(a.estoques);
+    const localB = getEstoqueNome(b.estoques);
+    const localCompare = localA.localeCompare(localB, "pt-BR");
+    if (localCompare !== 0) return localCompare;
+
+    const nomeA = a.itens?.nome ?? "";
+    const nomeB = b.itens?.nome ?? "";
+    return nomeA.localeCompare(nomeB, "pt-BR");
+  });
+
   // 3. MONTAGEM E GERAÇÃO DO PDF COM JSPDF
   const doc = new jsPDF();
   const dataEmissao = new Date().toLocaleString("pt-BR");
@@ -468,7 +371,7 @@ export async function GET(request: NextRequest) {
   if (estoqueIdParam) {
     const ids = estoqueIdParam.split(",").filter(Boolean);
     if (ids.length > 1) {
-      estoqueNomeHeader = "Locais Selecionados (Consolidado)";
+      estoqueNomeHeader = "Locais Selecionados (Agrupado por Local)";
     } else if (rows.length > 0) {
       estoqueNomeHeader = getEstoqueNome(rows[0]?.estoques);
     }
@@ -483,7 +386,7 @@ export async function GET(request: NextRequest) {
   doc.text("MC4 - GESTÃO DE ESTOQUE", 15, 18);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text("RELATÓRIO DE INVENTÁRIO", 15, 26);
+  doc.text("RELATÓRIO DE INVENTÁRIO (AGRUPADO POR LOCAL)", 15, 26);
 
   // Painel de Auditoria e Filtros Ativos
   doc.setTextColor(40, 40, 40);
@@ -502,13 +405,13 @@ export async function GET(request: NextRequest) {
   doc.setFont("helvetica", "bold");
   doc.text(`Filtros: ${filtrosAtivos.join(" | ")}`, 15, 52);
 
-  // Tabela de Dados com Coluna Explicita de Categoria
-  const tableColumn = ["Nome do Item", "Cliente", "Categoria", "Local de Estoque", "Qtd"];
+  // Tabela de Dados com "Local de Estoque" como primeira coluna
+  const tableColumn = ["Local de Estoque", "Nome do Item", "Cliente", "Categoria", "Qtd"];
   const tableRows = filteredRows.map((row: any) => [
+    getEstoqueNome(row.estoques),
     row.itens?.nome ?? "Item Indisponível",
     row.itens?.cliente ?? "Geral",
     row.itens?.categoria ?? "-",
-    getEstoqueNome(row.estoques),
     Number(row.quantidade ?? 0).toLocaleString("pt-BR"),
   ]);
 
@@ -518,17 +421,17 @@ export async function GET(request: NextRequest) {
     body: tableRows,
     headStyles: {
       fillColor: [0, 165, 181],
-      textColor: [255, 255, 255],
+      textColor:[255, 255, 255],
       fontSize: 9.5,
       fontStyle: "bold",
     },
     styles: { fontSize: 8.5, cellPadding: 3.5 },
     columnStyles: {
-      0: { cellWidth: 55 }, // Nome do Item
-      1: { cellWidth: 38 }, // Cliente
-      2: { cellWidth: 32 }, // Categoria
-      3: { cellWidth: 42 }, // Local de Estoque
-      4: { cellWidth: 18, halign: "right" }, // Quantidade
+      0: { cellWidth: 42, fontStyle: "bold" }, // Local de Estoque em destaque
+      1: { cellWidth: 55 },                    // Nome do Item
+      2: { cellWidth: 38 },                    // Cliente
+      3: { cellWidth: 28 },                    // Categoria
+      4: { cellWidth: 22, halign: "right" },    // Quantidade
     },
     alternateRowStyles: { fillColor: [245, 247, 250] },
     theme: "grid",
@@ -561,9 +464,6 @@ export async function GET(request: NextRequest) {
     },
   });
 }
-
-
-
 
 ===== src\app\(app)\relatorios\export\route.ts =====
 import { NextResponse } from "next/server";
@@ -714,7 +614,32 @@ export async function GET(request: Request) {
   });
 }
 
+===== src\app\manifest.ts =====
+import type { MetadataRoute } from "next";
 
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "MC4 Estoque",
+    short_name: "MC4 Estoque",
+    description: "Sistema de estoque da MC4",
+    start_url: "/dashboard",
+    display: "standalone",
+    background_color: "#030712",
+    theme_color: "#EB5727",
+    icons: [
+      {
+        src: "/mc4-192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        src: "/mc4-512.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
+    ],
+  };
+}
 
 ===== src\lib\navigation.ts =====
 export const inventoryNavigation = [
@@ -726,8 +651,6 @@ export const inventoryNavigation = [
   { href: "/relatorios", label: "Relatórios", icon: "relatorios" },
   { href: "/admin", label: "Admin", icon: "admin" },
 ] as const;
-
-
 
 ===== src\lib\supabase\actions.ts =====
 "use server";
@@ -1344,8 +1267,6 @@ export async function deleteCliente(formData: FormData) {
   revalidatePath("/itens");
 }
 
-
-
 ===== src\lib\supabase\auth-guard.ts =====
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -1374,8 +1295,6 @@ export async function assertUserRole(allowedRoles: UserRole[]) {
   return role;
 }
 
-
-
 ===== src\lib\supabase\client.ts =====
 import { createBrowserClient } from "@supabase/ssr";
 import { getSupabaseConfig } from "./config";
@@ -1385,8 +1304,6 @@ export function createSupabaseBrowserClient() {
 
   return createBrowserClient(url, anonKey);
 }
-
-
 
 ===== src\lib\supabase\config.ts =====
 function getFirstDefinedEnv(names: string[]) {
@@ -1436,8 +1353,6 @@ export function getSupabaseConfig() {
 
   return { url, anonKey };
 }
-
-
 
 ===== src\lib\supabase\diagnostics.ts =====
 import { createSupabaseServerClient } from "./server";
@@ -1509,8 +1424,6 @@ export async function getSupabaseDiagnostics(): Promise<SupabaseDiagnostics> {
   };
 }
 
-
-
 ===== src\lib\supabase\server.ts =====
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -1535,8 +1448,6 @@ export async function createSupabaseServerClient() {
     },
   );
 }
-
-
 
 ===== src\lib\supabase\storage.ts =====
 function isAbsoluteUrl(value: string) {
@@ -1660,5 +1571,67 @@ export async function resolveSupabaseAssetUrl(supabase: StorageClientLike, value
   return data?.signedUrl ?? resolveSupabaseStoragePublicUrl(normalized);
 }
 
+===== src\proxy.ts =====
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+import { getSupabaseConfig, hasSupabaseConfig } from "./lib/supabase/config";
 
+export async function proxy(request: NextRequest) {
+  // Evita erro 500 no edge runtime quando as variáveis do Supabase ainda não foram configuradas no Vercel.
+  if (!hasSupabaseConfig()) {
+    return NextResponse.next({ request });
+  }
+
+  let response = NextResponse.next({ request });
+  const { url, anonKey } = getSupabaseConfig();
+
+  const supabase = createServerClient(
+    url,
+    anonKey,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value);
+          });
+
+          response = NextResponse.next({ request });
+
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    },
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+  const isLoginRoute = pathname.startsWith("/login");
+  const isStaticAsset = pathname.startsWith("/_next") || pathname.includes(".");
+
+  if (!user && !isLoginRoute && !isStaticAsset) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (user && isLoginRoute) {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = "/dashboard";
+    return NextResponse.redirect(dashboardUrl);
+  }
+
+  return response;
+}
+
+export const config = {
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
 

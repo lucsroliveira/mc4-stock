@@ -1,366 +1,3 @@
-===== src\app\globals.css =====
-@import "tailwindcss";
-
-:root {
-  --sidebar-bg: linear-gradient(180deg, #eb5727 0%, #c9431b 100%);
-  --sidebar-border: rgba(255, 255, 255, 0.16);
-  --sidebar-text: #f4f7f9;
-  --sidebar-muted: rgba(244, 247, 249, 0.82);
-  --sidebar-link-hover: rgba(255, 255, 255, 0.14);
-  --active-bg: rgba(255, 255, 255, 0.15);
-  --mc4-lime: #cedb05;
-  --mc4-primary: #eb5727;
-  --mc4-primary-strong: #c9431b;
-  --mc4-yellow: #f2c029;
-  --mc4-cyan: #00a5b5;
-  --mc4-orange: var(--mc4-primary);
-  --bg-light: #f4f7f9;
-  --kanban-bg: #ebf0f3;
-  --background: #f4f7f9;
-  --foreground: #142033;
-  --text-muted: #53657a;
-  --panel: rgba(255, 255, 255, 0.94);
-  --panel-border: rgba(65, 107, 169, 0.16);
-  --input-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 247, 249, 0.96));
-  --input-border: rgba(65, 107, 169, 0.18);
-  --accent: var(--mc4-primary);
-  --accent-strong: var(--mc4-primary-strong);
-  --secondary: var(--mc4-lime);
-  --secondary-strong: #b2c000;
-  --warning: var(--mc4-orange);
-}
-
-[data-theme="dark"] {
-  --background: #07111f;
-  --foreground: #f7fbff;
-  --text-muted: #b7c0cc;
-  --panel: rgba(7, 17, 31, 0.94);
-  --panel-border: rgba(255, 255, 255, 0.12);
-  --input-bg: rgba(255, 255, 255, 0.08);
-  --input-border: rgba(255, 255, 255, 0.14);
-  --sidebar-bg: linear-gradient(180deg, #8f2d16 0%, #5f2013 100%);
-  --sidebar-border: rgba(255, 255, 255, 0.12);
-  --sidebar-text: #f8fafc;
-  --sidebar-muted: rgba(226, 232, 240, 0.82);
-  --sidebar-link-hover: rgba(255, 255, 255, 0.1);
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  background:
-    radial-gradient(circle at top left, rgba(235, 87, 39, 0.12), transparent 24%),
-    linear-gradient(135deg, var(--background) 0%, #eef3f7 100%);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  min-height: 100vh;
-  margin: 0;
-  overflow-x: hidden;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.glass-panel {
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 16px 40px rgba(65, 107, 169, 0.12);
-  color: var(--foreground);
-}
-
-.table-surface {
-  background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
-  border: 1px solid rgba(255,255,255,0.12);
-}
-.glass-panel td,
-.glass-panel th {
-  color: inherit;
-}
-
-.mc4-card-accent {
-  background: linear-gradient(135deg, rgba(65, 107, 169, 0.06), rgba(0, 165, 181, 0.08));
-  border: 1px solid rgba(65, 107, 169, 0.14);
-}
-
-.mc4-form-input,
-.mc4-form-select,
-.mc4-form-textarea {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  color: var(--foreground);
-  box-shadow: inset 0 1px 2px rgba(65, 107, 169, 0.06);
-  color-scheme: light dark;
-}
-
-.mc4-form-input::placeholder,
-.mc4-form-select::placeholder,
-.mc4-form-textarea::placeholder {
-  color: var(--text-muted);
-}
-
-.mc4-form-input:focus,
-.mc4-form-select:focus,
-.mc4-form-textarea:focus {
-  outline: none;
-  border-color: var(--mc4-primary);
-  box-shadow: 0 0 0 3px rgba(235, 87, 39, 0.16);
-}
-
-.mc4-form-select option,
-.mc4-form-select optgroup {
-  background: var(--panel);
-  color: var(--foreground);
-}
-
-.mc4-form-input:disabled,
-.mc4-form-select:disabled,
-.mc4-form-textarea:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-  background: var(--panel-border);
-}
-
-.mc4-form-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.4) saturate(1.2) brightness(0.8);
-}
-
-[data-theme="dark"] .mc4-form-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) saturate(1.1) brightness(1.25);
-}
-
-.mc4-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  border-radius: 999px;
-  padding: 0.35rem 0.7rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.mc4-badge-cyan {
-  background: rgba(0, 165, 181, 0.12);
-  color: var(--foreground);
-  border: 1px solid rgba(0, 165, 181, 0.18);
-}
-
-.mc4-badge-lime {
-  background: rgba(206, 219, 5, 0.16);
-  color: var(--foreground);
-  border: 1px solid rgba(206, 219, 5, 0.22);
-}
-
-.mc4-badge-orange {
-  background: rgba(235, 87, 39, 0.12);
-  color: var(--foreground);
-  border: 1px solid rgba(235, 87, 39, 0.18);
-}
-
-.mc4-btn-primary {
-  background: linear-gradient(135deg, var(--mc4-primary), var(--mc4-primary-strong));
-  color: white;
-  box-shadow: 0 10px 24px rgba(235, 87, 39, 0.22);
-}
-
-.mc4-btn-primary:hover {
-  filter: brightness(1.03);
-}
-
-.mc4-btn-secondary {
-  background: linear-gradient(135deg, var(--mc4-lime), #a8bb00);
-  color: #273100;
-}
-
-.mc4-btn-secondary:hover {
-  filter: brightness(1.03);
-}
-
-.mc4-text-muted {
-  color: var(--text-muted);
-}
-
-.mc4-text-strong {
-  color: var(--foreground);
-}
-
-.soft-grid {
-  background-image:
-    linear-gradient(rgba(65, 107, 169, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(65, 107, 169, 0.06) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
-.page-loading-shell {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, rgba(65, 107, 169, 0.08), rgba(0, 165, 181, 0.08));
-}
-
-.page-loading-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.9rem;
-  padding: 1.5rem 2rem;
-  border-radius: 1.25rem;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 16px 40px rgba(65, 107, 169, 0.16);
-  border: 1px solid rgba(65, 107, 169, 0.16);
-}
-
-.page-loading-spinner {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 999px;
-  border: 4px solid rgba(65, 107, 169, 0.16);
-  border-top-color: var(--mc4-primary);
-  border-right-color: var(--mc4-lime);
-  animation: spin 0.9s linear infinite;
-}
-
-.page-loading-label {
-  color: #23406a;
-  font-weight: 600;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Quando os inputs ou textareas estiverem preenchidos e não focados, destaca com laranja MC4 sutil */
-.mc4-form-input:not(:placeholder-shown):not(:focus),
-.mc4-form-textarea:not(:placeholder-shown):not(:focus) {
-  border-color: rgba(235, 87, 39, 0.45) !important;
-  background: linear-gradient(180deg, rgba(235, 87, 39, 0.01), rgba(235, 87, 39, 0.025)) !important;
-  box-shadow: inset 0 1px 2px rgba(235, 87, 39, 0.04);
-}
-
-
-
-===== src\app\layout.tsx =====
-import type { Metadata } from "next";
-import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "MC4 Estoque",
-  description: "Sistema de estoque da MC4 com inventário, movimentações e relatórios.",
-  manifest: "/manifest.webmanifest",
-  icons: {
-    icon: "/mc4-512.png",
-    apple: "/mc4-192.png",
-  },
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="pt-BR" className="h-full antialiased">
-      <body className="min-h-full bg-[radial-gradient(circle_at_top,_rgba(17,24,39,0.92),_rgba(3,7,18,1))] text-slate-100">
-        {children}
-      </body>
-    </html>
-  );
-}
-
-
-
-
-===== src\app\loading.tsx =====
-import { PageLoading } from "@/components/page-loading";
-
-export default function Loading() {
-  return <PageLoading label="Carregando página" />;
-}
-
-
-
-
-===== src\app\page.tsx =====
-import { redirect } from "next/navigation";
-
-export default function Home() {
-  redirect("/login");
-}
-
-
-
-
-===== src\app\(app)\layout.tsx =====
-import { redirect } from "next/navigation";
-import { AppShell } from "@/components/app-shell";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { hasSupabaseConfig } from "@/lib/supabase/config";
-import { ToastProvider } from "@/components/toast-context"; // Importando o Provider
-
-export type UserRole = "cliente" | "operador" | "admin";
-
-export default async function AppLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  if (!hasSupabaseConfig()) {
-    return (
-      <main className="min-h-screen soft-grid px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
-        <section className="mx-auto w-full max-w-3xl rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6">
-          <h1 className="text-xl font-semibold text-[var(--foreground)]">Configuração do Supabase pendente</h1>
-          <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
-            Defina as variáveis de ambiente no Vercel para liberar acesso ao app: NEXT_PUBLIC_SUPABASE_URL (ou SUPABASE_URL), NEXT_PUBLIC_SUPABASE_ANON_KEY/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY e o bucket de storage.
-          </p>
-        </section>
-      </main>
-    );
-  }
-
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  // Busca o perfil e a role correspondente ao usuário logado na tabela profiles
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, full_name, email")
-    .eq("id", user.id)
-    .single();
-
-  const userLabel = profile?.full_name ?? user.user_metadata?.full_name ?? profile?.email ?? user.email ?? "Usuário";
-  const userRole = (profile?.role ?? "cliente") as UserRole;
-
-  return (
-    <ToastProvider>
-      <AppShell userLabel={userLabel} userRole={userRole}>
-        {children}
-      </AppShell>
-    </ToastProvider>
-  );
-}
-
-
-
 ===== src\app\(app)\admin\page.tsx =====
 /**
  * ÁREA DE ADMINISTRAÇÃO
@@ -496,12 +133,11 @@ export default async function AdminPage() {
 }
 
 
-
-
 ===== src\app\(app)\consulta\page.tsx =====
 /**
  * CONSULTA DE INVENTÁRIO MULTI-LOCAL, MULTI-CLIENTE E MULTI-CATEGORIA (MC4)
  * Route: src/app/(app)/consulta/page.tsx
+ * Formulário padronizado com a UI/UX do formulário de Movimentações.
  */
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ImageLightbox } from "@/components/image-lightbox";
@@ -538,7 +174,7 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
   const currentPage = Number(params.page ?? 1);
   const supabase = await createSupabaseServerClient();
 
-  // 1. DADOS MESTRE
+  // 1. DADOS MESTRE E PERMISSÕES (RBAC)
   const { data: { user } } = await supabase.auth.getUser();
   const [{ data: profile }, { data: estoques }, { data: itensParaFiltro }] = await Promise.all([
     supabase.from("profiles").select("role").eq("id", user?.id).single(),
@@ -556,7 +192,7 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
 
   const selectedEstoqueIds = params.estoqueId ? params.estoqueId.split(",").filter((id) => id !== "") : [];
 
-  // 2. QUERY DO BANCO
+  // 2. QUERY DO BANCO DE DADOS
   let query = supabase
     .from("estoque_itens")
     .select("quantidade, estoques ( nome ), itens!inner ( nome, categoria, cliente, foto_url, ativo )")
@@ -636,7 +272,7 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
           )}
         </div>
 
-         {/* CHIPS DE ESTOQUE */}
+        {/* CHIPS DE ESTOQUE */}
         <div className="mt-5 pt-7">
           <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
             <div>
@@ -659,7 +295,7 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
                 <Link
                   key={estoque.id}
                   href={href}
-                  className={`flex min-h-10 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all  ${
+                  className={`flex min-h-10 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${
                     isSelected
                       ? "border-[#EB5727] bg-[#EB5727]/10 text-[#EB5727]"
                       : "border-[var(--panel-border)] bg-[var(--panel)] text-[var(--text-muted)] hover:border-[#EB5727]/40 shadow-sm"
@@ -673,62 +309,62 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
           </div>
         </div>
 
-        {/* FORMULÁRIO DE FILTROS */}
+        {/* FORMULÁRIO DE FILTROS (MANTIDO NA POSIÇÃO ORIGINAL, COM O DESIGN PADRÃO DE MOVIMENTAÇÕES) */}
         <form action="/consulta" method="GET" className="mt-6 grid gap-4 md:grid-cols-2">
-            <input type="hidden" name="estoqueId" value={selectedEstoqueIds.join(",")} />
+          <input type="hidden" name="estoqueId" value={selectedEstoqueIds.join(",")} />
 
-            {/* Seletor de Cliente */}
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-[var(--text-muted)]">Cliente / Proprietário</span>
-              <select
-                name="cliente"
-                defaultValue={selectedCliente}
-                className={`mc4-form-select rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727] ${
-                  selectedCliente ? "!border-[#EB5727]/60 !bg-[#EB5727]/[0.02] font-semibold" : ""
-                }`}
-              >
-                <option value="">Todos os Clientes</option>
-                {clienteOptions.map((c) => (
-                  <option key={c} value={c!}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </label>
+          {/* Seletor de Cliente */}
+          <label className="grid gap-2">
+            <span className="text-sm font-medium text-[var(--text-muted)]">Cliente / Proprietário</span>
+            <select
+              name="cliente"
+              defaultValue={selectedCliente}
+              className={`mc4-form-select rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727] ${
+                selectedCliente ? "!border-[#EB5727]/60 !bg-[#EB5727]/[0.02] font-semibold" : ""
+              }`}
+            >
+              <option value="">Todos os Clientes</option>
+              {clienteOptions.map((c) => (
+                <option key={c} value={c!}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </label>
 
-            {/* Seletor de Categoria */}
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-[var(--text-muted)]">Categoria</span>
-              <select
-                name="categoria"
-                defaultValue={selectedCategoria}
-                className={`mc4-form-select rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727] ${
-                  selectedCategoria ? "!border-[#EB5727]/60 !bg-[#EB5727]/[0.02] font-semibold" : ""
-                }`}
-              >
-                <option value="">Todas as Categorias</option>
-                {categoriaOptions.map((cat) => (
-                  <option key={cat} value={cat!}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </label>
+          {/* Seletor de Categoria */}
+          <label className="grid gap-2">
+            <span className="text-sm font-medium text-[var(--text-muted)]">Categoria</span>
+            <select
+              name="categoria"
+              defaultValue={selectedCategoria}
+              className={`mc4-form-select rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727] ${
+                selectedCategoria ? "!border-[#EB5727]/60 !bg-[#EB5727]/[0.02] font-semibold" : ""
+              }`}
+            >
+              <option value="">Todas as Categorias</option>
+              {categoriaOptions.map((cat) => (
+                <option key={cat} value={cat!}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </label>
 
-            {/* Campo de Busca Rápida */}
-            <label className="grid gap-2 md:col-span-2">
-              <span className="text-sm font-medium text-[var(--text-muted)]">Busca rápida</span>
-              <input
-                name="q"
-                defaultValue={searchTerm}
-                placeholder="Buscar produto por nome..."
-                className={`mc4-form-input rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727] ${
-                  searchTerm ? "!border-[#EB5727]/60 !bg-[#EB5727]/[0.02] font-semibold" : ""
-                }`}
-              />
-            </label>
+          {/* Campo de Busca Rápida */}
+          <label className="grid gap-2 md:col-span-2">
+            <span className="text-sm font-medium text-[var(--text-muted)]">Busca rápida</span>
+            <input
+              name="q"
+              defaultValue={searchTerm}
+              placeholder="Buscar produto por nome..."
+              className={`mc4-form-input rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727] ${
+                searchTerm ? "!border-[#EB5727]/60 !bg-[#EB5727]/[0.02] font-semibold" : ""
+              }`}
+            />
+          </label>
 
-            {/* Botão de Filtrar */}
+          {/* Botão de Filtrar */}
           <div className="md:col-span-2">
             <button
               type="submit"
@@ -738,8 +374,6 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
             </button>
           </div>
         </form>
-
-       
       </section>
 
       {/* RESULTADOS */}
@@ -778,12 +412,35 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
             <p className="py-12 text-center text-sm italic text-[var(--text-muted)]">Nenhum item ativo encontrado para esta seleção.</p>
           )}
         </div>
+
+        {/* CONTROLES DE PAGINAÇÃO */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex flex-col gap-3 border-t border-[var(--panel-border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-[var(--text-muted)]">
+              Mostrando {paginatedRows.length} de {totalItems.toLocaleString("pt-BR")} itens • página {currentPage} de {totalPages}
+            </p>
+            <div className="flex gap-2">
+              <Link
+                href={`/consulta?${exportQueryParams}&page=${Math.max(currentPage - 1, 1)}`}
+                aria-disabled={currentPage === 1}
+                className={`mc4-badge px-4 py-2 text-xs ${currentPage === 1 ? "pointer-events-none opacity-30" : ""}`}
+              >
+                Anterior
+              </Link>
+              <Link
+                href={`/consulta?${exportQueryParams}&page=${Math.min(currentPage + 1, totalPages)}`}
+                aria-disabled={currentPage === totalPages}
+                className={`mc4-badge px-4 py-2 text-xs ${currentPage === totalPages ? "pointer-events-none opacity-30" : ""}`}
+              >
+                Próximo
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );
 }
-
-
 
 ===== src\app\(app)\dashboard\page.tsx =====
 /**
@@ -1203,8 +860,6 @@ export default async function DashboardPage() {
   );
 }
 
-
-
 ===== src\app\(app)\estoques\page.tsx =====
 /**
  * GESTÃO DE ESTOQUES - CAMADA DE IMPORTAÇÃO
@@ -1315,7 +970,392 @@ export default async function EstoquesPage() {
   );
 }
 
+===== src\app\(app)\itens\[id]\item-edit-form.tsx =====
+"use client";
 
+import { useTransition } from "react";
+import { updateItem } from "@/lib/supabase/actions";
+import { useToast } from "@/components/toast-context";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+type Option = { id: string; nome: string | null };
+
+type ItemEditFormProps = {
+  item: {
+    id: string;
+    nome: string | null;
+    categoria: string | null;
+    cliente: string | null;
+    descricao: string | null;
+    foto_url: string | null;
+  };
+  categoriaOptions: Option[];
+  clienteOptions: Option[];
+};
+
+export function ItemEditForm({ item, categoriaOptions, clienteOptions }: ItemEditFormProps) {
+  const { showToast } = useToast();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+
+    startTransition(async () => {
+      try {
+        await updateItem(formData);
+        showToast("Item atualizado com sucesso!", "success");
+        router.push("/itens"); // Redireciona de volta ao catálogo
+      } catch (error: any) {
+        showToast(error.message || "Erro ao atualizar o item.", "error");
+      }
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-6 grid gap-4 md:grid-cols-2">
+      {/* ID do Item Oculto para a Server Action */}
+      <input type="hidden" name="id" value={item.id} />
+
+      {/* Nome do Item */}
+      <div className="md:col-span-2 grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Nome do Item
+        </label>
+        <input
+          name="nome"
+          defaultValue={item.nome ?? ""}
+          placeholder="Ex: Camisa Polo MC4 - Tamanho M"
+          className="mc4-form-input rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727]"
+          required
+        />
+      </div>
+
+      {/* Categoria */}
+      <div className="grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Categoria
+        </label>
+        <select
+          name="categoria"
+          defaultValue={item.categoria ?? ""}
+          className="mc4-form-select rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727]"
+          required
+        >
+          {categoriaOptions.map((c) => (
+            <option key={c.id} value={c.nome ?? ""}>
+              {c.nome}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Cliente Proprietário */}
+      <div className="grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Cliente Proprietário
+        </label>
+        <select
+          name="cliente"
+          defaultValue={item.cliente ?? ""}
+          className="mc4-form-select rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727]"
+          required
+        >
+          {clienteOptions.map((cl) => (
+            <option key={cl.id} value={cl.nome ?? ""}>
+              {cl.nome}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Upload de Imagem */}
+      <div className="md:col-span-2 grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Imagem do Catálogo
+        </label>
+        <input type="hidden" name="foto_url" defaultValue={item.foto_url ?? ""} />
+        <input
+          type="file"
+          name="foto_file"
+          accept="image/*"
+          className="mc4-form-input rounded-2xl px-4 py-3 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#EB5727]/10 file:text-[#EB5727] hover:file:bg-[#EB5727]/20 file:cursor-pointer transition-colors"
+        />
+      </div>
+
+      {/* Descrição */}
+      <div className="md:col-span-2 grid gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Descrição do Item
+        </label>
+        <textarea
+          name="descricao"
+          defaultValue={item.descricao ?? ""}
+          placeholder="Descreva observações, tamanho, cor..."
+          rows={3}
+          className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727]"
+        />
+      </div>
+
+      {/* Botões de Ação */}
+      <div className="md:col-span-2 mt-4 flex flex-wrap gap-2">
+        <button
+          type="submit"
+          disabled={isPending}
+          className="mc4-btn-primary rounded-2xl w-full sm:w-auto px-6 py-3.5 text-sm font-semibold transition disabled:opacity-60"
+        >
+          {isPending ? "Salvando..." : "Salvar alterações"}
+        </button>
+        <Link
+          href="/itens"
+          className="rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] w-full sm:w-auto px-6 py-3.5 text-center text-sm font-semibold text-[var(--text-muted)] hover:bg-[var(--panel-border)]/10 transition"
+        >
+          Cancelar
+        </Link>
+      </div>
+    </form>
+  );
+}
+
+===== src\app\(app)\itens\[id]\page.tsx =====
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { updateItem } from "@/lib/supabase/actions";
+import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
+import { ImageLightbox } from "@/components/image-lightbox";
+import { ItemEditForm } from "./item-edit-form";
+
+type ItemDetailPageProps = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+type NamedRelation = {
+  id?: string | null;
+  nome: string | null;
+  tipo?: string | null;
+  fotoPreviewUrl?: string | null;
+};
+
+type StockBalanceRow = {
+  quantidade: number;
+  estoques: NamedRelation | NamedRelation[] | null;
+};
+
+type MovementRow = {
+  id: string;
+  data_movimentacao: string;
+  tipo: string;
+  quantidade: number;
+  observacao: string | null;
+  origem: NamedRelation | NamedRelation[] | null;
+  destino: NamedRelation | NamedRelation[] | null;
+};
+
+export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
+  const { id } = await params;
+  const supabase = await createSupabaseServerClient();
+
+  const [{ data: item }, { data: stockBalances }, { data: movementRows }, { data: categoriaRows }, { data: clienteRows }] = await Promise.all([
+    supabase
+      .from("itens")
+      .select("id, nome, categoria, cliente, descricao, foto_url, created_at")
+      .eq("id", id)
+      .maybeSingle(),
+    supabase
+      .from("estoque_itens")
+      .select("quantidade, estoques ( id, nome, tipo )")
+      .eq("item_id", id)
+      .order("quantidade", { ascending: false }),
+    supabase
+      .from("movimentacoes")
+      .select("id, data_movimentacao, tipo, quantidade, observacao, origem:estoques!origem_id ( nome ), destino:estoques!destino_id ( nome )")
+      .eq("item_id", id)
+      .order("data_movimentacao", { ascending: false })
+      .limit(20),
+    supabase.from("categorias").select("id, nome").order("nome", { ascending: true }),
+    supabase.from("clientes").select("id, nome").order("nome", { ascending: true }),
+  ]);
+  const categoriaOptions = categoriaRows ?? [];
+  const clienteOptions = clienteRows ?? [];
+
+  if (!item) {
+    notFound();
+  }
+
+  const itemPhotoPreviewUrl = await resolveSupabaseAssetUrl(supabase, item.foto_url);
+  const normalizedBalances = (stockBalances ?? []) as StockBalanceRow[];
+  const totalUnidades = normalizedBalances.reduce((total, row) => total + (row.quantidade ?? 0), 0);
+  const locaisAtivos = normalizedBalances.filter((row) => (row.quantidade ?? 0) > 0).length;
+
+  const movementStats = (movementRows ?? []).reduce(
+    (acc, row: MovementRow) => {
+      if (row.tipo === "entrada") acc.entradas += row.quantidade ?? 0;
+      if (row.tipo === "saida") acc.saidas += row.quantidade ?? 0;
+      if (row.tipo === "transferencia") acc.transferencias += row.quantidade ?? 0;
+      return acc;
+    },
+    { entradas: 0, saidas: 0, transferencias: 0 },
+  );
+
+  const movementHistory = (movementRows ?? []) as MovementRow[];
+
+  return (
+    <div className="grid gap-6">
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex items-start gap-4">
+            <ImageLightbox
+              src={itemPhotoPreviewUrl}
+              alt={item.nome ?? "Item"}
+              thumbnailClassName="h-20 w-20 rounded-2xl"
+            />
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#EB5727]">Detalhe do item</p>
+              <h1 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{item.nome ?? "Item sem nome"}</h1>
+              <p className="mt-2 text-sm text-[var(--text-muted)]">
+                Cliente: <span className="text-[var(--foreground)]">{item.cliente ?? "-"}</span> | Categoria:{" "}
+                <span className="text-[var(--foreground)]">{item.categoria ?? "-"}</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/dashboard"
+              className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10"
+            >
+              Voltar ao dashboard
+            </Link>
+            <Link
+              href="/itens"
+              className="rounded-2xl border border-[var(--panel-border)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10"
+            >
+              Ver todos os itens
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        <article className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(0,165,181,0.08)] px-4 py-4 text-sm">
+          <p className="text-[var(--text-muted)]">Saldo total</p>
+          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{totalUnidades.toLocaleString("pt-BR")}</p>
+        </article>
+        <article className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(206,219,5,0.08)] px-4 py-4 text-sm">
+          <p className="text-[var(--text-muted)]">Locais com saldo</p>
+          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{locaisAtivos.toLocaleString("pt-BR")}</p>
+        </article>
+        <article className="rounded-2xl border border-[var(--panel-border)] bg-[rgba(235,87,39,0.08)] px-4 py-4 text-sm">
+          <p className="text-[var(--text-muted)]">Movimentações</p>
+          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{movementHistory.length.toLocaleString("pt-BR")}</p>
+        </article>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">Onde este item está</h2>
+          <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+            Distribuição atual por local de estoque para facilitar localização e decisão de movimentação.
+          </p>
+
+          <div className="mt-4 space-y-3">
+            {normalizedBalances.length > 0 ? (
+              normalizedBalances.map((row, index) => {
+                const estoque = Array.isArray(row.estoques) ? row.estoques[0] : row.estoques;
+                return (
+                  <div
+                    key={`${estoque?.id ?? estoque?.nome ?? "sem-local"}-${index}`}
+                    className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3"
+                  >
+                    <div>
+                      <p className="font-medium text-[var(--foreground)]">{estoque?.nome ?? "Local não identificado"}</p>
+                      <p className="text-xs text-[var(--text-muted)]">{estoque?.tipo ?? "Estoque"}</p>
+                    </div>
+                    <span className="mc4-badge mc4-badge-lime">{(row.quantidade ?? 0).toLocaleString("pt-BR")}</span>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-sm text-[var(--text-muted)]">Nenhum saldo encontrado para este item.</p>
+            )}
+          </div>
+        </article>
+
+        <article className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">Resumo de movimentação</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-emerald-500/10 px-4 py-3 text-sm">
+              <p className="text-[var(--text-muted)]">Entradas</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{movementStats.entradas.toLocaleString("pt-BR")}</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-rose-500/10 px-4 py-3 text-sm">
+              <p className="text-[var(--text-muted)]">Saídas</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{movementStats.saidas.toLocaleString("pt-BR")}</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--panel-border)] bg-orange-500/10 px-4 py-3 text-sm">
+              <p className="text-[var(--text-muted)]">Transferências</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--foreground)]">{movementStats.transferencias.toLocaleString("pt-BR")}</p>
+            </div>
+          </div>
+
+          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+            <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+              <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Data</th>
+                  <th className="px-4 py-3 text-left font-medium">Tipo</th>
+                  <th className="px-4 py-3 text-left font-medium">Origem / Destino</th>
+                  <th className="px-4 py-3 text-right font-medium">Qtd</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+                {movementHistory.length > 0 ? (
+                  movementHistory.map((movement) => {
+                    const origem = Array.isArray(movement.origem) ? movement.origem[0] : movement.origem;
+                    const destino = Array.isArray(movement.destino) ? movement.destino[0] : movement.destino;
+
+                    return (
+                      <tr key={movement.id} className="hover:bg-[var(--panel-border)]/10 transition-colors">
+                        <td className="px-4 py-3 text-[var(--text-muted)]">{new Date(movement.data_movimentacao).toLocaleString("pt-BR")}</td>
+                        <td className="px-4 py-3 text-[var(--foreground)]">{movement.tipo}</td>
+                        <td className="px-4 py-3 text-[var(--text-muted)]">{origem?.nome ?? "Externo"} → {destino?.nome ?? "Baixa"}</td>
+                        <td className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">{(movement.quantidade ?? 0).toLocaleString("pt-BR")}</td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={4}>
+                      Nenhuma movimentação registrada para este item.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
+        <h2 className="text-lg font-semibold text-[var(--foreground)]">Dados do item</h2>
+        <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+          Atualize os dados do item diretamente nesta tela. Após salvar, o dashboard e as listas são atualizados automaticamente.
+        </p>
+
+        <ItemEditForm 
+          item={item} 
+          categoriaOptions={categoriaOptions} 
+          clienteOptions={clienteOptions} 
+        />
+      </section>
+    </div>
+  );
+}
 
 ===== src\app\(app)\itens\page.tsx =====
 /**
@@ -1468,313 +1508,58 @@ export default async function ItensPage() {
   );
 }
 
-
-
-===== src\app\(app)\itens\[id]\item-edit-form.tsx =====
-/**
- * GESTÃO DE CATÁLOGO - MÓDULO DE ITENS
- * 1. createSupabaseServerClient: Inicializa a conexão com o banco via Server Side.
- * 2. create/delete/updateItem: Server Actions para manipulação direta da tabela 'itens'.
- * 3. ItemsSearchTable: Componente cliente que gerencia a busca e filtragem de itens.
- * 4. resolveSupabaseAssetUrl: Utilitário que transforma o path do Storage em URL visível.
- */
+===== src\app\(app)\layout.tsx =====
+import { redirect } from "next/navigation";
+import { AppShell } from "@/components/app-shell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createItem, deleteItem, reactivateItem, updateItem } from "@/lib/supabase/actions";
-import ItemsSearchTable from "@/components/ItemsSearchTable";
-import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
-import { ItemForm } from "@/components/item-form"; // Chamando o novo formulário Client-side
+import { hasSupabaseConfig } from "@/lib/supabase/config";
+import { ToastProvider } from "@/components/toast-context"; // Importando o Provider
 
-export default async function ItensPage() {
+export type UserRole = "cliente" | "operador" | "admin";
+
+export default async function AppLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  if (!hasSupabaseConfig()) {
+    return (
+      <main className="min-h-screen soft-grid px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
+        <section className="mx-auto w-full max-w-3xl rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6">
+          <h1 className="text-xl font-semibold text-[var(--foreground)]">Configuração do Supabase pendente</h1>
+          <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
+            Defina as variáveis de ambiente no Vercel para liberar acesso ao app: NEXT_PUBLIC_SUPABASE_URL (ou SUPABASE_URL), NEXT_PUBLIC_SUPABASE_ANON_KEY/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY e o bucket de storage.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
   const supabase = await createSupabaseServerClient();
-  type ItemRow = {
-    id: string;
-    nome: string | null;
-    categoria: string | null;
-    cliente: string | null;
-    descricao: string | null;
-    foto_url: string | null;
-    ativo: boolean;
-    foto_preview_url: string | null;
-    created_at: string | null;
-  };
-
   const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  // Busca o perfil e a role correspondente ao usuário logado na tabela profiles
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
-    .eq("id", user?.id)
+    .select("role, full_name, email")
+    .eq("id", user.id)
     .single();
-  const isAdmin = profile?.role === "admin";
 
-  // Busca a lista mestra de itens ordenada pelos cadastros mais recentes.
-  const { data: itens } = await supabase
-    .from("itens")
-    .select("id, nome, categoria, cliente, descricao, foto_url, ativo, created_at")
-    .eq("ativo", true)
-    .order("created_at", { ascending: false });
-
-  // PROCESSO DE RESOLUÇÃO DE MÍDIA:
-  // Para cada item, verificamos se existe um path em 'foto_url' e solicitamos
-  // ao Supabase Storage uma URL válida para renderização do preview.
-  const itemRows = await Promise.all(
-    ((itens ?? []) as Omit<ItemRow, "foto_preview_url">[]).map(async (item) => ({
-      ...item,
-      foto_preview_url: await resolveSupabaseAssetUrl(supabase, item.foto_url),
-    }))
-  );
-
-  const { data: inactiveItems } = isAdmin
-    ? await supabase
-        .from("itens")
-        .select("id, nome, categoria, cliente, descricao, created_at")
-        .eq("ativo", false)
-        .order("created_at", { ascending: false })
-    : { data: [] as never[] };
-
-  const [{ data: categoriaRows }, { data: clienteRows }] = await Promise.all([
-    supabase.from("categorias").select("id, nome").order("nome", { ascending: true }),
-    supabase.from("clientes").select("id, nome").order("nome", { ascending: true }),
-  ]);
-  const categoriaOptions = categoriaRows ?? [];
-  const clienteOptions = clienteRows ?? [];
+  const userLabel = profile?.full_name ?? user.user_metadata?.full_name ?? profile?.email ?? user.email ?? "Usuário";
+  const userRole = (profile?.role ?? "cliente") as UserRole;
 
   return (
-    <div className="grid gap-6">
-      {profile?.role !== "cliente" && (
-        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo item</h3>
-          {/* O formulário envia os dados reativamente pelo componente cliente integrado ao useToast */}
-          <ItemForm categoriaOptions={categoriaOptions} clienteOptions={clienteOptions} />
-        </section>
-      )}
-
-      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
-        <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Itens cadastrados</h3>
-        
-        {/* Tabela de itens com busca, paginação e o ItemRowEditor original preservado */}
-        <ItemsSearchTable
-          initialItems={itemRows}
-          updateAction={updateItem}
-          deleteAction={deleteItem}
-          categoriaOptions={categoriaOptions}
-          clienteOptions={clienteOptions}
-        />
-      </section>
-
-      {isAdmin ? (
-        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="text-lg font-semibold text-[var(--foreground)]">Itens inativos</h3>
-            <span className="rounded-full border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
-              Admin
-            </span>
-          </div>
-          <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-            Esta aba lista os itens desativados por exclusão lógica. Você pode reativar quando precisar voltar o item para a operação.
-          </p>
-
-          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
-            <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
-              <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium">Item</th>
-                  <th className="px-4 py-3 text-left font-medium">Categoria</th>
-                  <th className="px-4 py-3 text-left font-medium">Cliente</th>
-                  <th className="px-4 py-3 text-left font-medium">Descrição</th>
-                  <th className="px-4 py-3 text-right font-medium">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
-                {(inactiveItems ?? []).length > 0 ? (
-                  (inactiveItems ?? []).map((item) => (
-                    <tr key={item.id}>
-                      <td className="px-4 py-3 font-medium text-[var(--foreground)]">{item.nome ?? "Item"}</td>
-                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.categoria ?? "-"}</td>
-                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.cliente ?? "-"}</td>
-                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.descricao ?? "-"}</td>
-                      <td className="px-4 py-3 text-right">
-                        <form action={reactivateItem}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <button
-                            type="submit"
-                            className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
-                          >
-                            Reativar
-                          </button>
-                        </form>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={5}>
-                      Nenhum item inativo encontrado.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : null}
-    </div>
+    <ToastProvider>
+      <AppShell userLabel={userLabel} userRole={userRole}>
+        {children}
+      </AppShell>
+    </ToastProvider>
   );
 }
-
-
-
-===== src\app\(app)\itens\[id]\page.tsx =====
-/**
- * GESTÃO DE CATÁLOGO - MÓDULO DE ITENS
- * 1. createSupabaseServerClient: Inicializa a conexão com o banco via Server Side.
- * 2. create/delete/updateItem: Server Actions para manipulação direta da tabela 'itens'.
- * 3. ItemsSearchTable: Componente cliente que gerencia a busca e filtragem de itens.
- * 4. resolveSupabaseAssetUrl: Utilitário que transforma o path do Storage em URL visível.
- */
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createItem, deleteItem, reactivateItem, updateItem } from "@/lib/supabase/actions";
-import ItemsSearchTable from "@/components/ItemsSearchTable";
-import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
-import { ItemForm } from "@/components/item-form"; // Chamando o novo formulário Client-side
-
-export default async function ItensPage() {
-  const supabase = await createSupabaseServerClient();
-  type ItemRow = {
-    id: string;
-    nome: string | null;
-    categoria: string | null;
-    cliente: string | null;
-    descricao: string | null;
-    foto_url: string | null;
-    ativo: boolean;
-    foto_preview_url: string | null;
-    created_at: string | null;
-  };
-
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user?.id)
-    .single();
-  const isAdmin = profile?.role === "admin";
-
-  // Busca a lista mestra de itens ordenada pelos cadastros mais recentes.
-  const { data: itens } = await supabase
-    .from("itens")
-    .select("id, nome, categoria, cliente, descricao, foto_url, ativo, created_at")
-    .eq("ativo", true)
-    .order("created_at", { ascending: false });
-
-  // PROCESSO DE RESOLUÇÃO DE MÍDIA:
-  // Para cada item, verificamos se existe um path em 'foto_url' e solicitamos
-  // ao Supabase Storage uma URL válida para renderização do preview.
-  const itemRows = await Promise.all(
-    ((itens ?? []) as Omit<ItemRow, "foto_preview_url">[]).map(async (item) => ({
-      ...item,
-      foto_preview_url: await resolveSupabaseAssetUrl(supabase, item.foto_url),
-    }))
-  );
-
-  const { data: inactiveItems } = isAdmin
-    ? await supabase
-        .from("itens")
-        .select("id, nome, categoria, cliente, descricao, created_at")
-        .eq("ativo", false)
-        .order("created_at", { ascending: false })
-    : { data: [] as never[] };
-
-  const [{ data: categoriaRows }, { data: clienteRows }] = await Promise.all([
-    supabase.from("categorias").select("id, nome").order("nome", { ascending: true }),
-    supabase.from("clientes").select("id, nome").order("nome", { ascending: true }),
-  ]);
-  const categoriaOptions = categoriaRows ?? [];
-  const clienteOptions = clienteRows ?? [];
-
-  return (
-    <div className="grid gap-6">
-      {profile?.role !== "cliente" && (
-        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">Novo item</h3>
-          {/* O formulário envia os dados reativamente pelo componente cliente integrado ao useToast */}
-          <ItemForm categoriaOptions={categoriaOptions} clienteOptions={clienteOptions} />
-        </section>
-      )}
-
-      <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
-        <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Itens cadastrados</h3>
-        
-        {/* Tabela de itens com busca, paginação e o ItemRowEditor original preservado */}
-        <ItemsSearchTable
-          initialItems={itemRows}
-          updateAction={updateItem}
-          deleteAction={deleteItem}
-          categoriaOptions={categoriaOptions}
-          clienteOptions={clienteOptions}
-        />
-      </section>
-
-      {isAdmin ? (
-        <section className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="text-lg font-semibold text-[var(--foreground)]">Itens inativos</h3>
-            <span className="rounded-full border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
-              Admin
-            </span>
-          </div>
-          <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-            Esta aba lista os itens desativados por exclusão lógica. Você pode reativar quando precisar voltar o item para a operação.
-          </p>
-
-          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
-            <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
-              <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium">Item</th>
-                  <th className="px-4 py-3 text-left font-medium">Categoria</th>
-                  <th className="px-4 py-3 text-left font-medium">Cliente</th>
-                  <th className="px-4 py-3 text-left font-medium">Descrição</th>
-                  <th className="px-4 py-3 text-right font-medium">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
-                {(inactiveItems ?? []).length > 0 ? (
-                  (inactiveItems ?? []).map((item) => (
-                    <tr key={item.id}>
-                      <td className="px-4 py-3 font-medium text-[var(--foreground)]">{item.nome ?? "Item"}</td>
-                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.categoria ?? "-"}</td>
-                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.cliente ?? "-"}</td>
-                      <td className="px-4 py-3 text-[var(--text-muted)]">{item.descricao ?? "-"}</td>
-                      <td className="px-4 py-3 text-right">
-                        <form action={reactivateItem}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <button
-                            type="submit"
-                            className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
-                          >
-                            Reativar
-                          </button>
-                        </form>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={5}>
-                      Nenhum item inativo encontrado.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : null}
-    </div>
-  );
-}
-
-
 
 ===== src\app\(app)\movimentacoes\page.tsx =====
 /**
@@ -1958,8 +1743,6 @@ export default async function MovimentacoesPage() {
   );
 }
 
-
-
 ===== src\app\(app)\relatorios\page.tsx =====
 /**
  * RELATÓRIOS DE MOVIMENTAÇÃO
@@ -2065,6 +1848,296 @@ export default async function RelatoriosPage({ searchParams }: RelatoriosPagePro
   );
 }
 
+===== src\app\globals.css =====
+@import "tailwindcss";
+
+:root {
+  --sidebar-bg: linear-gradient(180deg, #eb5727 0%, #c9431b 100%);
+  --sidebar-border: rgba(255, 255, 255, 0.16);
+  --sidebar-text: #f4f7f9;
+  --sidebar-muted: rgba(244, 247, 249, 0.82);
+  --sidebar-link-hover: rgba(255, 255, 255, 0.14);
+  --active-bg: rgba(255, 255, 255, 0.15);
+  --mc4-lime: #cedb05;
+  --mc4-primary: #eb5727;
+  --mc4-primary-strong: #c9431b;
+  --mc4-yellow: #f2c029;
+  --mc4-cyan: #00a5b5;
+  --mc4-orange: var(--mc4-primary);
+  --bg-light: #f4f7f9;
+  --kanban-bg: #ebf0f3;
+  --background: #f4f7f9;
+  --foreground: #142033;
+  --text-muted: #53657a;
+  --panel: rgba(255, 255, 255, 0.94);
+  --panel-border: rgba(65, 107, 169, 0.16);
+  --input-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 247, 249, 0.96));
+  --input-border: rgba(65, 107, 169, 0.18);
+  --accent: var(--mc4-primary);
+  --accent-strong: var(--mc4-primary-strong);
+  --secondary: var(--mc4-lime);
+  --secondary-strong: #b2c000;
+  --warning: var(--mc4-orange);
+}
+
+[data-theme="dark"] {
+  --background: #07111f;
+  --foreground: #f7fbff;
+  --text-muted: #b7c0cc;
+  --panel: rgba(7, 17, 31, 0.94);
+  --panel-border: rgba(255, 255, 255, 0.12);
+  --input-bg: rgba(255, 255, 255, 0.08);
+  --input-border: rgba(255, 255, 255, 0.14);
+  --sidebar-bg: linear-gradient(180deg, #8f2d16 0%, #5f2013 100%);
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-text: #f8fafc;
+  --sidebar-muted: rgba(226, 232, 240, 0.82);
+  --sidebar-link-hover: rgba(255, 255, 255, 0.1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(235, 87, 39, 0.12), transparent 24%),
+    linear-gradient(135deg, var(--background) 0%, #eef3f7 100%);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.glass-panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 16px 40px rgba(65, 107, 169, 0.12);
+  color: var(--foreground);
+}
+
+.table-surface {
+  background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.glass-panel td,
+.glass-panel th {
+  color: inherit;
+}
+
+.mc4-card-accent {
+  background: linear-gradient(135deg, rgba(65, 107, 169, 0.06), rgba(0, 165, 181, 0.08));
+  border: 1px solid rgba(65, 107, 169, 0.14);
+}
+
+.mc4-form-input,
+.mc4-form-select,
+.mc4-form-textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--foreground);
+  box-shadow: inset 0 1px 2px rgba(65, 107, 169, 0.06);
+  color-scheme: light dark;
+}
+
+.mc4-form-input::placeholder,
+.mc4-form-select::placeholder,
+.mc4-form-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.mc4-form-input:focus,
+.mc4-form-select:focus,
+.mc4-form-textarea:focus {
+  outline: none;
+  border-color: var(--mc4-primary);
+  box-shadow: 0 0 0 3px rgba(235, 87, 39, 0.16);
+}
+
+.mc4-form-select option,
+.mc4-form-select optgroup {
+  background: var(--panel);
+  color: var(--foreground);
+}
+
+.mc4-form-input:disabled,
+.mc4-form-select:disabled,
+.mc4-form-textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background: var(--panel-border);
+}
+
+.mc4-form-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.4) saturate(1.2) brightness(0.8);
+}
+
+[data-theme="dark"] .mc4-form-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) saturate(1.1) brightness(1.25);
+}
+
+.mc4-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mc4-badge-cyan {
+  background: rgba(0, 165, 181, 0.12);
+  color: var(--foreground);
+  border: 1px solid rgba(0, 165, 181, 0.18);
+}
+
+.mc4-badge-lime {
+  background: rgba(206, 219, 5, 0.16);
+  color: var(--foreground);
+  border: 1px solid rgba(206, 219, 5, 0.22);
+}
+
+.mc4-badge-orange {
+  background: rgba(235, 87, 39, 0.12);
+  color: var(--foreground);
+  border: 1px solid rgba(235, 87, 39, 0.18);
+}
+
+.mc4-btn-primary {
+  background: linear-gradient(135deg, var(--mc4-primary), var(--mc4-primary-strong));
+  color: white;
+  box-shadow: 0 10px 24px rgba(235, 87, 39, 0.22);
+}
+
+.mc4-btn-primary:hover {
+  filter: brightness(1.03);
+}
+
+.mc4-btn-secondary {
+  background: linear-gradient(135deg, var(--mc4-lime), #a8bb00);
+  color: #273100;
+}
+
+.mc4-btn-secondary:hover {
+  filter: brightness(1.03);
+}
+
+.mc4-text-muted {
+  color: var(--text-muted);
+}
+
+.mc4-text-strong {
+  color: var(--foreground);
+}
+
+.soft-grid {
+  background-image:
+    linear-gradient(rgba(65, 107, 169, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(65, 107, 169, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.page-loading-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(65, 107, 169, 0.08), rgba(0, 165, 181, 0.08));
+}
+
+.page-loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.5rem 2rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 40px rgba(65, 107, 169, 0.16);
+  border: 1px solid rgba(65, 107, 169, 0.16);
+}
+
+.page-loading-spinner {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: 4px solid rgba(65, 107, 169, 0.16);
+  border-top-color: var(--mc4-primary);
+  border-right-color: var(--mc4-lime);
+  animation: spin 0.9s linear infinite;
+}
+
+.page-loading-label {
+  color: #23406a;
+  font-weight: 600;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Quando os inputs ou textareas estiverem preenchidos e não focados, destaca com laranja MC4 sutil */
+.mc4-form-input:not(:placeholder-shown):not(:focus),
+.mc4-form-textarea:not(:placeholder-shown):not(:focus) {
+  border-color: rgba(235, 87, 39, 0.45) !important;
+  background: linear-gradient(180deg, rgba(235, 87, 39, 0.01), rgba(235, 87, 39, 0.025)) !important;
+  box-shadow: inset 0 1px 2px rgba(235, 87, 39, 0.04);
+}
+
+===== src\app\layout.tsx =====
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "MC4 Estoque",
+  description: "Sistema de estoque da MC4 com inventário, movimentações e relatórios.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/mc4-512.png",
+    apple: "/mc4-192.png",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="pt-BR" className="h-full antialiased">
+      <body className="min-h-full bg-[radial-gradient(circle_at_top,_rgba(17,24,39,0.92),_rgba(3,7,18,1))] text-slate-100">
+        {children}
+      </body>
+    </html>
+  );
+}
+
+
+===== src\app\loading.tsx =====
+import { PageLoading } from "@/components/page-loading";
+
+export default function Loading() {
+  return <PageLoading label="Carregando página" />;
+}
 
 
 ===== src\app\login\page.tsx =====
@@ -2121,14 +2194,390 @@ export default async function LoginPage() {
             <p className="mt-3">
               O login, os cadastros e as movimentações já estão conectados ao fluxo do estoque com identidade MC4.
             </p>
-          </div>
+          </div>  
         </div>
       </div>
     </main>
   );
 }
 
+===== src\app\page.tsx =====
+import { redirect } from "next/navigation";
 
+export default function Home() {
+  redirect("/login");
+}
+
+
+===== src\components\DataTableSearch.tsx =====
+"use client";
+
+import { useState, ReactNode } from "react";
+
+type Column<T> = {
+  header: string;
+  accessorKey: keyof T | string;
+  className?: string;
+};
+
+type DataTableSearchProps<T> = {
+  data: T[];
+  searchKeys: (keyof T)[];
+  placeholder?: string;
+  columns: Column<T>[];
+  itemsPerPage?: number;
+};
+
+export default function DataTableSearch<T>({
+  data,
+  searchKeys,
+  placeholder = "Buscar...",
+  columns,
+  itemsPerPage = 10,
+}: DataTableSearchProps<T>) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const filteredData = data.filter((item) => {
+    if (!searchTerm) return true;
+    const search = searchTerm.toLowerCase();
+    return searchKeys.some((key) => {
+      const value = item[key];
+      if (value === null || value === undefined) return false;
+      return String(value).toLowerCase().includes(search);
+    });
+  });
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
+        />
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+        <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+          <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+            <tr>
+              {columns.map((col, index) => (
+                <th key={index} className={`px-4 py-3 font-medium ${col.className ?? "text-left"}`}>
+                  {col.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+            {currentData.length > 0 ? (
+              currentData.map((item, rowIndex) => (
+                <tr key={rowIndex} className="hover:bg-[var(--panel-border)]/10 transition-colors">
+                  {columns.map((col, colIndex) => {
+                    const value = item[col.accessorKey as keyof T];
+
+                    // Renderização especial baseada na coluna "tipo" para exibir o Badge colorido
+                    if (String(col.accessorKey) === "tipo") {
+                      const tipoStr = String(value);
+                      const badgeClass =
+                        tipoStr === "entrada"
+                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-200"
+                          : tipoStr === "saida"
+                            ? "bg-rose-500/15 text-rose-600 dark:text-rose-200"
+                            : "bg-orange-500/15 text-orange-600 dark:text-orange-200";
+
+                      return (
+                        <td key={colIndex} className={`px-4 py-3 ${col.className ?? "text-left"}`}>
+                          <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${badgeClass}`}>
+                            {tipoStr}
+                          </span>
+                        </td>
+                      );
+                    }
+
+                    return (
+                      <td key={colIndex} className={`px-4 py-3 text-[var(--foreground)] ${col.className ?? "text-left"}`}>
+                        {value as ReactNode}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={columns.length}>
+                  Nenhum registro encontrado.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2 text-sm text-[var(--text-muted)]">
+          <p>
+            Mostrando <span className="font-medium text-[var(--foreground)]">{startIndex + 1}</span> a{" "}
+            <span className="font-medium text-[var(--foreground)]">
+              {Math.min(startIndex + itemsPerPage, filteredData.length)}
+            </span>{" "}
+            de <span className="font-medium text-[var(--foreground)]">{filteredData.length}</span> registros
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
+
+            <span className="px-2">
+              Página {currentPage} de {totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Próxima
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+===== src\components\ItemsSearchTable.tsx =====
+"use client";
+
+import { useState } from "react";
+import { ItemRowEditor } from "@/components/item-row-editor";
+
+type ItemRow = {
+  id: string;
+  nome: string | null;
+  categoria: string | null;
+  cliente: string | null;
+  descricao: string | null;
+  foto_url: string | null;
+  foto_preview_url: string | null;
+  created_at: string | null;
+};
+
+type ItemsSearchTableProps = {
+  initialItems: ItemRow[];
+  updateAction: (formData: FormData) => Promise<void>;
+  deleteAction: (formData: FormData) => Promise<void>;
+  categoriaOptions: { id: string; nome: string | null }[];
+  clienteOptions: { id: string; nome: string | null }[];
+};
+
+const ITEMS_PER_PAGE = 10;
+
+export default function ItemsSearchTable({ initialItems, updateAction, deleteAction, categoriaOptions, clienteOptions }: ItemsSearchTableProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Filtra os itens com base na busca (nome, categoria, cliente ou descrição)
+  const filteredItems = initialItems.filter((item) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      (item.nome?.toLowerCase() ?? "").includes(search) ||
+      (item.categoria?.toLowerCase() ?? "").includes(search) ||
+      (item.cliente?.toLowerCase() ?? "").includes(search) ||
+      (item.descricao?.toLowerCase() ?? "").includes(search)
+    );
+  });
+
+  // Paginação
+  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reseta para a primeira página ao buscar
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Barra de Busca */}
+      <div>
+        <input
+          type="text"
+          placeholder="Buscar por nome, categoria, cliente ou descrição..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
+        />
+      </div>
+
+      {/* Tabela */}
+      <div className="overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+        <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
+          <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
+            <tr>
+              <th className="px-4 py-3 text-left font-medium">Item</th>
+              <th className="px-4 py-3 text-left font-medium">Categoria</th>
+              <th className="px-4 py-3 text-left font-medium">Cliente</th>
+              <th className="px-4 py-3 text-left font-medium">Descrição</th>
+              <th className="px-4 py-3 text-right font-medium">Ações</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
+            {currentItems.length > 0 ? (
+              currentItems.map((item) => (
+                <ItemRowEditor
+                  key={item.id}
+                  item={item}
+                  updateAction={updateAction}
+                  deleteAction={deleteAction}
+                  categoriaOptions={categoriaOptions}
+                  clienteOptions={clienteOptions}
+                />
+              ))
+            ) : (
+              <tr>
+                <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={5}>
+                  Nenhum item encontrado.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2 text-sm text-[var(--text-muted)]">
+          <p>
+            Mostrando <span className="font-medium text-[var(--foreground)]">{startIndex + 1}</span> a{" "}
+            <span className="font-medium text-[var(--foreground)]">
+              {Math.min(startIndex + ITEMS_PER_PAGE, filteredItems.length)}
+            </span>{" "}
+            de <span className="font-medium text-[var(--foreground)]">{filteredItems.length}</span> registros
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
+
+            <span className="px-2">
+              Página {currentPage} de {totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Próxima
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+===== src\components\StockSearchList.tsx =====
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { ImageLightbox } from "@/components/image-lightbox";
+
+type StockRow = {
+  id: string;
+  nome: string;
+  total: number;
+  cliente: string;
+  fotoPreviewUrl: string | null;
+};
+
+export default function StockSearchList({ initialRows }: { initialRows: StockRow[] }) {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredRows = initialRows.filter((item) =>
+    item.nome.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* Campo de Busca */}
+      <div>
+        <input
+          type="text"
+          placeholder="Buscar item pelo nome..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
+        />
+      </div>
+
+      {/* Lista de Saldos com scroll inteligente */}
+      <div 
+        className="space-y-3 max-h-[350px] overflow-y-auto pr-2 
+                   /* Oculta a barra de rolagem por padrão em navegadores Webkit (Chrome, Safari, Edge) */
+                   [&::-webkit-scrollbar]:w-1.5
+                   [&::-webkit-scrollbar-track]:bg-transparent
+                   [&::-webkit-scrollbar-thumb]:bg-transparent
+                   hover:[&::-webkit-scrollbar-thumb]:bg-[var(--panel-border)]
+                   [&::-webkit-scrollbar-thumb]:rounded-full
+                   /* Para Firefox */
+                   scrollbar-width: thin;
+                   scrollbar-color: transparent transparent;
+                   hover:scrollbar-color: var(--panel-border) transparent;
+                   transition: scrollbar-color 0.2s;"
+      >
+        {filteredRows.length > 0 ? (
+          filteredRows.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 transition-colors hover:border-[#EB5727]/50"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <ImageLightbox 
+                  src={item.fotoPreviewUrl} 
+                  alt={item.nome} 
+                  title={item.nome}
+                  client={item.cliente}
+                />
+                <Link href={`/itens/${item.id}`} className="min-w-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EB5727]">
+                  <p className="truncate font-medium text-[var(--foreground)]">{item.nome}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{item.cliente}</p>
+                </Link>
+              </div>
+              <span className="mc4-badge mc4-badge-lime">{(item.total ?? 0).toLocaleString('pt-BR')}</span>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-slate-400 text-center py-4">Nenhum item encontrado.</p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 ===== src\components\app-shell.tsx =====
 "use client";
@@ -2402,8 +2851,6 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
   );
 }
 
-
-
 ===== src\components\categoria-row-editor.tsx =====
 "use client";
 
@@ -2488,8 +2935,6 @@ export function CategoriaRowEditor({ categoria, updateAction, deleteAction }: Ca
     </>
   );
 }
-
-
 
 
 ===== src\components\cliente-row-editor.tsx =====
@@ -2578,8 +3023,6 @@ export function ClienteRowEditor({ cliente, updateAction, deleteAction }: Client
 }
 
 
-
-
 ===== src\components\confirm-dialog.tsx =====
 "use client";
 
@@ -2639,163 +3082,6 @@ export function ConfirmDialog({
     document.body,
   );
 }
-
-
-
-
-===== src\components\DataTableSearch.tsx =====
-"use client";
-
-import { useState, ReactNode } from "react";
-
-type Column<T> = {
-  header: string;
-  accessorKey: keyof T | string;
-  className?: string;
-};
-
-type DataTableSearchProps<T> = {
-  data: T[];
-  searchKeys: (keyof T)[];
-  placeholder?: string;
-  columns: Column<T>[];
-  itemsPerPage?: number;
-};
-
-export default function DataTableSearch<T>({
-  data,
-  searchKeys,
-  placeholder = "Buscar...",
-  columns,
-  itemsPerPage = 10,
-}: DataTableSearchProps<T>) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const filteredData = data.filter((item) => {
-    if (!searchTerm) return true;
-    const search = searchTerm.toLowerCase();
-    return searchKeys.some((key) => {
-      const value = item[key];
-      if (value === null || value === undefined) return false;
-      return String(value).toLowerCase().includes(search);
-    });
-  });
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentData = filteredData.slice(startIndex, startIndex + itemsPerPage);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
-  };
-
-  return (
-    <div className="space-y-4">
-      <div>
-        <input
-          type="text"
-          placeholder={placeholder}
-          value={searchTerm}
-          onChange={handleSearchChange}
-          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
-        />
-      </div>
-
-      <div className="overflow-hidden rounded-2xl border border-[var(--panel-border)]">
-        <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
-          <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
-            <tr>
-              {columns.map((col, index) => (
-                <th key={index} className={`px-4 py-3 font-medium ${col.className ?? "text-left"}`}>
-                  {col.header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
-            {currentData.length > 0 ? (
-              currentData.map((item, rowIndex) => (
-                <tr key={rowIndex} className="hover:bg-[var(--panel-border)]/10 transition-colors">
-                  {columns.map((col, colIndex) => {
-                    const value = item[col.accessorKey as keyof T];
-
-                    // Renderização especial baseada na coluna "tipo" para exibir o Badge colorido
-                    if (String(col.accessorKey) === "tipo") {
-                      const tipoStr = String(value);
-                      const badgeClass =
-                        tipoStr === "entrada"
-                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-200"
-                          : tipoStr === "saida"
-                            ? "bg-rose-500/15 text-rose-600 dark:text-rose-200"
-                            : "bg-orange-500/15 text-orange-600 dark:text-orange-200";
-
-                      return (
-                        <td key={colIndex} className={`px-4 py-3 ${col.className ?? "text-left"}`}>
-                          <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${badgeClass}`}>
-                            {tipoStr}
-                          </span>
-                        </td>
-                      );
-                    }
-
-                    return (
-                      <td key={colIndex} className={`px-4 py-3 text-[var(--foreground)] ${col.className ?? "text-left"}`}>
-                        {value as ReactNode}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={columns.length}>
-                  Nenhum registro encontrado.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between pt-2 text-sm text-[var(--text-muted)]">
-          <p>
-            Mostrando <span className="font-medium text-[var(--foreground)]">{startIndex + 1}</span> a{" "}
-            <span className="font-medium text-[var(--foreground)]">
-              {Math.min(startIndex + itemsPerPage, filteredData.length)}
-            </span>{" "}
-            de <span className="font-medium text-[var(--foreground)]">{filteredData.length}</span> registros
-          </p>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Anterior
-            </button>
-
-            <span className="px-2">
-              Página {currentPage} de {totalPages}
-            </span>
-
-            <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Próxima
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 
 
 ===== src\components\estoque-form.tsx =====
@@ -2921,8 +3207,6 @@ export function EstoqueForm() {
     </form>
   );
 }
-
-
 
 
 ===== src\components\estoque-row-editor.tsx =====
@@ -3145,8 +3429,6 @@ export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: Estoqu
 }
 
 
-
-
 ===== src\components\image-lightbox.tsx =====
 "use client";
 
@@ -3300,8 +3582,6 @@ export function ImageLightbox({
   );
 }
 
-
-
 ===== src\components\item-form.tsx =====
 "use client";
 
@@ -3422,7 +3702,7 @@ export function ItemForm({ categoriaOptions, clienteOptions }: ItemFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="mc4-btn-primary rounded-2xl w-full sm:w-auto px-6 py-3.5 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60"
+          className="mc4-btn-primary rounded-2xl w-full sm:w-auto px-6 py-3.5 text-sm font-semibold transition"
         >
           {isPending ? "Salvando..." : "Salvar item"}
         </button>
@@ -3430,8 +3710,6 @@ export function ItemForm({ categoriaOptions, clienteOptions }: ItemFormProps) {
     </form>
   );
 }
-
-
 
 ===== src\components\item-row-editor.tsx =====
 "use client";
@@ -3684,148 +3962,6 @@ export function ItemRowEditor({
   );
 }
 
-
-
-===== src\components\ItemsSearchTable.tsx =====
-"use client";
-
-import { useState } from "react";
-import { ItemRowEditor } from "@/components/item-row-editor";
-
-type ItemRow = {
-  id: string;
-  nome: string | null;
-  categoria: string | null;
-  cliente: string | null;
-  descricao: string | null;
-  foto_url: string | null;
-  foto_preview_url: string | null;
-  created_at: string | null;
-};
-
-type ItemsSearchTableProps = {
-  initialItems: ItemRow[];
-  updateAction: (formData: FormData) => Promise<void>;
-  deleteAction: (formData: FormData) => Promise<void>;
-  categoriaOptions: { id: string; nome: string | null }[];
-  clienteOptions: { id: string; nome: string | null }[];
-};
-
-const ITEMS_PER_PAGE = 10;
-
-export default function ItemsSearchTable({ initialItems, updateAction, deleteAction, categoriaOptions, clienteOptions }: ItemsSearchTableProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-
-  // Filtra os itens com base na busca (nome, categoria, cliente ou descrição)
-  const filteredItems = initialItems.filter((item) => {
-    const search = searchTerm.toLowerCase();
-    return (
-      (item.nome?.toLowerCase() ?? "").includes(search) ||
-      (item.categoria?.toLowerCase() ?? "").includes(search) ||
-      (item.cliente?.toLowerCase() ?? "").includes(search) ||
-      (item.descricao?.toLowerCase() ?? "").includes(search)
-    );
-  });
-
-  // Paginação
-  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reseta para a primeira página ao buscar
-  };
-
-  return (
-    <div className="space-y-4">
-      {/* Barra de Busca */}
-      <div>
-        <input
-          type="text"
-          placeholder="Buscar por nome, categoria, cliente ou descrição..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
-        />
-      </div>
-
-      {/* Tabela */}
-      <div className="overflow-hidden rounded-2xl border border-[var(--panel-border)]">
-        <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
-          <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium">Item</th>
-              <th className="px-4 py-3 text-left font-medium">Categoria</th>
-              <th className="px-4 py-3 text-left font-medium">Cliente</th>
-              <th className="px-4 py-3 text-left font-medium">Descrição</th>
-              <th className="px-4 py-3 text-right font-medium">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--panel-border)] bg-[var(--panel)]">
-            {currentItems.length > 0 ? (
-              currentItems.map((item) => (
-                <ItemRowEditor
-                  key={item.id}
-                  item={item}
-                  updateAction={updateAction}
-                  deleteAction={deleteAction}
-                  categoriaOptions={categoriaOptions}
-                  clienteOptions={clienteOptions}
-                />
-              ))
-            ) : (
-              <tr>
-                <td className="px-4 py-5 text-center text-[var(--text-muted)]" colSpan={5}>
-                  Nenhum item encontrado.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Paginação */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between pt-2 text-sm text-[var(--text-muted)]">
-          <p>
-            Mostrando <span className="font-medium text-[var(--foreground)]">{startIndex + 1}</span> a{" "}
-            <span className="font-medium text-[var(--foreground)]">
-              {Math.min(startIndex + ITEMS_PER_PAGE, filteredItems.length)}
-            </span>{" "}
-            de <span className="font-medium text-[var(--foreground)]">{filteredItems.length}</span> registros
-          </p>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Anterior
-            </button>
-
-            <span className="px-2">
-              Página {currentPage} de {totalPages}
-            </span>
-
-            <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-1.5 font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--panel-border)]/20 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Próxima
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-
-
 ===== src\components\login-form.tsx =====
 "use client";
 
@@ -3887,8 +4023,6 @@ export function LoginForm() {
     </form>
   );
 }
-
-
 
 ===== src\components\movimentacao-form.tsx =====
 "use client";
@@ -4086,8 +4220,6 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
   );
 }
 
-
-
 ===== src\components\page-loading.tsx =====
 export function PageLoading({ label = "Carregando..." }: { label?: string }) {
   return (
@@ -4099,8 +4231,6 @@ export function PageLoading({ label = "Carregando..." }: { label?: string }) {
     </div>
   );
 }
-
-
 
 
 ===== src\components\relatorios-filters-table.tsx =====
@@ -4353,8 +4483,6 @@ export function RelatoriosFiltersTable({
 }
 
 
-
-
 ===== src\components\searchable-select.tsx =====
 "use client";
 
@@ -4523,89 +4651,6 @@ export function SearchableSelect({
   );
 }
 
-
-
-===== src\components\StockSearchList.tsx =====
-"use client";
-
-import Link from "next/link";
-import { useState } from "react";
-import { ImageLightbox } from "@/components/image-lightbox";
-
-type StockRow = {
-  id: string;
-  nome: string;
-  total: number;
-  cliente: string;
-  fotoPreviewUrl: string | null;
-};
-
-export default function StockSearchList({ initialRows }: { initialRows: StockRow[] }) {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const filteredRows = initialRows.filter((item) =>
-    item.nome.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  return (
-    <div className="space-y-4">
-      {/* Campo de Busca */}
-      <div>
-        <input
-          type="text"
-          placeholder="Buscar item pelo nome..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
-        />
-      </div>
-
-      {/* Lista de Saldos com scroll inteligente */}
-      <div 
-        className="space-y-3 max-h-[350px] overflow-y-auto pr-2 
-                   /* Oculta a barra de rolagem por padrão em navegadores Webkit (Chrome, Safari, Edge) */
-                   [&::-webkit-scrollbar]:w-1.5
-                   [&::-webkit-scrollbar-track]:bg-transparent
-                   [&::-webkit-scrollbar-thumb]:bg-transparent
-                   hover:[&::-webkit-scrollbar-thumb]:bg-[var(--panel-border)]
-                   [&::-webkit-scrollbar-thumb]:rounded-full
-                   /* Para Firefox */
-                   scrollbar-width: thin;
-                   scrollbar-color: transparent transparent;
-                   hover:scrollbar-color: var(--panel-border) transparent;
-                   transition: scrollbar-color 0.2s;"
-      >
-        {filteredRows.length > 0 ? (
-          filteredRows.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center justify-between rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-3 transition-colors hover:border-[#EB5727]/50"
-            >
-              <div className="flex min-w-0 items-center gap-3">
-                <ImageLightbox 
-                  src={item.fotoPreviewUrl} 
-                  alt={item.nome} 
-                  title={item.nome}
-                  client={item.cliente}
-                />
-                <Link href={`/itens/${item.id}`} className="min-w-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EB5727]">
-                  <p className="truncate font-medium text-[var(--foreground)]">{item.nome}</p>
-                  <p className="text-xs text-[var(--text-muted)]">{item.cliente}</p>
-                </Link>
-              </div>
-              <span className="mc4-badge mc4-badge-lime">{(item.total ?? 0).toLocaleString('pt-BR')}</span>
-            </div>
-          ))
-        ) : (
-          <p className="text-sm text-slate-400 text-center py-4">Nenhum item encontrado.</p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-
-
 ===== src\components\theme-toggle.tsx =====
 "use client";
 
@@ -4654,8 +4699,6 @@ export function ThemeToggle() {
 }
 
 
-
-
 ===== src\components\toast-context.tsx =====
 "use client";
 
@@ -4702,8 +4745,6 @@ export function useToast() {
   }
   return context;
 }
-
-
 
 ===== src\components\toast-notification.tsx =====
 "use client";
@@ -4783,6 +4824,4 @@ export function ToastNotification({ message, type = "success", onClose }: ToastN
     </div>
   );
 }
-
-
 

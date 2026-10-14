@@ -38,7 +38,7 @@ function formatDateInput(value: string) {
   return value.slice(0, 10);
 }
 
-function buildExportHref(inicio: string, fim: string, tipo: string, pesquisa: string) {
+function buildExportHref(inicio: string, fim: string, tipo: string, pesquisa: string, path = "/relatorios/export") {
   const params = new URLSearchParams();
 
   if (inicio) params.set("inicio", inicio);
@@ -46,7 +46,7 @@ function buildExportHref(inicio: string, fim: string, tipo: string, pesquisa: st
   if (tipo) params.set("tipo", tipo);
   if (pesquisa) params.set("q", pesquisa);
 
-  return `/relatorios/export${params.toString() ? `?${params.toString()}` : ""}`;
+  return `${path}${params.toString() ? `?${params.toString()}` : ""}`;
 }
 
 export function RelatoriosFiltersTable({
@@ -92,6 +92,7 @@ export function RelatoriosFiltersTable({
   const saidas = filteredRows.filter((row) => row.tipo === "saida").length;
   const transferencias = filteredRows.filter((row) => row.tipo === "transferencia").length;
   const exportHref = buildExportHref(inicio, fim, tipo, pesquisa);
+  const exportPdfHref = buildExportHref(inicio, fim, tipo, pesquisa, "/relatorios/export/pdf");
 
   return (
     <div className="grid gap-6">
@@ -158,6 +159,11 @@ export function RelatoriosFiltersTable({
             {canExport ? (
               <a href={exportHref} className="rounded-2xl border border-[var(--panel-border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-border)]/10">
                 Exportar CSV
+              </a>
+            ) : null}
+            {canExport ? (
+              <a href={exportPdfHref} className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition">
+                Gerar PDF
               </a>
             ) : null}
           </div>

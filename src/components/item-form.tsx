@@ -117,7 +117,7 @@ export function ItemForm({ categoriaOptions, clienteOptions }: ItemFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="mc4-btn-primary rounded-2xl w-full sm:w-auto px-6 py-3.5 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60"
+          className="mc4-btn-primary rounded-2xl w-full sm:w-auto px-6 py-3.5 text-sm font-semibold transition"
         >
           {isPending ? "Salvando..." : "Salvar item"}
         </button>

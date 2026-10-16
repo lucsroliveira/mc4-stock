@@ -76,7 +76,7 @@ export function EstoqueRowEditor({ estoque, updateAction, deleteAction }: Estoqu
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)] hover:bg-[var(--panel-border)]/10 transition-colors"
+              className="rounded-full border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)] hover:bg-[var(--panel-border)]/10 transition-colors"
             >
               Fechar
             </button>

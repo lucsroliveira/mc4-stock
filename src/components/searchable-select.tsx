@@ -115,7 +115,7 @@ export function SearchableSelect({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Digite para buscar..."
-              className="w-full rounded-xl border border-[var(--panel-border)] bg-[var(--input-bg)] px-3 py-2 text-xs text-[var(--foreground)] outline-none focus:border-[#EB5727] placeholder-[var(--text-muted)]"
+              className="mc4-form-input w-full rounded-xl px-3 py-2 text-xs"
               onClick={(e) => e.stopPropagation()}
               autoFocus
             />

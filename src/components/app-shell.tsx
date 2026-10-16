@@ -58,6 +58,7 @@ const pageInfoMap: Record<string, { title: string; subtitle: string }> = {
 export function AppShell({ children, userLabel, userRole }: AppShellProps) {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false); // Estado para gerenciar o spinner de carregamento
+  const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
 
   const currentPage = pageInfoMap[pathname] || {
@@ -68,7 +69,23 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
   // 1. DESATIVA O SPINNER ASSIM QUE A NOVA ROTA É MONTADA NO DOM
   useEffect(() => {
     setIsNavigating(false);
+    setMenuOpen(false);
   }, [pathname]);
+
+  // Menu mobile: fecha com Esc e trava a rolagem do fundo enquanto aberto
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [menuOpen]);
 
     // 2. INTERCEPTADOR GLOBAL DE CLIQUES EM LINKS COM TRATAMENTO DE DOWNLOADS E QUERY PARAMS
   useEffect(() => {
@@ -170,7 +187,32 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
       )}
 
       <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col lg:flex-row">
-        <aside className="sticky top-0 hidden h-screen max-h-screen w-[280px] shrink-0 border-r border-[var(--sidebar-border)] p-4 lg:flex lg:flex-col lg:p-6" style={{ background: "var(--sidebar-bg)", color: "var(--sidebar-text)" }}>
+        {menuOpen ? (
+          <button
+            type="button"
+            aria-label="Fechar menu"
+            onClick={() => setMenuOpen(false)}
+            className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm lg:hidden"
+          />
+        ) : null}
+
+        <aside
+          id="app-sidebar"
+          className={`fixed inset-y-0 left-0 z-50 flex h-[100dvh] w-[280px] max-w-[85vw] shrink-0 flex-col overflow-y-auto border-r border-[var(--sidebar-border)] p-4 transition-transform duration-200 lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:max-h-screen lg:max-w-none lg:translate-x-0 lg:p-6 ${
+            menuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+          style={{ background: "var(--sidebar-bg)", color: "var(--sidebar-text)" }}
+        >
+          <button
+            type="button"
+            aria-label="Fechar menu"
+            onClick={() => setMenuOpen(false)}
+            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white lg:hidden"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </button>
           <div className="mb-6 shrink-0 lg:mb-8">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/15">
@@ -202,7 +244,7 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex min-h-0 flex-1 items-center gap-3 rounded-2xl border px-3 py-2 text-sm transition lg:px-4 lg:py-2.5 ${
+                  className={`flex min-h-[48px] flex-1 items-center gap-3 rounded-2xl border px-3 py-2 text-sm transition lg:min-h-0 lg:px-4 lg:py-2.5 ${
                     isActive
                       ? "border-white/30 bg-white/15 font-medium text-white"
                       : "border-transparent text-[var(--sidebar-text)] hover:border-white/15 hover:bg-[var(--sidebar-link-hover)]"
@@ -228,11 +270,29 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
           </div>
         </aside>
 
-        <main className="flex min-h-screen flex-1 flex-col overflow-y-auto px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
-          <header className="glass-panel mb-6 rounded-3xl border border-white/10 px-5 py-4">
+        <main className="flex min-h-screen min-w-0 flex-1 flex-col px-3 pb-6 sm:px-6 lg:overflow-y-auto lg:px-8 lg:py-6">
+          <div className="glass-panel sticky top-0 z-30 -mx-3 mb-4 flex items-center gap-3 rounded-b-2xl border-x-0 border-t-0 px-3 py-2.5 sm:-mx-6 sm:px-6 lg:hidden">
+            <button
+              type="button"
+              aria-label="Abrir menu"
+              aria-expanded={menuOpen}
+              aria-controls="app-sidebar"
+              onClick={() => setMenuOpen(true)}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--panel-border)] text-[var(--foreground)] transition hover:border-[#EB5727]/50"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <Image src="/MC4 STOCK_ICONE.png" alt="" width={28} height={28} className="shrink-0" />
+            <span className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--foreground)]">{currentPage.title}</span>
+            <ThemeToggle />
+          </div>
+
+          <header className="glass-panel mb-6 rounded-3xl border border-white/10 px-4 py-4 sm:px-5">
             <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-[0.3em] text-[#EB5727]">Sistema de estoque</p>
-              <span className="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-800/40 text-slate-300 border border-white/10 lg:hidden">
+              <span className="rounded-lg border border-[var(--panel-border)] bg-[var(--panel-border)]/20 px-2.5 py-1 text-xs font-medium text-[var(--text-muted)] lg:hidden">
                 Perfil: {roleBadgeLabels[userRole]}
               </span>
             </div>
@@ -241,7 +301,7 @@ export function AppShell({ children, userLabel, userRole }: AppShellProps) {
                 <h2 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">{currentPage.title}</h2>
                 <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">{currentPage.subtitle}</p>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="hidden flex-wrap items-center gap-2 lg:flex">
                 <div className="rounded-full border border-[#EB5727]/20 bg-[#EB5727]/10 px-4 py-2 text-xs uppercase tracking-[0.25em] text-[#8f2d16]">
                   MC4 • Supabase
                 </div>

@@ -58,12 +58,12 @@ export default function ItemsSearchTable({ initialItems, updateAction, deleteAct
           placeholder="Buscar por nome, categoria, cliente ou descrição..."
           value={searchTerm}
           onChange={handleSearchChange}
-          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
+          className="mc4-form-input w-full rounded-2xl px-4 py-2.5 text-sm"
         />
       </div>
 
       {/* Tabela */}
-      <div className="overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+      <div className="overflow-x-auto rounded-2xl border border-[var(--panel-border)]">
         <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
           <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
             <tr>

@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ImageLightbox } from "@/components/image-lightbox";
 import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
 import Link from "next/link";
+import { FiltersDisclosure } from "@/components/filters-disclosure";
 
 type ConsultaPageProps = {
   searchParams?: Promise<{
@@ -137,8 +138,8 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
         </div>
 
         {/* CHIPS DE ESTOQUE */}
-        <div className="mt-5 pt-7">
-          <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
+        <div className="mt-4 pt-4 md:mt-5 md:pt-7">
+          <div className="mb-3 flex flex-wrap items-baseline md:mb-5 justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-[var(--foreground)]">Locais do estoque</p>
               <p className="mt-1 mb-2 text-sm text-[var(--text-muted)]">Selecione um ou mais locais para restringir o saldo exibido.</p>
@@ -174,12 +175,13 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
         </div>
 
         {/* FORMULÁRIO DE FILTROS (MANTIDO NA POSIÇÃO ORIGINAL, COM O DESIGN PADRÃO DE MOVIMENTAÇÕES) */}
-        <form action="/consulta" method="GET" className="mt-6 grid gap-4 md:grid-cols-2">
+        <FiltersDisclosure activeCount={[selectedCliente, selectedCategoria, searchTerm].filter(Boolean).length}>
+        <form action="/consulta" method="GET" className="consulta-form grid gap-4 md:grid-cols-2">
           <input type="hidden" name="estoqueId" value={selectedEstoqueIds.join(",")} />
 
           {/* Seletor de Cliente */}
           <label className="grid gap-2">
-            <span className="text-sm font-medium text-[var(--text-muted)]">Cliente / Proprietário</span>
+            <span className="consulta-filter-label">Cliente / Proprietário</span>
             <select
               name="cliente"
               defaultValue={selectedCliente}
@@ -198,7 +200,7 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
 
           {/* Seletor de Categoria */}
           <label className="grid gap-2">
-            <span className="text-sm font-medium text-[var(--text-muted)]">Categoria</span>
+            <span className="consulta-filter-label">Categoria</span>
             <select
               name="categoria"
               defaultValue={selectedCategoria}
@@ -216,8 +218,8 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
           </label>
 
           {/* Campo de Busca Rápida */}
-          <label className="grid gap-2 md:col-span-2">
-            <span className="text-sm font-medium text-[var(--text-muted)]">Busca rápida</span>
+          <label className="consulta-wide grid gap-2 md:col-span-2">
+            <span className="consulta-filter-label">Busca rápida</span>
             <input
               name="q"
               defaultValue={searchTerm}
@@ -229,7 +231,7 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
           </label>
 
           {/* Botão de Filtrar */}
-          <div className="md:col-span-2">
+          <div className="consulta-wide md:col-span-2">
             <button
               type="submit"
               className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60"
@@ -238,6 +240,7 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
             </button>
           </div>
         </form>
+        </FiltersDisclosure>
       </section>
 
       {/* RESULTADOS */}

@@ -50,7 +50,7 @@ export default async function AdminPage() {
           </button>
         </form>
 
-        <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+        <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--panel-border)]">
           <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
             <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
               <tr>
@@ -98,7 +98,7 @@ export default async function AdminPage() {
           </button>
         </form>
 
-        <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+        <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--panel-border)]">
           <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
             <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
               <tr>

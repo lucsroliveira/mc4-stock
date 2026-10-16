@@ -28,7 +28,7 @@ export default function StockSearchList({ initialRows }: { initialRows: StockRow
           placeholder="Buscar item pelo nome..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full rounded-2xl border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:border-[#EB5727] focus:outline-none"
+          className="mc4-form-input w-full rounded-2xl px-4 py-2.5 text-sm"
         />
       </div>
 

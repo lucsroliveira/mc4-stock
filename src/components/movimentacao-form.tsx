@@ -66,7 +66,7 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
   }, [estoqueRows]);
 
   return (
-    <form action={submitAction} className="mt-6 grid gap-4 md:grid-cols-2">
+    <form action={submitAction} className="consulta-form mt-6 grid gap-4 md:grid-cols-2">
       {/* Inputs ocultos necessários para envio via HTML FormData */}
       <input type="hidden" name="item_id" value={itemId} />
       <input type="hidden" name="tipo" value={tipo} />
@@ -74,8 +74,8 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
       <input type="hidden" name="destino_id" value={destinoId} />
       
       {/* Campo de Item (Único com Miniatura) */}
-      <label className="grid gap-2 md:col-span-2">
-        <span className="text-sm font-medium text-[var(--text-muted)]">Item</span>
+      <label className="consulta-wide grid gap-2 md:col-span-2">
+        <span className="consulta-filter-label">Item</span>
         <SearchableSelect
           options={itemRows}
           value={itemId}
@@ -91,7 +91,7 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
 
       {/* Campo de Tipo de Movimentação (Sem Miniatura) */}
       <label className="grid gap-2">
-        <span className="text-sm font-medium text-[var(--text-muted)]">Tipo de movimentação</span>
+        <span className="consulta-filter-label">Tipo de movimentação</span>
         <SearchableSelect
           options={tipoOptions}
           value={tipo}
@@ -111,10 +111,11 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
 
       {/* Campo de Quantidade */}
       <label className="grid gap-2">
-        <span className="text-sm font-medium text-[var(--text-muted)]">Quantidade</span>
+        <span className="consulta-filter-label">Quantidade</span>
         <input
           name="quantidade"
           type="number"
+          inputMode="numeric"
           min="1"
           max={isSaida && origemId ? currentOriginBalance : undefined}
           value={quantidade}
@@ -126,8 +127,8 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
       </label>
 
       {/* Campo de Origem (Sem Miniatura) */}
-      <label className="grid gap-2">
-        <span className="text-sm font-medium text-[var(--text-muted)]">Origem</span>
+      <label className="consulta-wide grid gap-2">
+        <span className="consulta-filter-label">Origem</span>
         <SearchableSelect
           options={estoqueOptionsMapped}
           value={origemId}
@@ -139,8 +140,8 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
       </label>
 
       {/* Campo de Destino (Sem Miniatura) */}
-      <label className="grid gap-2">
-        <span className="text-sm font-medium text-[var(--text-muted)]">Destino</span>
+      <label className="consulta-wide grid gap-2">
+        <span className="consulta-filter-label">Destino</span>
         <SearchableSelect
           options={estoqueOptionsMapped}
           value={destinoId}
@@ -152,7 +153,7 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
       </label>
 
       {itemId ? (
-        <div className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)] md:col-span-2">
+        <div className="consulta-wide mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)] md:col-span-2">
           {isEntrada ? (
             <p>Entrada registrada no destino escolhido e o saldo será somado ao local informado.</p>
           ) : (
@@ -170,20 +171,20 @@ export function MovimentacaoForm({ itemRows, estoqueRows, balances }: Movimentac
       ) : null}
 
       {/* Campo de Motivo / Observação */}
-      <label className="grid gap-2 md:col-span-2">
-        <span className="text-sm font-medium text-[var(--text-muted)]">Motivo / observação</span>
+      <label className="consulta-wide grid gap-2 md:col-span-2">
+        <span className="consulta-filter-label">Motivo / observação</span>
         <textarea 
           name="observacao" 
           value={observacao}
           onChange={(e) => setObservacao(e.target.value)}
-          rows={3} 
+          rows={2} 
           placeholder="Motivo / observação" 
           className="mc4-form-textarea rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727]" 
           required 
         />
       </label>
 
-      <div className="md:col-span-2">
+      <div className="consulta-wide md:col-span-2">
         {actionError?.error ? <p className="mb-3 text-sm font-medium text-red-600" role="alert">{actionError.error}</p> : null}
         <button type="submit" disabled={isPending} className="mc4-btn-primary rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-60">
           {isPending ? "Salvando..." : "Confirmar movimentação"}

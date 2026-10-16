@@ -14,8 +14,14 @@ export async function createSupabaseServerClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll() {
-          return undefined;
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch {
+            // Em Server Components os cookies são somente leitura; o proxy renova a sessão.
+          }
         },
       },
     },

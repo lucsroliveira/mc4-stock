@@ -6,6 +6,7 @@
  * já que relacionamentos (joins) podem retornar objetos únicos ou arrays.
  */
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import Link from "next/link";
 import StockSearchList from "@/components/StockSearchList";
 import { getSupabaseDiagnostics } from "@/lib/supabase/diagnostics";
 import { resolveSupabaseAssetUrl } from "@/lib/supabase/storage";
@@ -44,6 +45,14 @@ type StockSummaryRow = {
  */
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
+
+  // O atalho de nova movimentação só aparece para quem pode registrar (operador/admin)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user?.id).single();
+  const canCreateMovimentacao = profile?.role === "operador" || profile?.role === "admin";
+
   // Verifica se as variáveis de ambiente (.env.local) e políticas RLS estão OK
   const diagnostics = await getSupabaseDiagnostics();
 
@@ -345,7 +354,7 @@ export default async function DashboardPage() {
       <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
         <article className="glass-panel rounded-3xl border border-[var(--panel-border)] bg-[var(--panel)] p-6 min-w-0">
           <h3 className="text-lg font-semibold text-[var(--foreground)]">Movimentações recentes</h3>
-          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+          <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--panel-border)]">
             <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
               <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
                 <tr>
@@ -411,6 +420,15 @@ export default async function DashboardPage() {
           </ul>
         </aside>
       </section>
+
+      {canCreateMovimentacao ? (
+        <Link href="/movimentacoes" aria-label="Nova movimentação" title="Nova movimentação" className="mc4-fab">
+          <svg viewBox="0 0 24 24" className="h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          <span className="mc4-fab-label">Nova movimentação</span>
+        </Link>
+      ) : null}
     </div>
   );
 }

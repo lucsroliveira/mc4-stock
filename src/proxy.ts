@@ -40,9 +40,10 @@ export async function proxy(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isLoginRoute = pathname.startsWith("/login");
+  const isAuthRoute = pathname.startsWith("/auth/");
   const isStaticAsset = pathname.startsWith("/_next") || pathname.includes(".");
 
-  if (!user && !isLoginRoute && !isStaticAsset) {
+  if (!user && !isLoginRoute && !isAuthRoute && !isStaticAsset) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     return NextResponse.redirect(loginUrl);

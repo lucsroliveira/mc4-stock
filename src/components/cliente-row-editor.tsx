@@ -28,7 +28,7 @@ export function ClienteRowEditor({ cliente, updateAction, deleteAction }: Client
             <div className="rounded-[1.5rem] border border-[var(--panel-border)] bg-[var(--panel)] p-5 shadow-xl">
               <div className="mb-4 flex items-center justify-between">
                 <p className="text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">Editar cliente</p>
-                <button type="button" onClick={() => setIsEditing(false)} className="rounded-full border border-[var(--panel-border)] px-3 py-1 text-sm text-[var(--text-muted)]">
+                <button type="button" onClick={() => setIsEditing(false)} className="rounded-full border border-[var(--panel-border)] px-4 py-2 text-sm text-[var(--text-muted)]">
                   Fechar
                 </button>
               </div>

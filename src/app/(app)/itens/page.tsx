@@ -100,7 +100,7 @@ export default async function ItensPage() {
             Esta aba lista os itens desativados por exclusão lógica. Você pode reativar quando precisar voltar o item para a operação.
           </p>
 
-          <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--panel-border)]">
+          <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--panel-border)]">
             <table className="min-w-full divide-y divide-[var(--panel-border)] text-sm">
               <thead className="bg-[var(--panel-border)]/20 text-[var(--foreground)]">
                 <tr>

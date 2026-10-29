@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
   const estoqueIdParam = searchParams.get("estoqueId");
   const clienteParam = searchParams.get("cliente");
-  const categoriaParam = searchParams.get("categoria");
+  const categoriasParam = searchParams.getAll("categoria").filter(Boolean);
   const searchTerm = searchParams.get("q")?.trim();
 
   // 1. VERIFICAÇÃO DE PERMISSÕES
@@ -47,9 +47,9 @@ export async function GET(request: NextRequest) {
     query = query.eq("itens.cliente", clienteParam);
   }
 
-  // Filtro por Categoria de Item
-  if (categoriaParam) {
-    query = query.eq("itens.categoria", categoriaParam);
+  // Filtro por Categorias de Item
+  if (categoriasParam.length > 0) {
+    query = query.in("itens.categoria", categoriasParam);
   }
 
   const { data: inventoryData } = await query;
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
   const filtrosAtivos = [];
   filtrosAtivos.push(`Local: ${estoqueNomeHeader}`);
   if (clienteParam) filtrosAtivos.push(`Cliente: ${clienteParam}`);
-  if (categoriaParam) filtrosAtivos.push(`Categoria: ${categoriaParam}`);
+  if (categoriasParam.length > 0) filtrosAtivos.push(`Categorias: ${categoriasParam.join(", ")}`);
   if (searchTerm) filtrosAtivos.push(`Busca: "${searchTerm}"`);
 
   doc.setFont("helvetica", "bold");

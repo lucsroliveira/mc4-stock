@@ -31,6 +31,8 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const requestedEstoqueId = url.searchParams.get("estoqueId") ?? "";
+  const cliente = url.searchParams.get("cliente") ?? "";
+  const selectedCategorias = url.searchParams.getAll("categoria").filter(Boolean);
   const searchTerm = normalizeSearch(url.searchParams.get("q"));
   const supabase = await createSupabaseServerClient();
 
@@ -39,10 +41,19 @@ export async function GET(request: Request) {
   const recifeEstoque = estoqueRows.find((estoque) => normalizeText(estoque.nome) === "recife");
   const selectedEstoqueId = requestedEstoqueId || recifeEstoque?.id || estoqueRows[0]?.id || "";
 
-  const { data: inventario } = await supabase
+  let query = supabase
     .from("estoque_itens")
-    .select("quantidade, itens ( nome, categoria, cliente, foto_url )")
+    .select("quantidade, itens!inner ( nome, categoria, cliente, foto_url )")
     .eq("estoque_id", selectedEstoqueId);
+
+  if (cliente) {
+    query = query.eq("itens.cliente", cliente);
+  }
+  if (selectedCategorias.length > 0) {
+    query = query.in("itens.categoria", selectedCategorias);
+  }
+
+  const { data: inventario } = await query;
 
   const rows = (inventario ?? []) as Array<{
     quantidade: number;

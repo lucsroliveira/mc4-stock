@@ -14,7 +14,7 @@ type ConsultaPageProps = {
     estoqueId?: string;
     q?: string;
     cliente?: string;
-    categoria?: string;
+    categoria?: string | string[];
     page?: string;
   }>;
 };
@@ -31,11 +31,28 @@ function toggleIdInList(currentIds: string[], id: string) {
   return Array.from(ids).join(",");
 }
 
+function buildConsultaQuery(
+  estoqueIds: string[],
+  cliente: string,
+  categorias: string[],
+  searchTerm: string,
+  page?: number
+) {
+  const params = new URLSearchParams();
+  if (estoqueIds.length > 0) params.set("estoqueId", estoqueIds.join(","));
+  if (cliente) params.set("cliente", cliente);
+  categorias.forEach((categoria) => params.append("categoria", categoria));
+  if (searchTerm) params.set("q", searchTerm);
+  if (page !== undefined) params.set("page", String(page));
+  return params.toString();
+}
+
 export default async function ConsultaPage({ searchParams }: ConsultaPageProps) {
   const params = (await searchParams) ?? {};
   const searchTerm = (params.q ?? "").trim();
   const selectedCliente = params.cliente ?? "";
-  const selectedCategoria = params.categoria ?? "";
+  const selectedCategorias = (Array.isArray(params.categoria) ? params.categoria : [params.categoria ?? ""])
+    .filter(Boolean);
   const currentPage = Number(params.page ?? 1);
   const supabase = await createSupabaseServerClient();
 
@@ -71,8 +88,8 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
     query = query.eq("itens.cliente", selectedCliente);
   }
 
-  if (selectedCategoria) {
-    query = query.eq("itens.categoria", selectedCategoria);
+  if (selectedCategorias.length > 0) {
+    query = query.in("itens.categoria", selectedCategorias);
   }
 
   const { data: inventarioData } = await query;
@@ -106,7 +123,7 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedRows = filteredRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const exportQueryParams = `estoqueId=${selectedEstoqueIds.join(",")}&cliente=${selectedCliente}&categoria=${selectedCategoria}&q=${searchTerm}`;
+  const exportQueryParams = buildConsultaQuery(selectedEstoqueIds, selectedCliente, selectedCategorias, searchTerm);
 
   return (
     <div className="grid gap-6">
@@ -154,7 +171,12 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
             {estoqueOptions.map((estoque) => {
               const isSelected = selectedEstoqueIds.includes(estoque.id);
               const newIds = toggleIdInList(selectedEstoqueIds, estoque.id);
-              const href = `/consulta?estoqueId=${newIds}&cliente=${selectedCliente}&categoria=${selectedCategoria}&q=${searchTerm}`;
+              const href = `/consulta?${buildConsultaQuery(
+                newIds ? newIds.split(",") : [],
+                selectedCliente,
+                selectedCategorias,
+                searchTerm
+              )}`;
 
               return (
                 <Link
@@ -175,7 +197,7 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
         </div>
 
         {/* FORMULÁRIO DE FILTROS (MANTIDO NA POSIÇÃO ORIGINAL, COM O DESIGN PADRÃO DE MOVIMENTAÇÕES) */}
-        <FiltersDisclosure activeCount={[selectedCliente, selectedCategoria, searchTerm].filter(Boolean).length}>
+        <FiltersDisclosure activeCount={[selectedCliente, ...selectedCategorias, searchTerm].filter(Boolean).length}>
         <form action="/consulta" method="GET" className="consulta-form grid gap-4 md:grid-cols-2">
           <input type="hidden" name="estoqueId" value={selectedEstoqueIds.join(",")} />
 
@@ -198,24 +220,32 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
             </select>
           </label>
 
-          {/* Seletor de Categoria */}
-          <label className="grid gap-2">
-            <span className="consulta-filter-label">Categoria</span>
-            <select
-              name="categoria"
-              defaultValue={selectedCategoria}
-              className={`mc4-form-select rounded-2xl px-4 py-3 text-sm transition-all focus:border-[#EB5727] ${
-                selectedCategoria ? "!border-[#EB5727]/60 !bg-[#EB5727]/[0.02] font-semibold" : ""
-              }`}
-            >
-              <option value="">Todas as Categorias</option>
-              {categoriaOptions.map((cat) => (
-                <option key={cat} value={cat!}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </label>
+          {/* Seletor de múltiplas categorias */}
+          <fieldset className="grid gap-2">
+            <legend className="consulta-filter-label">
+              Categorias{selectedCategorias.length > 0 ? ` (${selectedCategorias.length} selecionada${selectedCategorias.length === 1 ? "" : "s"})` : ""}
+            </legend>
+            <div className="max-h-44 overflow-y-auto rounded-2xl border border-[var(--input-border)] bg-[var(--panel)] p-3">
+              {categoriaOptions.length > 0 ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {categoriaOptions.map((categoria) => (
+                    <label key={categoria} className="flex items-center gap-2 text-sm text-[var(--foreground)]">
+                      <input
+                        type="checkbox"
+                        name="categoria"
+                        value={categoria!}
+                        defaultChecked={selectedCategorias.includes(categoria!)}
+                        className="h-4 w-4 accent-[#EB5727]"
+                      />
+                      <span>{categoria}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-[var(--text-muted)]">Nenhuma categoria disponível.</p>
+              )}
+            </div>
+          </fieldset>
 
           {/* Campo de Busca Rápida */}
           <label className="consulta-wide grid gap-2 md:col-span-2">
@@ -288,14 +318,26 @@ export default async function ConsultaPage({ searchParams }: ConsultaPageProps) 
             </p>
             <div className="flex gap-2">
               <Link
-                href={`/consulta?${exportQueryParams}&page=${Math.max(currentPage - 1, 1)}`}
+                href={`/consulta?${buildConsultaQuery(
+                  selectedEstoqueIds,
+                  selectedCliente,
+                  selectedCategorias,
+                  searchTerm,
+                  Math.max(currentPage - 1, 1)
+                )}`}
                 aria-disabled={currentPage === 1}
                 className={`mc4-badge px-4 py-2 text-xs ${currentPage === 1 ? "pointer-events-none opacity-30" : ""}`}
               >
                 Anterior
               </Link>
               <Link
-                href={`/consulta?${exportQueryParams}&page=${Math.min(currentPage + 1, totalPages)}`}
+                href={`/consulta?${buildConsultaQuery(
+                  selectedEstoqueIds,
+                  selectedCliente,
+                  selectedCategorias,
+                  searchTerm,
+                  Math.min(currentPage + 1, totalPages)
+                )}`}
                 aria-disabled={currentPage === totalPages}
                 className={`mc4-badge px-4 py-2 text-xs ${currentPage === totalPages ? "pointer-events-none opacity-30" : ""}`}
               >
